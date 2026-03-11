@@ -1,18 +1,9 @@
 <!DOCTYPE html>
-<html lang="fr" data-fr-scheme="system">
+<html lang="fr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Studio - Générateur de planches photographiques</title>
-
-  <script>
-    (function () {
-      try {
-        var saved = localStorage.getItem('scheme');
-        if (saved) document.documentElement.setAttribute('data-fr-scheme', saved);
-      } catch (e) {}
-    })();
-  </script>
 
   <link rel="icon" type="image/png" href="https://www.interieur.gouv.fr/themes/custom/dsfr/src/images/logo/favicon.png">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.13.1/dist/dsfr/dsfr.min.css">
@@ -31,11 +22,6 @@
     body {
       margin: 0;
       background: var(--background-default-grey);
-    }
-
-    .fr-header,
-    .fr-header__brand {
-      filter: none !important;
     }
 
     .studio-main {
