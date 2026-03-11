@@ -21,7 +21,7 @@
 
     body {
       margin: 0;
-      background: var(--background-default-grey);
+      background: var(--background-default);
     }
 
     .studio-main {
@@ -30,11 +30,8 @@
     }
 
     .studio-panel {
-      background: var(--background-default-grey);
+      background: var(--background-default);
       border: 1px solid var(--border-default-grey);
-      border-radius: 1rem;
-      box-shadow: 0 6px 24px rgba(0,0,0,.08);
-      overflow: hidden;
     }
 
     .studio-panel__head {
@@ -49,12 +46,7 @@
 
     .studio-dropzone {
       border: 2px dashed var(--border-default-blue-france);
-      border-radius: 1rem;
       background: var(--background-alt-blue-france);
-      padding: 1.5rem 1rem;
-      text-align: center;
-      transition: .2s ease;
-      cursor: pointer;
     }
 
     .studio-dropzone.dragover {
@@ -73,11 +65,9 @@
     }
 
     .studio-card {
-      background: #fff;
+      background: var(--background-default);
       border: 1px solid var(--border-default-grey);
-      border-radius: .75rem;
       overflow: hidden;
-      box-shadow: 0 2px 12px rgba(0,0,0,.04);
       user-select: none;
     }
 
@@ -98,6 +88,10 @@
 
     .studio-card__handle:active {
       cursor: grabbing;
+    }
+
+    .studio-section[hidden] {
+      display: none !important;
     }
 
     .studio-card__image {
@@ -122,11 +116,6 @@
 
     .studio-empty {
       border: 1px dashed var(--border-default-grey);
-      border-radius: 1rem;
-      padding: 2rem 1rem;
-      text-align: center;
-      background: #fff;
-      color: var(--text-mention-grey);
     }
 
     .studio-page-grid {
@@ -150,11 +139,7 @@
     }
 
     .studio-preview-note {
-      padding: .75rem 1rem;
-      border-radius: .75rem;
-      background: var(--background-alt-blue-france);
-      color: var(--text-default-blue-france);
-      font-size: .875rem;
+     padding: .75rem 1rem;
     }
 
     @media (max-width: 900px) {
@@ -204,7 +189,7 @@
           </div>
 
           <div class="fr-header__service">
-            <a href="#conception" title="Accueil">
+            <a href="#" title="Accueil">
               <p class="fr-header__service-title">Studio</p>
             </a>
             <p class="fr-header__service-tagline">Générateur de planches photographiques</p>
@@ -238,10 +223,10 @@
       <nav class="fr-nav" role="navigation" aria-label="Menu principal">
         <ul class="fr-nav__list">
           <li class="fr-nav__item">
-            <a class="fr-nav__link" href="#conception">Conception</a>
+            <a class="fr-nav__link" href="#" data-page="conception">Conception</a>
           </li>
           <li class="fr-nav__item">
-            <a class="fr-nav__link" href="#presentation">Présentation</a>
+            <a class="fr-nav__link" href="#" data-page="presentation">Présentation</a>
           </li>
         </ul>
       </nav>
@@ -250,7 +235,7 @@
 </header>
 
   <main class="studio-main fr-container">
-    <section id="conception" class="studio-section">
+    <section id="page-conception" class="studio-section">
       <div class="studio-panel">
         <div class="studio-panel__head">
           <h1 class="fr-h4 fr-mb-1v">Conception de la planche photographique</h1>
@@ -293,7 +278,7 @@
       </div>
     </section>
 
-    <section id="presentation" class="studio-section">
+    <section id="page-presentation" class="studio-section" hidden>
       <div class="studio-panel">
         <div class="studio-panel__head">
           <h2 class="fr-h4 fr-mb-1v">Informations de présentation</h2>
@@ -385,158 +370,196 @@
   <script nomodule src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.13.1/dist/dsfr/dsfr.nomodule.min.js"></script>
 
   <script>
-    const state = {
-      photos: [],
-      draggedId: null
-    };
+  const state = {
+    photos: [],
+    draggedId: null
+  };
 
-    const els = {
-      photoInput: document.getElementById('photoInput'),
-      dropzone: document.getElementById('dropzone'),
-      clearPhotosBtn: document.getElementById('clearPhotosBtn'),
-      photoGrid: document.getElementById('photoGrid'),
-      photoGridEmpty: document.getElementById('photoGridEmpty'),
-      photoCount: document.getElementById('photoCount'),
-      photoCardTemplate: document.getElementById('photoCardTemplate')
-    };
+  const els = {
+    pages: document.querySelectorAll('.studio-section'),
+    navLinks: document.querySelectorAll('.fr-nav__link[data-page]'),
+    serviceLink: document.querySelector('.fr-header__service a'),
+    btnReset: document.getElementById('btnReset'),
+    photoInput: document.getElementById('photoInput'),
+    dropzone: document.getElementById('dropzone'),
+    clearPhotosBtn: document.getElementById('clearPhotosBtn'),
+    photoGrid: document.getElementById('photoGrid'),
+    photoGridEmpty: document.getElementById('photoGridEmpty'),
+    photoCount: document.getElementById('photoCount'),
+    photoCardTemplate: document.getElementById('photoCardTemplate')
+  };
 
-    function getDefaultName(filename, index) {
-      const base = (filename || '').replace(/\.[^.]+$/, '').trim();
-      return base || `Photographie ${index + 1}`;
-    }
+  function getDefaultName(filename, index) {
+    const base = (filename || '').replace(/\.[^.]+$/, '').trim();
+    return base || `Photographie ${index + 1}`;
+  }
 
-    function readFileAsDataUrl(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
+  function readFileAsDataUrl(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function addPhotos(files) {
+    const imageFiles = Array.from(files).filter(file => file.type.startsWith('image/'));
+    for (const file of imageFiles) {
+      const dataUrl = await readFileAsDataUrl(file);
+      state.photos.push({
+        id: crypto.randomUUID(),
+        name: getDefaultName(file.name, state.photos.length),
+        fileName: file.name,
+        sizeLabel: `${Math.max(1, Math.round(file.size / 1024))} Ko`,
+        dataUrl
       });
     }
-
-    async function addPhotos(files) {
-      const imageFiles = Array.from(files).filter(file => file.type.startsWith('image/'));
-      for (const file of imageFiles) {
-        const dataUrl = await readFileAsDataUrl(file);
-        state.photos.push({
-          id: crypto.randomUUID(),
-          name: getDefaultName(file.name, state.photos.length),
-          fileName: file.name,
-          sizeLabel: `${Math.max(1, Math.round(file.size / 1024))} Ko`,
-          dataUrl
-        });
-      }
-      renderPhotoGrid();
-    }
-
-    function clearPhotos() {
-      state.photos = [];
-      renderPhotoGrid();
-    }
-
-    function removePhoto(id) {
-      state.photos = state.photos.filter(photo => photo.id !== id);
-      renderPhotoGrid();
-    }
-
-    function movePhoto(fromId, toId) {
-      if (!fromId || !toId || fromId === toId) return;
-
-      const fromIndex = state.photos.findIndex(photo => photo.id === fromId);
-      const toIndex = state.photos.findIndex(photo => photo.id === toId);
-
-      if (fromIndex === -1 || toIndex === -1) return;
-
-      const [moved] = state.photos.splice(fromIndex, 1);
-      state.photos.splice(toIndex, 0, moved);
-      renderPhotoGrid();
-    }
-
-    function renderPhotoGrid() {
-      els.photoGrid.innerHTML = '';
-      els.photoGrid.classList.toggle('studio-grid--empty', state.photos.length === 0);
-      els.photoGridEmpty.hidden = state.photos.length > 0;
-
-      state.photos.forEach((photo, index) => {
-        const node = els.photoCardTemplate.content.firstElementChild.cloneNode(true);
-        const handleLabel = node.querySelector('.photo-order');
-        const img = node.querySelector('.studio-card__image');
-        const input = node.querySelector('.photo-name-input');
-        const meta = node.querySelector('.photo-meta');
-        const removeBtn = node.querySelector('.remove-photo-btn');
-
-        node.dataset.id = photo.id;
-        handleLabel.textContent = `Photographie ${index + 1}`;
-        img.src = photo.dataUrl;
-        img.alt = photo.name;
-        input.value = photo.name;
-        meta.textContent = `${photo.sizeLabel}`;
-
-        input.addEventListener('input', (event) => {
-          photo.name = event.target.value;
-        });
-
-        removeBtn.addEventListener('click', () => removePhoto(photo.id));
-
-        node.addEventListener('dragstart', () => {
-          state.draggedId = photo.id;
-          node.classList.add('dragging');
-        });
-
-        node.addEventListener('dragend', () => {
-          state.draggedId = null;
-          node.classList.remove('dragging');
-        });
-
-        node.addEventListener('dragover', (event) => {
-          event.preventDefault();
-        });
-
-        node.addEventListener('drop', (event) => {
-          event.preventDefault();
-          movePhoto(state.draggedId, photo.id);
-        });
-
-        els.photoGrid.appendChild(node);
-      });
-
-      els.photoCount.textContent = `${state.photos.length} photographie${state.photos.length > 1 ? 's importées' : ' importée'}.`;
-    }
-
-    els.photoInput.addEventListener('change', async (event) => {
-      await addPhotos(event.target.files);
-      event.target.value = '';
-    });
-
-    els.dropzone.addEventListener('click', () => {
-      els.photoInput.click();
-    });
-
-    els.dropzone.addEventListener('keydown', (event) => {
-      if (event.key === 'Enter' || event.key === ' ') {
-        event.preventDefault();
-        els.photoInput.click();
-      }
-    });
-
-    els.dropzone.addEventListener('dragover', (event) => {
-      event.preventDefault();
-      els.dropzone.classList.add('dragover');
-    });
-
-    els.dropzone.addEventListener('dragleave', () => {
-      els.dropzone.classList.remove('dragover');
-    });
-
-    els.dropzone.addEventListener('drop', async (event) => {
-      event.preventDefault();
-      els.dropzone.classList.remove('dragover');
-      await addPhotos(event.dataTransfer.files);
-    });
-
-    els.clearPhotosBtn.addEventListener('click', clearPhotos);
-
     renderPhotoGrid();
+  }
+
+  function clearPhotos() {
+    state.photos = [];
+    renderPhotoGrid();
+  }
+
+  function removePhoto(id) {
+    state.photos = state.photos.filter(photo => photo.id !== id);
+    renderPhotoGrid();
+  }
+
+  function movePhoto(fromId, toId) {
+    if (!fromId || !toId || fromId === toId) return;
+
+    const fromIndex = state.photos.findIndex(photo => photo.id === fromId);
+    const toIndex = state.photos.findIndex(photo => photo.id === toId);
+
+    if (fromIndex === -1 || toIndex === -1) return;
+
+    const [moved] = state.photos.splice(fromIndex, 1);
+    state.photos.splice(toIndex, 0, moved);
+    renderPhotoGrid();
+  }
+
+  function showPage(pageName) {
+    els.pages.forEach(page => {
+      page.hidden = page.id !== `page-${pageName}`;
+    });
+
+    els.navLinks.forEach(link => {
+      const isActive = link.dataset.page === pageName;
+      if (isActive) {
+        link.setAttribute('aria-current', 'page');
+      } else {
+        link.removeAttribute('aria-current');
+      }
+    });
+  }
+
+  function renderPhotoGrid() {
+    els.photoGrid.innerHTML = '';
+    els.photoGrid.classList.toggle('studio-grid--empty', state.photos.length === 0);
+    els.photoGridEmpty.hidden = state.photos.length > 0;
+
+    state.photos.forEach((photo, index) => {
+      const node = els.photoCardTemplate.content.firstElementChild.cloneNode(true);
+      const handleLabel = node.querySelector('.photo-order');
+      const img = node.querySelector('.studio-card__image');
+      const input = node.querySelector('.photo-name-input');
+      const meta = node.querySelector('.photo-meta');
+      const removeBtn = node.querySelector('.remove-photo-btn');
+
+      node.dataset.id = photo.id;
+      handleLabel.textContent = `Photographie ${index + 1}`;
+      img.src = photo.dataUrl;
+      img.alt = photo.name;
+      input.value = photo.name;
+      meta.textContent = photo.sizeLabel;
+
+      input.addEventListener('input', (event) => {
+        photo.name = event.target.value;
+      });
+
+      removeBtn.addEventListener('click', () => removePhoto(photo.id));
+
+      node.addEventListener('dragstart', () => {
+        state.draggedId = photo.id;
+        node.classList.add('dragging');
+      });
+
+      node.addEventListener('dragend', () => {
+        state.draggedId = null;
+        node.classList.remove('dragging');
+      });
+
+      node.addEventListener('dragover', (event) => {
+        event.preventDefault();
+      });
+
+      node.addEventListener('drop', (event) => {
+        event.preventDefault();
+        movePhoto(state.draggedId, photo.id);
+      });
+
+      els.photoGrid.appendChild(node);
+    });
+
+    els.photoCount.textContent = `${state.photos.length} photographie${state.photos.length > 1 ? 's importées' : ' importée'}.`;
+  }
+
+  els.photoInput.addEventListener('change', async (event) => {
+    await addPhotos(event.target.files);
+    event.target.value = '';
+  });
+
+  els.dropzone.addEventListener('click', () => {
+    els.photoInput.click();
+  });
+
+  els.dropzone.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      els.photoInput.click();
+    }
+  });
+
+  els.dropzone.addEventListener('dragover', (event) => {
+    event.preventDefault();
+    els.dropzone.classList.add('dragover');
+  });
+
+  els.dropzone.addEventListener('dragleave', () => {
+    els.dropzone.classList.remove('dragover');
+  });
+
+  els.dropzone.addEventListener('drop', async (event) => {
+    event.preventDefault();
+    els.dropzone.classList.remove('dragover');
+    await addPhotos(event.dataTransfer.files);
+  });
+
+  els.clearPhotosBtn.addEventListener('click', clearPhotos);
+
+  els.navLinks.forEach(link => {
+    link.addEventListener('click', (event) => {
+      event.preventDefault();
+      showPage(link.dataset.page);
+    });
+  });
+
+  els.serviceLink.addEventListener('click', (event) => {
+    event.preventDefault();
+    showPage('conception');
+  });
+
+  els.btnReset.addEventListener('click', () => {
+    state.photos = [];
+    renderPhotoGrid();
+    showPage('conception');
+  });
+
+  renderPhotoGrid();
+  showPage('conception');
   </script>
 </body>
 </html>
