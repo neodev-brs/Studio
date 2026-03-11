@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="fr" data-fr-scheme="system">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem('scheme');
+        if (saved) document.documentElement.setAttribute('data-fr-scheme', saved);
+      } catch (e) {}
+    })();
+  </script>
+  <title>Studio - Générateur de planches photographiques</title>
+
+  <link rel="icon" type="image/png" href="https://www.interieur.gouv.fr/themes/custom/dsfr/src/images/logo/favicon.png">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.13.1/dist/dsfr/dsfr.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.13.1/dist/dsfr/utility/utilities.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.13.1/dist/utility/icons/icons.min.css">
+
+  <style>
+    :root {
+      --studio-preview-bg: #f6f6f6;
+      --studio-card-border: rgba(0,0,0,.08);
+      --studio-shadow: 0 6px 24px rgba(0,0,0,.08);
+      --studio-page-shadow: 0 12px 32px rgba(0,0,0,.12);
+      --studio-pin: #e1000f;
+    }
+
+    html, body {
+      min-height: 100%;
+    }
+
+    body {
+      background: var(--background-default-grey);
+    }
+
+    .studio-shell {
+      display: grid;
+      grid-template-columns: minmax(360px, 420px) minmax(0, 1fr);
+      gap: 1rem;
+      align-items: start;
+    }
+
+    .studio-panel,
+    .studio-preview-panel {
+      background: var(--background-default-grey);
+      border: 1px solid var(--border-default-grey);
+      border-radius: 1rem;
+      box-shadow: var(--studio-shadow);
+      overflow: hidden;
+    }
+
+    .studio-panel__head,
+    .studio-preview-panel__head {
+      padding: 1rem 1rem .5rem;
+      border-bottom: 1px solid var(--border-default-grey);
+      background: var(--background-alt-grey);
+    }
+
+    .studio-panel__body,
+    .studio-preview-panel__body {
+      padding: 1rem;
+    }
+
+    .studio-dropzone {
+      border: 2px dashed var(--border-default-blue-france);
+      border-radius: 1rem;
+      background: var(--background-alt-blue-france);
+      padding: 1.25rem;
+      text-align: center;
+      transition: .2s ease;
+    }
+
+    .studio-dropzone.dragover {
+      transform: translateY(-1px);
+      box-shadow: var(--studio-shadow);
+      background: #eef4ff;
+    }
+
+    .studio-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: .75rem;
+    }
+
+    .studio-thumb-card {
+      background: #fff;
+      border: 1px solid var(--studio-card-border);
+      border-radius: .75rem;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0,0,0,.04);
+    }
+
+    .studio-thumb-card__img {
+      aspect-ratio: 4 / 3;
+      width: 100%;
+      object-fit: cover;
+      display: block;
+      background: #ddd;
+    }
+
+    .studio-thumb-card__body {
+      padding: .65rem;
+    }
+
+    .studio-thumb-card__actions {
+      display: flex;
+      justify-content: space-between;
+      gap: .5rem;
+      align-items: center;
+      margin-top: .5rem;
+    }
+
+    .studio-input-compact input,
+    .studio-input-compact textarea,
+    .studio-input-compact select {
+      margin-bottom: 0;
+    }
+
+    .studio-preview-wrap {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .sheet-page {
+      width: min(100%, 820px);
+      margin: 0 auto;
+      background: #fff;
+      color: #1b1b35;
+      min-height: 1120px;
+      padding: 48px;
+      box-shadow: var(--studio-page-shadow);
+      position: relative;
+    }
+
+    .sheet-cover__header {
+      border-bottom: 3px solid #000091;
+      padding-bottom: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .sheet-cover__title {
+      font-size: 2rem;
+      font-weight: 700;
+      line-height: 1.15;
+      margin: 0;
+    }
+
+    .sheet-meta {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: .65rem 1rem;
+      margin: 1.5rem 0;
+      font-size: 1rem;
+    }
+
+    .sheet-meta div:nth-child(odd) {
+      font-weight: 700;
+    }
+
+    .sheet-summary {
+      border: 1px solid #d6d6d6;
+      border-radius: .75rem;
+      padding: 1rem;
+      white-space: pre-wrap;
+      min-height: 120px;
+      background: #fcfcfd;
+    }
+
+    .sheet-map-block {
+      margin-top: 1.5rem;
+    }
+
+    .map-canvas,
+    .sheet-map-preview {
+      position: relative;
+      border: 1px solid #d6d6d6;
+      border-radius: .75rem;
+      overflow: hidden;
+      background: #f2f2f2;
+    }
+
+    .map-canvas img,
+    .sheet-map-preview img {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-height: 360px;
+      object-fit: contain;
+      background: #f2f2f2;
+    }
+
+    .map-pin,
+    .sheet-map-pin {
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      background: var(--studio-pin);
+      border: 3px solid #fff;
+      border-radius: 50% 50% 50% 0;
+      transform: rotate(-45deg) translate(-50%, -50%);
+      box-shadow: 0 3px 12px rgba(0,0,0,.25);
+      pointer-events: none;
+    }
+
+    .sheet-map-pin::after,
+    .map-pin::after {
+      content: '';
+      position: absolute;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #fff;
+      inset: 4px auto auto 4px;
+    }
+
+    .sheet-photo-slot {
+      width: 100%;
+      border: 1px solid #d6d6d6;
+      border-radius: .75rem;
+      padding: 1rem;
+      background: #fff;
+      box-sizing: border-box;
+    }
+
+    .sheet-photo-slot + .sheet-photo-slot {
+      margin-top: 2.2rem;
+    }
+
+    .sheet-photo-slot.right {
+      margin-left: auto;
+      max-width: 82%;
+    }
+
+    .sheet-photo-slot.left {
+      margin-right: auto;
+      max-width: 82%;
+    }
+
+    .sheet-photo-slot img {
+      width: 100%;
+      max-height: 400px;
+      object-fit: contain;
+      display: block;
+      background: #f8f8f8;
+      border-radius: .5rem;
+    }
+
+    .sheet-photo-slot__caption {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-top: .75rem;
+      text-align: center;
+      word-break: break-word;
+    }
+
+    .empty-state {
+      border: 1px dashed #c6c6c6;
+      border-radius: .75rem;
+      padding: 2rem 1rem;
+      text-align: center;
+      color: #666;
+      background: #fff;
+    }
+
+    .sticky-preview-actions {
+      position: sticky;
+      top: .75rem;
+      z-index: 5;
+      display: flex;
+      justify-content: flex-end;
+      gap: .5rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .fr-textarea--sm {
+      min-height: 6rem;
+    }
+
+    .fr-fieldset__element + .fr-fieldset__element {
+      margin-top: .75rem;
+    }
+
+    .studio-badge-soft {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      font-size: .875rem;
+      padding: .25rem .6rem;
+      border-radius: 999px;
+      background: #eef4ff;
+      color: #000091;
+      font-weight: 600;
+    }
+
+    @media (max-width: 1180px) {
+      .studio-shell {
+        grid-template-columns: 1fr;
+      }
+
+      .sheet-page {
+        padding: 24px;
+        min-height: auto;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .studio-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .sheet-meta {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .fr-header,
+.fr-header__brand {
+  filter: none !important;
+}
+
+main {
+  padding-top: 1rem;
+}
+
+  </style>
+</head>
+<body>
+  <header role="banner" class="fr-header">
+    <div class="fr-header__body">
+      <div class="fr-container">
+        <div class="fr-header__body-row">
+          <div class="fr-header__brand fr-enlarge-link">
+            <div class="fr-header__brand-top">
+              <div class="fr-header__logo">
+                <p class="fr-logo">
+                  Ministère<br>de l’Intérieur
+                </p>
+              </div>
+            </div>
+
+            <div class="fr-header__service">
+              <p class="fr-header__service-title">Studio</p>
+              <p class="fr-header__service-tagline">Générateur de planches photographiques</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="fr-container-fluid fr-py-3w">
+    <div class="studio-shell">
+      <aside class="studio-panel">
+        <div class="studio-panel__head">
+          <p class="fr-badge fr-badge--blue-france fr-badge--no-icon fr-mb-1w">Conception</p>
+          <h1 class="fr-h4 fr-mb-1v">Paramétrage de la planche</h1>
+          <p class="fr-text--sm fr-mb-0">Import des photographies, personnalisation de la page de présentation et génération du document final.</p>
+        </div>
+
+        <div class="studio-panel__body">
+          <section class="fr-mb-4w">
+            <h2 class="fr-h6">1. Import des photographies</h2>
+            <div id="dropzone" class="studio-dropzone fr-mb-2w" tabindex="0">
+              <p class="fr-text--lg fr-mb-1w"><strong>Dépose tes fichiers ici</strong></p>
+              <p class="fr-text--sm fr-mb-2w">ou utilise le bouton ci-dessous pour importer une ou plusieurs images</p>
+              <label class="fr-btn fr-btn--secondary" for="photoInput">Ajouter des photographies</label>
+              <input id="photoInput" type="file" accept="image/*" multiple hidden>
+            </div>
+            <div class="fr-btns-group fr-btns-group--inline fr-btns-group--icon-left fr-btns-group--sm">
+              <button type="button" class="fr-btn fr-icon-delete-bin-line fr-btn--tertiary-no-outline" id="clearPhotosBtn">Vider les photos</button>
+            </div>
+            <p class="fr-text--xs fr-mt-1w fr-mb-0" id="photoCount">0 photographie importée.</p>
+          </section>
+
+          <section class="fr-mb-4w">
+            <h2 class="fr-h6">2. Page de présentation</h2>
+
+            <div class="fr-input-group studio-input-compact">
+              <label class="fr-label" for="presetTitle">Titre prédéfini</label>
+              <select class="fr-select" id="presetTitle">
+                <option value="">Sélectionner un titre</option>
+                <option>Planche photographique</option>
+                <option>Planche photographique des constatations</option>
+                <option>Planche photographique des lieux</option>
+                <option>Planche photographique des scellés</option>
+                <option>Planche photographique complémentaire</option>
+              </select>
+            </div>
+
+            <div class="fr-input-group studio-input-compact">
+              <label class="fr-label" for="customTitle">Titre personnalisé</label>
+              <input class="fr-input" id="customTitle" type="text" placeholder="Ex. Planche photographique - Vol par effraction">
+            </div>
+
+            <div class="fr-input-group studio-input-compact">
+              <label class="fr-label" for="unitField">Service / unité</label>
+              <input class="fr-input" id="unitField" type="text" placeholder="Ex. Brigade territoriale de ...">
+            </div>
+
+            <div class="fr-input-group studio-input-compact">
+              <label class="fr-label" for="referenceField">Référence / procédure</label>
+              <input class="fr-input" id="referenceField" type="text" placeholder="Ex. PV n° / Natinf / dossier">
+            </div>
+
+            <div class="fr-grid-row fr-grid-row--gutters">
+              <div class="fr-col-12 fr-col-md-6">
+                <div class="fr-input-group studio-input-compact">
+                  <label class="fr-label" for="dateField">Date</label>
+                  <input class="fr-input" id="dateField" type="date">
+                </div>
+              </div>
+              <div class="fr-col-12 fr-col-md-6">
+                <div class="fr-input-group studio-input-compact">
+                  <label class="fr-label" for="placeField">Lieu</label>
+                  <input class="fr-input" id="placeField" type="text" placeholder="Ex. 12 rue..., commune">
+                </div>
+              </div>
+            </div>
+
+            <div class="fr-input-group studio-input-compact">
+              <label class="fr-label" for="authorField">Rédacteur / enquêteur</label>
+              <input class="fr-input" id="authorField" type="text" placeholder="Nom, grade, qualité">
+            </div>
+
+            <div class="fr-input-group studio-input-compact">
+              <label class="fr-label" for="summaryField">Observations / contexte</label>
+              <textarea class="fr-input fr-textarea fr-textarea--sm" id="summaryField" placeholder="Résumé libre, contexte des faits, précisions utiles..."></textarea>
+            </div>
+          </section>
+
+          <section class="fr-mb-4w">
+            <h2 class="fr-h6">3. Carte / vue aérienne</h2>
+            <div class="fr-input-group studio-input-compact">
+              <label class="fr-label" for="mapInput">Importer une image de carte ou une vue satellite</label>
+              <input class="fr-upload" id="mapInput" type="file" accept="image/*">
+            </div>
+            <div class="fr-alert fr-alert--info fr-alert--sm fr-mb-2w">
+              <p>Clique sur la carte pour positionner le repère rouge.</p>
+            </div>
+            <div id="mapCanvas" class="map-canvas" hidden>
+              <img id="mapImage" alt="Carte importée">
+              <span id="mapPin" class="map-pin" hidden></span>
+            </div>
+          </section>
+
+          <section>
+            <h2 class="fr-h6">4. Export</h2>
+            <div class="fr-select-group studio-input-compact">
+              <label class="fr-label" for="exportFormat">Format de sortie</label>
+              <select class="fr-select" id="exportFormat">
+                <option value="pdf">PDF</option>
+                <option value="web">WEB (HTML autonome)</option>
+                <option value="odt">ODT (bientôt)</option>
+              </select>
+            </div>
+            <div class="fr-btns-group fr-btns-group--icon-left">
+              <button type="button" class="fr-btn fr-icon-file-download-line" id="generateBtn">Générer la planche</button>
+            </div>
+            <p class="fr-text--xs fr-mb-0">Le PDF s’appuie sur la boîte d’impression du navigateur. L’export WEB télécharge une version autonome de la planche.</p>
+          </section>
+        </div>
+      </aside>
+
+      <section class="studio-preview-panel">
+        <div class="studio-preview-panel__head">
+          <div class="fr-grid-row fr-grid-row--middle fr-grid-row--gutters">
+            <div class="fr-col">
+              <p class="fr-badge fr-badge--green-tilleul-verveine fr-badge--no-icon fr-mb-1w">Prévisualisation</p>
+              <h2 class="fr-h4 fr-mb-1v">Aperçu en direct</h2>
+              <p class="fr-text--sm fr-mb-0">Grille des photographies et rendu du document final avec deux photographies par page en quinconce.</p>
+            </div>
+            <div class="fr-col-auto">
+              <span class="studio-badge-soft"><span class="fr-icon-eye-line" aria-hidden="true"></span><span id="pageCounter">1 page</span></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="studio-preview-panel__body">
+          <div class="sticky-preview-actions">
+            <button type="button" class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-printer-line" id="printBtn">Imprimer / PDF</button>
+            <button type="button" class="fr-btn fr-btn--tertiary fr-btn--sm fr-icon-refresh-line" id="refreshBtn">Actualiser l’aperçu</button>
+          </div>
+
+          <section class="fr-mb-4w">
+            <h3 class="fr-h6">Photographies importées</h3>
+            <div id="photoGrid" class="studio-grid"></div>
+            <div id="photoGridEmpty" class="empty-state">Aucune photographie importée pour le moment.</div>
+          </section>
+
+          <section>
+            <h3 class="fr-h6">Document généré</h3>
+            <div id="previewPages" class="studio-preview-wrap"></div>
+          </section>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <template id="photoCardTemplate">
+    <article class="studio-thumb-card">
+      <img class="studio-thumb-card__img" alt="">
+      <div class="studio-thumb-card__body">
+        <div class="fr-input-group studio-input-compact fr-mb-0">
+          <label class="fr-label fr-text--xs">Légende / nom</label>
+          <input class="fr-input fr-input--sm" type="text">
+        </div>
+        <div class="studio-thumb-card__actions">
+          <span class="fr-text--xs photo-meta"></span>
+          <button type="button" class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-delete-bin-line remove-photo-btn">Retirer</button>
+        </div>
+      </div>
+    </article>
+  </template>
+
+  <script src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.13.1/dist/dsfr/dsfr.module.min.js" type="module"></script>
+  <script nomodule src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.13.1/dist/dsfr/dsfr.nomodule.min.js"></script>
+
+  <script>
+    const state = {
+      photos: [],
+      mapDataUrl: '',
+      pin: null
+    };
+
+    const els = {
+      photoInput: document.getElementById('photoInput'),
+      mapInput: document.getElementById('mapInput'),
+      dropzone: document.getElementById('dropzone'),
+      clearPhotosBtn: document.getElementById('clearPhotosBtn'),
+      photoGrid: document.getElementById('photoGrid'),
+      photoGridEmpty: document.getElementById('photoGridEmpty'),
+      previewPages: document.getElementById('previewPages'),
+      photoCount: document.getElementById('photoCount'),
+      pageCounter: document.getElementById('pageCounter'),
+      presetTitle: document.getElementById('presetTitle'),
+      customTitle: document.getElementById('customTitle'),
+      unitField: document.getElementById('unitField'),
+      referenceField: document.getElementById('referenceField'),
+      dateField: document.getElementById('dateField'),
+      placeField: document.getElementById('placeField'),
+      authorField: document.getElementById('authorField'),
+      summaryField: document.getElementById('summaryField'),
+      mapCanvas: document.getElementById('mapCanvas'),
+      mapImage: document.getElementById('mapImage'),
+      mapPin: document.getElementById('mapPin'),
+      exportFormat: document.getElementById('exportFormat'),
+      generateBtn: document.getElementById('generateBtn'),
+      printBtn: document.getElementById('printBtn'),
+      refreshBtn: document.getElementById('refreshBtn'),
+      photoCardTemplate: document.getElementById('photoCardTemplate')
+    };
+
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+    }
+
+    function formatDate(value) {
+      if (!value) return '';
+      try {
+        return new Intl.DateTimeFormat('fr-FR', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric'
+        }).format(new Date(value));
+      } catch {
+        return value;
+      }
+    }
+
+    function getFinalTitle() {
+      return els.customTitle.value.trim() || els.presetTitle.value || 'Planche photographique';
+    }
+
+    function getFormData() {
+      return {
+        title: getFinalTitle(),
+        unit: els.unitField.value.trim(),
+        reference: els.referenceField.value.trim(),
+        date: formatDate(els.dateField.value),
+        place: els.placeField.value.trim(),
+        author: els.authorField.value.trim(),
+        summary: els.summaryField.value.trim()
+      };
+    }
+
+    function getDefaultName(filename, index) {
+      const base = filename.replace(/\.[^.]+$/, '').trim();
+      return base || `Photographie ${index + 1}`;
+    }
+
+    function readFileAsDataUrl(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function addPhotos(files) {
+      const imageFiles = Array.from(files).filter(file => file.type.startsWith('image/'));
+      for (const file of imageFiles) {
+        const dataUrl = await readFileAsDataUrl(file);
+        state.photos.push({
+          id: crypto.randomUUID(),
+          name: getDefaultName(file.name, state.photos.length),
+          fileName: file.name,
+          sizeLabel: `${Math.max(1, Math.round(file.size / 1024))} Ko`,
+          dataUrl
+        });
+      }
+      renderAll();
+    }
+
+    function removePhoto(id) {
+      state.photos = state.photos.filter(photo => photo.id !== id);
+      renderAll();
+    }
+
+    function clearPhotos() {
+      state.photos = [];
+      renderAll();
+    }
+
+    function renderPhotoGrid() {
+      els.photoGrid.innerHTML = '';
+      els.photoGridEmpty.hidden = state.photos.length > 0;
+      state.photos.forEach((photo, index) => {
+        const node = els.photoCardTemplate.content.firstElementChild.cloneNode(true);
+        const img = node.querySelector('img');
+        const input = node.querySelector('input');
+        const meta = node.querySelector('.photo-meta');
+        const removeBtn = node.querySelector('.remove-photo-btn');
+
+        img.src = photo.dataUrl;
+        img.alt = photo.name;
+        input.value = photo.name;
+        meta.textContent = `${index + 1} · ${photo.sizeLabel}`;
+
+        input.addEventListener('input', (e) => {
+          photo.name = e.target.value;
+          renderDocumentPreview();
+        });
+
+        removeBtn.addEventListener('click', () => removePhoto(photo.id));
+        els.photoGrid.appendChild(node);
+      });
+      els.photoCount.textContent = `${state.photos.length} photographie${state.photos.length > 1 ? 's importée' : ' importée'}.`;
+    }
+
+    function buildCoverPageHtml(form) {
+      const mapHtml = state.mapDataUrl
+        ? `
+          <div class="sheet-map-block">
+            <h3 style="margin:0 0 .75rem 0;font-size:1.1rem;">Localisation</h3>
+            <div class="sheet-map-preview">
+              <img src="${state.mapDataUrl}" alt="Carte localisant les faits">
+              ${state.pin ? `<span class="sheet-map-pin" style="left:${state.pin.x}%;top:${state.pin.y}%;"></span>` : ''}
+            </div>
+          </div>`
+        : '';
+
+      return `
+        <article class="sheet-page sheet-cover">
+          <header class="sheet-cover__header">
+            <p style="margin:0 0 .4rem 0;font-size:.95rem;font-weight:700;color:#000091;">STUDIO · GÉNÉRATEUR DE PLANCHES PHOTOGRAPHIQUES</p>
+            <h1 class="sheet-cover__title">${escapeHtml(form.title)}</h1>
+          </header>
+
+          <section class="sheet-meta">
+            <div>Service / unité</div>
+            <div>${escapeHtml(form.unit || '—')}</div>
+
+            <div>Référence / procédure</div>
+            <div>${escapeHtml(form.reference || '—')}</div>
+
+            <div>Date</div>
+            <div>${escapeHtml(form.date || '—')}</div>
+
+            <div>Lieu</div>
+            <div>${escapeHtml(form.place || '—')}</div>
+
+            <div>Rédacteur / enquêteur</div>
+            <div>${escapeHtml(form.author || '—')}</div>
+          </section>
+
+          <section>
+            <h2 style="margin:0 0 .75rem 0;font-size:1.1rem;">Observations</h2>
+            <div class="sheet-summary">${escapeHtml(form.summary || 'Aucune observation renseignée.')}</div>
+          </section>
+
+          ${mapHtml}
+        </article>`;
+    }
+
+    function buildPhotoPagesHtml() {
+      if (!state.photos.length) {
+        return `
+          <article class="sheet-page">
+            <div class="empty-state" style="margin-top:4rem;">
+              Aucune photographie importée. La planche finale sera générée ici dès l’ajout de clichés.
+            </div>
+          </article>`;
+      }
+
+      const chunks = [];
+      for (let i = 0; i < state.photos.length; i += 2) {
+        chunks.push(state.photos.slice(i, i + 2));
+      }
+
+      return chunks.map((chunk, pageIndex) => {
+        const slots = chunk.map((photo, idx) => {
+          const alignment = idx === 0 ? (pageIndex % 2 === 0 ? 'left' : 'right') : (pageIndex % 2 === 0 ? 'right' : 'left');
+          return `
+            <section class="sheet-photo-slot ${alignment}">
+              <img src="${photo.dataUrl}" alt="${escapeHtml(photo.name)}">
+              <div class="sheet-photo-slot__caption">${escapeHtml(photo.name || 'Sans intitulé')}</div>
+            </section>`;
+        }).join('');
+
+        return `<article class="sheet-page">${slots}</article>`;
+      }).join('');
+    }
+
+    function buildFullDocumentHtml() {
+      const form = getFormData();
+      return buildCoverPageHtml(form) + buildPhotoPagesHtml();
+    }
+
+    function renderDocumentPreview() {
+      els.previewPages.innerHTML = buildFullDocumentHtml();
+      const totalPages = els.previewPages.querySelectorAll('.sheet-page').length;
+      els.pageCounter.textContent = `${totalPages} page${totalPages > 1 ? 's' : ''}`;
+    }
+
+    function renderAll() {
+      renderPhotoGrid();
+      renderDocumentPreview();
+    }
+
+    function setPinFromEvent(event) {
+      if (!state.mapDataUrl) return;
+      const rect = els.mapImage.getBoundingClientRect();
+      const x = ((event.clientX - rect.left) / rect.width) * 100;
+      const y = ((event.clientY - rect.top) / rect.height) * 100;
+      state.pin = {
+        x: Math.max(0, Math.min(100, x)),
+        y: Math.max(0, Math.min(100, y))
+      };
+      els.mapPin.hidden = false;
+      els.mapPin.style.left = `${state.pin.x}%`;
+      els.mapPin.style.top = `${state.pin.y}%`;
+      renderDocumentPreview();
+    }
+
+    function buildStandaloneHtml() {
+      return `<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${escapeHtml(getFinalTitle())}</title>
+<style>
+body{margin:0;padding:24px;background:#efefef;font-family:Marianne,Arial,sans-serif;color:#1b1b35}
+.sheet-page{width:min(100%,820px);margin:0 auto 24px;background:#fff;min-height:1120px;padding:48px;box-shadow:0 12px 32px rgba(0,0,0,.12);box-sizing:border-box;position:relative}
+.sheet-cover__header{border-bottom:3px solid #000091;padding-bottom:1rem;margin-bottom:1.5rem}
+.sheet-cover__title{font-size:2rem;font-weight:700;line-height:1.15;margin:0}
+.sheet-meta{display:grid;grid-template-columns:220px 1fr;gap:.65rem 1rem;margin:1.5rem 0;font-size:1rem}.sheet-meta div:nth-child(odd){font-weight:700}
+.sheet-summary{border:1px solid #d6d6d6;border-radius:.75rem;padding:1rem;white-space:pre-wrap;min-height:120px;background:#fcfcfd}
+.sheet-map-preview{position:relative;border:1px solid #d6d6d6;border-radius:.75rem;overflow:hidden;background:#f2f2f2}.sheet-map-preview img{display:block;width:100%;height:auto;max-height:360px;object-fit:contain;background:#f2f2f2}
+.sheet-map-pin{position:absolute;width:22px;height:22px;background:#e1000f;border:3px solid #fff;border-radius:50% 50% 50% 0;transform:rotate(-45deg) translate(-50%,-50%);box-shadow:0 3px 12px rgba(0,0,0,.25)}
+.sheet-map-pin::after{content:'';position:absolute;width:7px;height:7px;border-radius:50%;background:#fff;inset:4px auto auto 4px}
+.sheet-photo-slot{width:100%;border:1px solid #d6d6d6;border-radius:.75rem;padding:1rem;background:#fff;box-sizing:border-box}.sheet-photo-slot+.sheet-photo-slot{margin-top:2.2rem}.sheet-photo-slot.right{margin-left:auto;max-width:82%}.sheet-photo-slot.left{margin-right:auto;max-width:82%}.sheet-photo-slot img{width:100%;max-height:400px;object-fit:contain;display:block;background:#f8f8f8;border-radius:.5rem}.sheet-photo-slot__caption{font-size:1rem;font-weight:700;margin-top:.75rem;text-align:center;word-break:break-word}
+.empty-state{border:1px dashed #c6c6c6;border-radius:.75rem;padding:2rem 1rem;text-align:center;color:#666;background:#fff;margin-top:4rem}
+.map-title{margin:0 0 .75rem 0;font-size:1.1rem}
+@media print{body{padding:0;background:#fff}.sheet-page{box-shadow:none;margin:0 auto;page-break-after:always}.sheet-page:last-child{page-break-after:auto}}
+</style>
+</head>
+<body>
+${buildFullDocumentHtml()}
+</body>
+</html>`;
+    }
+
+    function downloadFile(filename, content, mimeType) {
+      const blob = new Blob([content], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function slugify(value) {
+      return (value || 'planche-photographique')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '') || 'planche-photographique';
+    }
+
+    function exportWeb() {
+      const html = buildStandaloneHtml();
+      downloadFile(`${slugify(getFinalTitle())}.html`, html, 'text/html;charset=utf-8');
+    }
+
+    function exportPdf() {
+      const popup = window.open('', '_blank');
+      if (!popup) {
+        alert('Le navigateur a bloqué l’ouverture de la fenêtre d’impression. Autorise les popups pour utiliser l’export PDF.');
+        return;
+      }
+      popup.document.open();
+      popup.document.write(buildStandaloneHtml());
+      popup.document.close();
+      popup.focus();
+      popup.onload = () => popup.print();
+    }
+
+    function handleGenerate() {
+      const format = els.exportFormat.value;
+      if (format === 'web') {
+        exportWeb();
+        return;
+      }
+      if (format === 'pdf') {
+        exportPdf();
+        return;
+      }
+      alert('L’export ODT est prévu dans la structure de l’application, mais il n’est pas encore activé dans cette première version HTML autonome.');
+    }
+
+    els.photoInput.addEventListener('change', (e) => {
+      addPhotos(e.target.files);
+      e.target.value = '';
+    });
+
+    els.dropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      els.dropzone.classList.add('dragover');
+    });
+
+    els.dropzone.addEventListener('dragleave', () => {
+      els.dropzone.classList.remove('dragover');
+    });
+
+    els.dropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      els.dropzone.classList.remove('dragover');
+      addPhotos(e.dataTransfer.files);
+    });
+
+    els.dropzone.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        els.photoInput.click();
+      }
+    });
+
+    els.clearPhotosBtn.addEventListener('click', clearPhotos);
+
+    [
+      els.presetTitle,
+      els.customTitle,
+      els.unitField,
+      els.referenceField,
+      els.dateField,
+      els.placeField,
+      els.authorField,
+      els.summaryField
+    ].forEach(el => el.addEventListener('input', renderDocumentPreview));
+
+    els.presetTitle.addEventListener('change', () => {
+      if (!els.customTitle.value.trim()) renderDocumentPreview();
+    });
+
+    els.mapInput.addEventListener('change', async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      state.mapDataUrl = await readFileAsDataUrl(file);
+      els.mapImage.src = state.mapDataUrl;
+      els.mapCanvas.hidden = false;
+      state.pin = null;
+      els.mapPin.hidden = true;
+      renderDocumentPreview();
+    });
+
+    els.mapImage.addEventListener('click', setPinFromEvent);
+    els.mapCanvas.addEventListener('click', (e) => {
+      if (e.target === els.mapCanvas) setPinFromEvent(e);
+    });
+
+    els.generateBtn.addEventListener('click', handleGenerate);
+    els.printBtn.addEventListener('click', exportPdf);
+    els.refreshBtn.addEventListener('click', renderAll);
+
+    renderAll();
+  </script>
+</body>
+</html>
