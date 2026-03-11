@@ -29,10 +29,6 @@
       padding-bottom: 2rem;
     }
 
-    .studio-section[hidden] {
-      display: none !important;
-    }
-
     .studio-panel {
       background: var(--background-default-grey);
       border: 1px solid var(--border-default-grey);
@@ -183,87 +179,78 @@
   </style>
 </head>
 <body>
-  <header role="banner" class="fr-header">
-    <div class="fr-header__body">
-      <div class="fr-container">
-        <div class="fr-header__body-row">
-          <div class="fr-header__brand fr-enlarge-link">
-            <div class="fr-header__brand-top">
-              <div class="fr-header__logo">
-                <p class="fr-logo">
-                  Ministère<br>
-                  de l’Intérieur
-                </p>
-              </div>
+<header role="banner" class="fr-header">
+  <div class="fr-header__body">
+    <div class="fr-container">
+      <div class="fr-header__body-row">
+        <div class="fr-header__brand fr-enlarge-link">
+          <div class="fr-header__brand-top">
+            <div class="fr-header__logo">
+              <p class="fr-logo">
+                Ministère<br>de l’Intérieur
+              </p>
             </div>
 
-            <div class="fr-header__service">
-              <p class="fr-header__service-title">Studio</p>
-              <p class="fr-header__service-tagline">Générateur de planches photographiques</p>
+            <div class="fr-header__navbar">
+              <button
+                class="fr-btn--menu fr-btn"
+                data-fr-opened="false"
+                aria-controls="modal-menu"
+                aria-haspopup="menu"
+                title="Menu">
+                Menu
+              </button>
             </div>
           </div>
+
+          <div class="fr-header__service">
+            <a href="#conception" title="Accueil">
+              <p class="fr-header__service-title">Studio</p>
+            </a>
+            <p class="fr-header__service-tagline">Générateur de planches photographiques</p>
+          </div>
         </div>
+
+        <div class="fr-header__tools">
+          <div class="fr-header__tools-links">
+            <ul class="fr-btns-group fr-btns-group--sm">
+              <li>
+                <button id="btnReset" class="fr-btn fr-btn--secondary" type="button">
+                  Réinitialiser
+                </button>
+              </li>
+            </ul>
+          </div>
+        </div>
+
       </div>
     </div>
+  </div>
 
-    <div class="fr-header__menu fr-modal" id="fr-menu-mobile" aria-labelledby="fr-btn-menu-mobile">
-      <div class="fr-container">
-        <button class="fr-btn--close fr-btn" aria-controls="fr-menu-mobile" title="Fermer">
-          Fermer
-        </button>
-        <div class="fr-header__menu-links"></div>
-      </div>
+  <div class="fr-header__menu fr-modal" id="modal-menu" aria-labelledby="modal-menu-title">
+    <div class="fr-container">
+      <button class="fr-btn--close fr-btn" aria-controls="modal-menu" title="Fermer">
+        Fermer
+      </button>
+
+      <div class="fr-header__menu-links"></div>
+
+      <nav class="fr-nav" role="navigation" aria-label="Menu principal">
+        <ul class="fr-nav__list">
+          <li class="fr-nav__item">
+            <a class="fr-nav__link" href="#conception">Conception</a>
+          </li>
+          <li class="fr-nav__item">
+            <a class="fr-nav__link" href="#presentation">Présentation</a>
+          </li>
+        </ul>
+      </nav>
     </div>
-
-    <div class="fr-header__nav">
-      <div class="fr-container">
-        <nav class="fr-nav" role="navigation" aria-label="Navigation principale">
-          <ul class="fr-nav__list">
-            <li class="fr-nav__item">
-              <button
-                class="fr-nav__btn"
-                aria-expanded="false"
-                aria-controls="menu-conception"
-                type="button">
-                Conception
-              </button>
-              <div class="fr-collapse fr-menu" id="menu-conception">
-                <ul class="fr-menu__list">
-                  <li>
-                    <button class="fr-nav-link-action fr-menu__link" type="button" data-target-section="section-conception">
-                      Import et tri des photographies
-                    </button>
-                  </li>
-                </ul>
-              </div>
-            </li>
-
-            <li class="fr-nav__item">
-              <button
-                class="fr-nav__btn"
-                aria-expanded="false"
-                aria-controls="menu-presentation"
-                type="button">
-                Présentation
-              </button>
-              <div class="fr-collapse fr-menu" id="menu-presentation">
-                <ul class="fr-menu__list">
-                  <li>
-                    <button class="fr-nav-link-action fr-menu__link" type="button" data-target-section="section-presentation">
-                      Informations de présentation
-                    </button>
-                  </li>
-                </ul>
-              </div>
-            </li>
-          </ul>
-        </nav>
-      </div>
-    </div>
-  </header>
+  </div>
+</header>
 
   <main class="studio-main fr-container">
-    <section id="section-conception" class="studio-section">
+    <section id="conception" class="studio-section">
       <div class="studio-panel">
         <div class="studio-panel__head">
           <h1 class="fr-h4 fr-mb-1v">Conception de la planche photographique</h1>
@@ -306,7 +293,7 @@
       </div>
     </section>
 
-    <section id="section-presentation" class="studio-section" hidden>
+    <section id="presentation" class="studio-section">
       <div class="studio-panel">
         <div class="studio-panel__head">
           <h2 class="fr-h4 fr-mb-1v">Informations de présentation</h2>
@@ -404,8 +391,6 @@
     };
 
     const els = {
-      sections: document.querySelectorAll('.studio-section'),
-      navActions: document.querySelectorAll('.fr-nav-link-action'),
       photoInput: document.getElementById('photoInput'),
       dropzone: document.getElementById('dropzone'),
       clearPhotosBtn: document.getElementById('clearPhotosBtn'),
@@ -518,23 +503,6 @@
       els.photoCount.textContent = `${state.photos.length} photographie${state.photos.length > 1 ? 's importées' : ' importée'}.`;
     }
 
-    function showSection(id) {
-      els.sections.forEach(section => {
-        section.hidden = section.id !== id;
-      });
-    }
-
-    els.navActions.forEach(button => {
-      button.addEventListener('click', () => {
-        const target = button.dataset.targetSection;
-        showSection(target);
-
-        document.querySelectorAll('.fr-collapse').forEach(collapse => {
-          collapse.classList.remove('fr-collapse--expanded');
-        });
-      });
-    });
-
     els.photoInput.addEventListener('change', async (event) => {
       await addPhotos(event.target.files);
       event.target.value = '';
@@ -569,7 +537,6 @@
     els.clearPhotosBtn.addEventListener('click', clearPhotos);
 
     renderPhotoGrid();
-    showSection('section-conception');
   </script>
 </body>
 </html>
