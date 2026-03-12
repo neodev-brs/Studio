@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <script>
+    try {
+      localStorage.setItem('scheme', 'light');
+    } catch (e) {}
     document.documentElement.setAttribute('data-fr-scheme', 'light');
   </script>
 
@@ -485,6 +488,19 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.13.1/dist/dsfr/dsfr.module.min.js" type="module"></script>
   <script nomodule src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.13.1/dist/dsfr/dsfr.nomodule.min.js"></script>
+  
+  <script>
+  window.addEventListener('DOMContentLoaded', function () {
+    document.documentElement.setAttribute('data-fr-scheme', 'light');
+    try {
+      localStorage.setItem('scheme', 'light');
+    } catch (e) {}
+
+    if (window.dsfr) {
+      dsfr(document.documentElement).scheme.scheme = 'light';
+    }
+  });
+</script>
 
   <script>
     const state = {
