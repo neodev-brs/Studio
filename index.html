@@ -493,7 +493,7 @@
             <button type="button" class="fr-btn fr-btn--tertiary fr-btn--sm fr-icon-refresh-line" id="refreshBtn">Actualiser l’aperçu</button>
           </div>
 
-          <section class="fr-mb-4w">
+          <section class="fr-mb-4w" id="photosPreviewSection">
             <h3 class="fr-h6">Photographies importées</h3>
             <div id="photoZone" class="studio-photo-zone is-empty">
               <div style="width:100%">
@@ -756,9 +756,24 @@
     }
 
     function renderDocumentPreview() {
-      els.previewPages.innerHTML = buildFullDocumentHtml();
+      const hash = (location.hash || "#conception").toLowerCase();
+      const isPresentationView = (hash === "#page-presentation");
+      const form = getFormData();
+
+      if (isPresentationView) {
+        // ✅ Page de présentation : uniquement la page de garde
+        els.previewPages.innerHTML = buildCoverPageHtml(form);
+      } else {
+        // ✅ Conception : uniquement les pages photos (sans page de garde)
+        els.previewPages.innerHTML = buildPhotoPagesHtml();
+      }
+
       const totalPages = els.previewPages.querySelectorAll('.sheet-page').length;
       els.pageCounter.textContent = `${totalPages} page${totalPages > 1 ? 's' : ''}`;
+
+      // ✅ Masquer / afficher la zone photos dans la preview (on garde comme tu l'as fait)
+      const photosSection = document.getElementById("photosPreviewSection");
+      if (photosSection) photosSection.style.display = isPresentationView ? "none" : "";
     }
 
     function renderAll() {
@@ -906,19 +921,23 @@ ${buildFullDocumentHtml()}
 
     /* Navigation mono-fichier */
     function setViewFromHash(){
-      const hash = (location.hash || "#conception").toLowerCase();
+  const hash = (location.hash || "#conception").toLowerCase();
 
-      const vConception = document.getElementById("view-conception");
-      const vPresentation = document.getElementById("view-presentation");
-      if (!vConception || !vPresentation) return;
+  const vConception = document.getElementById("view-conception");
+  const vPresentation = document.getElementById("view-presentation");
+  if (!vConception || !vPresentation) return;
 
-      const showPresentation = (hash === "#page-presentation");
+  const showPresentation = (hash === "#page-presentation");
 
-      vConception.classList.toggle("is-active", !showPresentation);
-      vPresentation.classList.toggle("is-active", showPresentation);
+  vConception.classList.toggle("is-active", !showPresentation);
+  vPresentation.classList.toggle("is-active", showPresentation);
 
-      window.scrollTo({ top: 0, behavior: "instant" });
-    }
+  // ✅ important : mettre à jour la preview (cover only / full)
+  renderDocumentPreview();
+
+  window.scrollTo({ top: 0, behavior: "instant" });
+}
+
     window.addEventListener("hashchange", setViewFromHash);
     setViewFromHash();
 
