@@ -58,15 +58,20 @@
     .studio-preview-panel__head{
       padding: 1rem 1rem .5rem;
       border-bottom: 1px solid var(--border-default-grey);
-      background: var(--background-default-grey); /* pas de gris différent */
+      background: var(--background-default-grey);
     }
 
     .studio-panel__body,
     .studio-preview-panel__body{ padding: 1rem; }
 
+    /* vues */
+    .studio-view{ display:none; }
+    .studio-view.is-active{ display:block; }
+
+    /* Dropzone GoFast (arrondi exceptionnel) */
     #dropzone{
       border-radius: 8px !important;
-      overflow: hidden; /* garantit que le contenu suit l’arrondi */
+      overflow: hidden;
     }
 
     /* Zone plus grande pour manipuler les photos */
@@ -189,7 +194,7 @@
       height:22px;
       background: var(--studio-pin);
       border:3px solid #fff;
-      border-radius: 50% 50% 50% 0; /* pin OK */
+      border-radius: 50% 50% 50% 0;
       transform: rotate(-45deg) translate(-50%, -50%);
       box-shadow: 0 3px 12px rgba(0,0,0,.25);
       pointer-events:none;
@@ -262,7 +267,7 @@
       gap:.35rem;
       font-size:.875rem;
       padding:.25rem .6rem;
-      border-radius: 999px; /* badge OK */
+      border-radius: 999px;
       background:#eef4ff;
       color:#000091;
       font-weight:600;
@@ -327,130 +332,144 @@
     </div>
   </header>
 
-  <!-- ✅ on remet un main propre (il manquait dans ta version) -->
   <main class="fr-container fr-py-3w studio-main">
+
     <div class="studio-shell">
-      <!-- CONCEPTION -->
-      <aside class="studio-panel" id="conception">
-        <div class="studio-panel__head">
-          <p class="fr-badge fr-badge--blue-france fr-badge--no-icon fr-mb-1w">Conception</p>
-          <h1 class="fr-h4 fr-mb-1v">Paramétrage de la planche</h1>
-          <p class="fr-text--sm fr-mb-0">Import des photographies, personnalisation de la page de présentation et génération du document final.</p>
-        </div>
-
-        <div class="studio-panel__body">
-          <section class="fr-mb-4w">
-            <h2 class="fr-h6">1. Import des photographies</h2>
-            <div class="fr-upload-group fr-mt-2w">
-              <label class="fr-label" for="photoInput">
-                Sélectionnez une ou plusieurs photographies
-                <span class="fr-hint-text">Formats image (JPG, PNG, etc.).</span>
-              </label>
-              <input class="fr-upload" type="file" id="photoInput" accept="image/*" multiple />
+      <!-- COLONNE GAUCHE (vue) -->
+      <div>
+        <!-- VUE CONCEPTION : 1 + 4 -->
+        <section id="view-conception" class="studio-view is-active">
+          <aside class="studio-panel" id="conception">
+            <div class="studio-panel__head">
+              <h1 class="fr-h4 fr-mb-1v">Paramétrage de la planche</h1>
+              <p class="fr-text--sm fr-mb-0">Import des photographies et génération du document final.</p>
             </div>
 
-            <div id="dropzone" class="fr-mt-2w fr-p-2w"
-                style="border: 2px dashed var(--border-default-grey); border-radius: 8;">
-              <strong>Glisser-déposer</strong> les fichiers ici
-              <div class="fr-hint-text fr-mt-1v">Astuce : vous pouvez aussi déposer des fichiers directement depuis votre bureau.</div>
-            </div>
+            <div class="studio-panel__body">
+              <section class="fr-mb-4w">
+                <h2 class="fr-h6">1. Import des photographies</h2>
 
-            <div class="fr-btns-group fr-btns-group--inline fr-btns-group--icon-left fr-btns-group--sm">
-              <button type="button" class="fr-btn fr-icon-delete-bin-line fr-btn--tertiary-no-outline" id="clearPhotosBtn">Vider les photos</button>
-            </div>
-            <p class="fr-text--xs fr-mt-1w fr-mb-0" id="photoCount">0 photographie importée.</p>
-          </section>
-
-          <section class="fr-mb-4w" id="page-presentation">
-            <h2 class="fr-h6">2. Page de présentation</h2>
-
-            <div class="fr-input-group studio-input-compact">
-              <label class="fr-label" for="presetTitle">Titre prédéfini</label>
-              <select class="fr-select" id="presetTitle">
-                <option value="">Sélectionner un titre</option>
-                <option>Planche photographique</option>
-                <option>Planche photographique des constatations</option>
-                <option>Planche photographique des lieux</option>
-                <option>Planche photographique des scellés</option>
-                <option>Planche photographique complémentaire</option>
-              </select>
-            </div>
-
-            <div class="fr-input-group studio-input-compact">
-              <label class="fr-label" for="customTitle">Titre personnalisé</label>
-              <input class="fr-input" id="customTitle" type="text" placeholder="Ex. Planche photographique - Vol par effraction">
-            </div>
-
-            <div class="fr-input-group studio-input-compact">
-              <label class="fr-label" for="unitField">Service / unité</label>
-              <input class="fr-input" id="unitField" type="text" placeholder="Ex. Brigade territoriale de ...">
-            </div>
-
-            <div class="fr-input-group studio-input-compact">
-              <label class="fr-label" for="referenceField">Référence / procédure</label>
-              <input class="fr-input" id="referenceField" type="text" placeholder="Ex. PV n° / Natinf / dossier">
-            </div>
-
-            <div class="fr-grid-row fr-grid-row--gutters">
-              <div class="fr-col-12 fr-col-md-6">
-                <div class="fr-input-group studio-input-compact">
-                  <label class="fr-label" for="dateField">Date</label>
-                  <input class="fr-input" id="dateField" type="date">
+                <div class="fr-upload-group fr-mt-2w">
+                  <label class="fr-label" for="photoInput">
+                    Sélectionnez une ou plusieurs photographies
+                    <span class="fr-hint-text">Formats image (JPG, PNG, etc.).</span>
+                  </label>
+                  <input class="fr-upload" type="file" id="photoInput" accept="image/*" multiple />
                 </div>
-              </div>
-              <div class="fr-col-12 fr-col-md-6">
-                <div class="fr-input-group studio-input-compact">
-                  <label class="fr-label" for="placeField">Lieu</label>
-                  <input class="fr-input" id="placeField" type="text" placeholder="Ex. 12 rue..., commune">
+
+                <div id="dropzone" class="fr-mt-2w fr-p-2w"
+                     style="border: 2px dashed var(--border-default-grey); border-radius: 8px;">
+                  <strong>Glisser-déposer</strong> les fichiers ici
+                  <div class="fr-hint-text fr-mt-1v">Astuce : vous pouvez aussi déposer des fichiers directement depuis votre bureau.</div>
                 </div>
-              </div>
+
+                <p class="fr-text--xs fr-mt-1w fr-mb-0" id="photoCount">0 photographie importée.</p>
+              </section>
+
+              <section>
+                <h2 class="fr-h6">4. Export</h2>
+                <div class="fr-select-group studio-input-compact">
+                  <label class="fr-label" for="exportFormat">Format de sortie</label>
+                  <select class="fr-select" id="exportFormat">
+                    <option value="pdf">PDF</option>
+                    <option value="web">WEB (HTML autonome)</option>
+                    <option value="odt">ODT (bientôt)</option>
+                  </select>
+                </div>
+                <div class="fr-btns-group fr-btns-group--icon-left">
+                  <button type="button" class="fr-btn fr-icon-file-download-line" id="generateBtn">Générer la planche</button>
+                </div>
+                <p class="fr-text--xs fr-mb-0">Le PDF s’appuie sur la boîte d’impression du navigateur. L’export WEB télécharge une version autonome de la planche.</p>
+              </section>
+            </div>
+          </aside>
+        </section>
+
+        <!-- VUE PAGE DE PRÉSENTATION : 2 + 3 -->
+        <section id="view-presentation" class="studio-view">
+          <aside class="studio-panel" id="page-presentation">
+            <div class="studio-panel__head">
+              <h1 class="fr-h4 fr-mb-1v">Page de présentation</h1>
+              <p class="fr-text--sm fr-mb-0">Renseigne les champs qui alimentent la première page du document.</p>
             </div>
 
-            <div class="fr-input-group studio-input-compact">
-              <label class="fr-label" for="authorField">Rédacteur / enquêteur</label>
-              <input class="fr-input" id="authorField" type="text" placeholder="Nom, grade, qualité">
-            </div>
+            <div class="studio-panel__body">
+              <section class="fr-mb-4w">
+                <h2 class="fr-h6">2. Page de présentation</h2>
 
-            <div class="fr-input-group studio-input-compact">
-              <label class="fr-label" for="summaryField">Observations / contexte</label>
-              <textarea class="fr-input fr-textarea fr-textarea--sm" id="summaryField" placeholder="Résumé libre, contexte des faits, précisions utiles..."></textarea>
-            </div>
-          </section>
+                <div class="fr-input-group studio-input-compact">
+                  <label class="fr-label" for="presetTitle">Titre prédéfini</label>
+                  <select class="fr-select" id="presetTitle">
+                    <option value="">Sélectionner un titre</option>
+                    <option>Planche photographique</option>
+                    <option>Planche photographique des constatations</option>
+                    <option>Planche photographique des lieux</option>
+                    <option>Planche photographique des scellés</option>
+                    <option>Planche photographique complémentaire</option>
+                  </select>
+                </div>
 
-          <section class="fr-mb-4w">
-            <h2 class="fr-h6">3. Carte / vue aérienne</h2>
-            <div class="fr-input-group studio-input-compact">
-              <label class="fr-label" for="mapInput">Importer une image de carte ou une vue satellite</label>
-              <input class="fr-upload" id="mapInput" type="file" accept="image/*">
-            </div>
-            <div class="fr-alert fr-alert--info fr-alert--sm fr-mb-2w">
-              <p>Clique sur la carte pour positionner le repère rouge.</p>
-            </div>
-            <div id="mapCanvas" class="map-canvas" hidden>
-              <img id="mapImage" alt="Carte importée">
-              <span id="mapPin" class="map-pin" hidden></span>
-            </div>
-          </section>
+                <div class="fr-input-group studio-input-compact">
+                  <label class="fr-label" for="customTitle">Titre personnalisé</label>
+                  <input class="fr-input" id="customTitle" type="text" placeholder="Ex. Planche photographique - Vol par effraction">
+                </div>
 
-          <section>
-            <h2 class="fr-h6">4. Export</h2>
-            <div class="fr-select-group studio-input-compact">
-              <label class="fr-label" for="exportFormat">Format de sortie</label>
-              <select class="fr-select" id="exportFormat">
-                <option value="pdf">PDF</option>
-                <option value="web">WEB (HTML autonome)</option>
-                <option value="odt">ODT (bientôt)</option>
-              </select>
-            </div>
-            <div class="fr-btns-group fr-btns-group--icon-left">
-              <button type="button" class="fr-btn fr-icon-file-download-line" id="generateBtn">Générer la planche</button>
-            </div>
-            <p class="fr-text--xs fr-mb-0">Le PDF s’appuie sur la boîte d’impression du navigateur. L’export WEB télécharge une version autonome de la planche.</p>
-          </section>
-        </div>
-      </aside>
+                <div class="fr-input-group studio-input-compact">
+                  <label class="fr-label" for="unitField">Service / unité</label>
+                  <input class="fr-input" id="unitField" type="text" placeholder="Ex. Brigade territoriale de ...">
+                </div>
 
-      <!-- PRÉVISUALISATION -->
+                <div class="fr-input-group studio-input-compact">
+                  <label class="fr-label" for="referenceField">Référence / procédure</label>
+                  <input class="fr-input" id="referenceField" type="text" placeholder="Ex. PV n° / Natinf / dossier">
+                </div>
+
+                <div class="fr-grid-row fr-grid-row--gutters">
+                  <div class="fr-col-12 fr-col-md-6">
+                    <div class="fr-input-group studio-input-compact">
+                      <label class="fr-label" for="dateField">Date</label>
+                      <input class="fr-input" id="dateField" type="date">
+                    </div>
+                  </div>
+                  <div class="fr-col-12 fr-col-md-6">
+                    <div class="fr-input-group studio-input-compact">
+                      <label class="fr-label" for="placeField">Lieu</label>
+                      <input class="fr-input" id="placeField" type="text" placeholder="Ex. 12 rue..., commune">
+                    </div>
+                  </div>
+                </div>
+
+                <div class="fr-input-group studio-input-compact">
+                  <label class="fr-label" for="authorField">Rédacteur / enquêteur</label>
+                  <input class="fr-input" id="authorField" type="text" placeholder="Nom, grade, qualité">
+                </div>
+
+                <div class="fr-input-group studio-input-compact">
+                  <label class="fr-label" for="summaryField">Observations / contexte</label>
+                  <textarea class="fr-input fr-textarea fr-textarea--sm" id="summaryField" placeholder="Résumé libre, contexte des faits, précisions utiles..."></textarea>
+                </div>
+              </section>
+
+              <section class="fr-mb-4w">
+                <h2 class="fr-h6">3. Carte / vue aérienne</h2>
+                <div class="fr-input-group studio-input-compact">
+                  <label class="fr-label" for="mapInput">Importer une image de carte ou une vue satellite</label>
+                  <input class="fr-upload" id="mapInput" type="file" accept="image/*">
+                </div>
+                <div class="fr-alert fr-alert--info fr-alert--sm fr-mb-2w">
+                  <p>Clique sur la carte pour positionner le repère rouge.</p>
+                </div>
+                <div id="mapCanvas" class="map-canvas" hidden>
+                  <img id="mapImage" alt="Carte importée">
+                  <span id="mapPin" class="map-pin" hidden></span>
+                </div>
+              </section>
+            </div>
+          </aside>
+        </section>
+      </div>
+
+      <!-- COLONNE DROITE (preview unique, pas d'IDs dupliqués) -->
       <section class="studio-preview-panel">
         <div class="studio-preview-panel__head">
           <div class="fr-grid-row fr-grid-row--middle fr-grid-row--gutters">
@@ -517,9 +536,7 @@
     window.addEventListener('DOMContentLoaded', function () {
       document.documentElement.setAttribute('data-fr-scheme', 'light');
       try { localStorage.setItem('scheme', 'light'); } catch (e) {}
-      if (window.dsfr) {
-        dsfr(document.documentElement).scheme.scheme = 'light';
-      }
+      if (window.dsfr) dsfr(document.documentElement).scheme.scheme = 'light';
     });
   </script>
 
@@ -530,13 +547,14 @@
       photoInput: document.getElementById('photoInput'),
       mapInput: document.getElementById('mapInput'),
       dropzone: document.getElementById('dropzone'),
-      clearPhotosBtn: document.getElementById('clearPhotosBtn'),
+
       photoZone: document.getElementById('photoZone'),
       photoGrid: document.getElementById('photoGrid'),
       photoGridEmpty: document.getElementById('photoGridEmpty'),
       previewPages: document.getElementById('previewPages'),
       photoCount: document.getElementById('photoCount'),
       pageCounter: document.getElementById('pageCounter'),
+
       presetTitle: document.getElementById('presetTitle'),
       customTitle: document.getElementById('customTitle'),
       unitField: document.getElementById('unitField'),
@@ -545,9 +563,11 @@
       placeField: document.getElementById('placeField'),
       authorField: document.getElementById('authorField'),
       summaryField: document.getElementById('summaryField'),
+
       mapCanvas: document.getElementById('mapCanvas'),
       mapImage: document.getElementById('mapImage'),
       mapPin: document.getElementById('mapPin'),
+
       exportFormat: document.getElementById('exportFormat'),
       generateBtn: document.getElementById('generateBtn'),
       printBtn: document.getElementById('printBtn'),
@@ -572,23 +592,23 @@
     }
 
     function getFinalTitle() {
-      return els.customTitle.value.trim() || els.presetTitle.value || 'Planche photographique';
+      return (els.customTitle?.value || "").trim() || els.presetTitle?.value || 'Planche photographique';
     }
 
     function getFormData() {
       return {
         title: getFinalTitle(),
-        unit: els.unitField.value.trim(),
-        reference: els.referenceField.value.trim(),
-        date: formatDate(els.dateField.value),
-        place: els.placeField.value.trim(),
-        author: els.authorField.value.trim(),
-        summary: els.summaryField.value.trim()
+        unit: (els.unitField?.value || "").trim(),
+        reference: (els.referenceField?.value || "").trim(),
+        date: formatDate(els.dateField?.value),
+        place: (els.placeField?.value || "").trim(),
+        author: (els.authorField?.value || "").trim(),
+        summary: (els.summaryField?.value || "").trim()
       };
     }
 
     function getDefaultName(filename, index) {
-      const base = filename.replace(/\.[^.]+$/, '').trim();
+      const base = String(filename || "").replace(/\.[^.]+$/, '').trim();
       return base || `Photographie ${index + 1}`;
     }
 
@@ -602,7 +622,7 @@
     }
 
     async function addPhotos(files) {
-      const imageFiles = Array.from(files).filter(file => file.type.startsWith('image/'));
+      const imageFiles = Array.from(files || []).filter(file => (file.type || "").startsWith('image/'));
       for (const file of imageFiles) {
         const dataUrl = await readFileAsDataUrl(file);
         state.photos.push({
@@ -618,11 +638,6 @@
 
     function removePhoto(id) {
       state.photos = state.photos.filter(photo => photo.id !== id);
-      renderAll();
-    }
-
-    function clearPhotos() {
-      state.photos = [];
       renderAll();
     }
 
@@ -654,7 +669,9 @@
         els.photoGrid.appendChild(node);
       });
 
-      els.photoCount.textContent = `${state.photos.length} photographie${state.photos.length > 1 ? 's importée' : ' importée'}.`;
+      if (els.photoCount) {
+        els.photoCount.textContent = `${state.photos.length} photographie${state.photos.length > 1 ? 's importée' : ' importée'}.`;
+      }
     }
 
     function buildCoverPageHtml(form) {
@@ -835,37 +852,36 @@ ${buildFullDocumentHtml()}
       alert('L’export ODT est prévu dans la structure de l’application, mais il n’est pas encore activé dans cette première version HTML autonome.');
     }
 
+    /* Events */
     els.photoInput.addEventListener('change', (e) => {
       addPhotos(e.target.files);
       e.target.value = '';
     });
 
     ["dragenter","dragover"].forEach(evt =>
-    els.dropzone.addEventListener(evt, (e) => {
-      e.preventDefault(); e.stopPropagation();
-      els.dropzone.style.borderColor = "var(--border-action-high-blue-france)";
-    })
-  );
+      els.dropzone.addEventListener(evt, (e) => {
+        e.preventDefault(); e.stopPropagation();
+        els.dropzone.style.borderColor = "var(--border-action-high-blue-france)";
+      })
+    );
 
-  ["dragleave","drop"].forEach(evt =>
-    els.dropzone.addEventListener(evt, (e) => {
-      e.preventDefault(); e.stopPropagation();
-      els.dropzone.style.borderColor = "var(--border-default-grey)";
-    })
-  );
+    ["dragleave","drop"].forEach(evt =>
+      els.dropzone.addEventListener(evt, (e) => {
+        e.preventDefault(); e.stopPropagation();
+        els.dropzone.style.borderColor = "var(--border-default-grey)";
+      })
+    );
 
-  els.dropzone.addEventListener("drop", (e) => {
-    const files = [...(e.dataTransfer.files || [])].filter(f => (f.type || "").startsWith("image/"));
-    if (files.length) addPhotos(files);
-  });
-
-    els.clearPhotosBtn.addEventListener('click', clearPhotos);
+    els.dropzone.addEventListener("drop", (e) => {
+      const files = [...(e.dataTransfer.files || [])].filter(f => (f.type || "").startsWith("image/"));
+      if (files.length) addPhotos(files);
+    });
 
     [els.presetTitle, els.customTitle, els.unitField, els.referenceField, els.dateField, els.placeField, els.authorField, els.summaryField]
-      .forEach(el => el.addEventListener('input', renderDocumentPreview));
+      .forEach(el => el && el.addEventListener('input', renderDocumentPreview));
 
-    els.presetTitle.addEventListener('change', () => {
-      if (!els.customTitle.value.trim()) renderDocumentPreview();
+    els.presetTitle?.addEventListener('change', () => {
+      if (!(els.customTitle?.value || "").trim()) renderDocumentPreview();
     });
 
     els.mapInput.addEventListener('change', async (e) => {
@@ -887,6 +903,24 @@ ${buildFullDocumentHtml()}
     els.generateBtn.addEventListener('click', handleGenerate);
     els.printBtn.addEventListener('click', exportPdf);
     els.refreshBtn.addEventListener('click', renderAll);
+
+    /* Navigation mono-fichier */
+    function setViewFromHash(){
+      const hash = (location.hash || "#conception").toLowerCase();
+
+      const vConception = document.getElementById("view-conception");
+      const vPresentation = document.getElementById("view-presentation");
+      if (!vConception || !vPresentation) return;
+
+      const showPresentation = (hash === "#page-presentation");
+
+      vConception.classList.toggle("is-active", !showPresentation);
+      vPresentation.classList.toggle("is-active", showPresentation);
+
+      window.scrollTo({ top: 0, behavior: "instant" });
+    }
+    window.addEventListener("hashchange", setViewFromHash);
+    setViewFromHash();
 
     renderAll();
   </script>
