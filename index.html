@@ -64,20 +64,6 @@
     .studio-panel__body,
     .studio-preview-panel__body{ padding: 1rem; }
 
-    .studio-dropzone{
-      border: 2px dashed var(--border-default-blue-france);
-      border-radius: 8;
-      background: var(--background-alt-blue-france);
-      padding: 1.25rem;
-      text-align:center;
-      transition:.2s ease;
-    }
-    .studio-dropzone.dragover{
-      transform: translateY(-1px);
-      box-shadow: none;
-      background: #eef4ff;
-    }
-
     /* Zone plus grande pour manipuler les photos */
     .studio-photo-zone{
       border: 1px solid var(--border-default-grey);
@@ -350,12 +336,20 @@
         <div class="studio-panel__body">
           <section class="fr-mb-4w">
             <h2 class="fr-h6">1. Import des photographies</h2>
-            <div id="dropzone" class="studio-dropzone fr-mb-2w" tabindex="0">
-              <p class="fr-text--lg fr-mb-1w"><strong>Dépose tes fichiers ici</strong></p>
-              <p class="fr-text--sm fr-mb-2w">ou utilise le bouton ci-dessous pour importer une ou plusieurs images</p>
-              <label class="fr-btn fr-btn--secondary" for="photoInput">Ajouter des photographies</label>
-              <input id="photoInput" type="file" accept="image/*" multiple hidden>
+            <div class="fr-upload-group fr-mt-2w">
+              <label class="fr-label" for="photoInput">
+                Sélectionnez une ou plusieurs photographies
+                <span class="fr-hint-text">Formats image (JPG, PNG, etc.).</span>
+              </label>
+              <input class="fr-upload" type="file" id="photoInput" accept="image/*" multiple />
             </div>
+
+            <div id="dropzone" class="fr-mt-2w fr-p-2w"
+                style="border: 2px dashed var(--border-default-grey); border-radius: 0;">
+              <strong>Glisser-déposer</strong> les fichiers ici
+              <div class="fr-hint-text fr-mt-1v">Astuce : vous pouvez aussi déposer des fichiers directement depuis votre bureau.</div>
+            </div>
+
             <div class="fr-btns-group fr-btns-group--inline fr-btns-group--icon-left fr-btns-group--sm">
               <button type="button" class="fr-btn fr-icon-delete-bin-line fr-btn--tertiary-no-outline" id="clearPhotosBtn">Vider les photos</button>
             </div>
@@ -841,24 +835,24 @@ ${buildFullDocumentHtml()}
       e.target.value = '';
     });
 
-    els.dropzone.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      els.dropzone.classList.add('dragover');
-    });
-    els.dropzone.addEventListener('dragleave', () => {
-      els.dropzone.classList.remove('dragover');
-    });
-    els.dropzone.addEventListener('drop', (e) => {
-      e.preventDefault();
-      els.dropzone.classList.remove('dragover');
-      addPhotos(e.dataTransfer.files);
-    });
-    els.dropzone.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        els.photoInput.click();
-      }
-    });
+    ["dragenter","dragover"].forEach(evt =>
+    els.dropzone.addEventListener(evt, (e) => {
+      e.preventDefault(); e.stopPropagation();
+      els.dropzone.style.borderColor = "var(--border-action-high-blue-france)";
+    })
+  );
+
+  ["dragleave","drop"].forEach(evt =>
+    els.dropzone.addEventListener(evt, (e) => {
+      e.preventDefault(); e.stopPropagation();
+      els.dropzone.style.borderColor = "var(--border-default-grey)";
+    })
+  );
+
+  els.dropzone.addEventListener("drop", (e) => {
+    const files = [...(e.dataTransfer.files || [])].filter(f => (f.type || "").startsWith("image/"));
+    if (files.length) addPhotos(files);
+  });
 
     els.clearPhotosBtn.addEventListener('click', clearPhotos);
 
