@@ -3,10 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+
   <script>
-    try {
-      localStorage.setItem('scheme', 'light');
-    } catch (e) {}
+    try { localStorage.setItem('scheme', 'light'); } catch (e) {}
     document.documentElement.setAttribute('data-fr-scheme', 'light');
   </script>
 
@@ -18,7 +17,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.13.1/dist/utility/icons/icons.min.css">
 
   <style>
-    :root {
+    :root{
       --studio-preview-bg: #f6f6f6;
       --studio-card-border: rgba(0,0,0,.08);
       --studio-shadow: 0 6px 24px rgba(0,0,0,.08);
@@ -26,305 +25,326 @@
       --studio-pin: #e1000f;
     }
 
-    html, body {
-      min-height: 100%;
+    html, body { min-height: 100%; }
+    body { background: var(--background-default-grey); margin: 0; }
+
+    /* Espace latéral (sans full-width) */
+    .studio-main {
+      padding-left: 2rem;
+      padding-right: 2rem;
+    }
+    @media (max-width: 48em){
+      .studio-main{ padding-left: 1rem; padding-right: 1rem; }
     }
 
-    body {
-      background: var(--background-default-grey);
-    }
-
-    .studio-shell {
-      display: grid;
-      grid-template-columns: minmax(360px, 420px) minmax(0, 1fr);
+    .studio-shell{
+      display:grid;
+      grid-template-columns: minmax(380px, 460px) minmax(0, 1fr);
       gap: 1rem;
-      align-items: start;
+      align-items:start;
     }
 
     .studio-panel,
-    .studio-preview-panel {
+    .studio-preview-panel{
       background: var(--background-default-grey);
       border: 1px solid var(--border-default-grey);
       border-radius: 1rem;
       box-shadow: var(--studio-shadow);
-      overflow: hidden;
+      overflow:hidden;
     }
 
     .studio-panel__head,
-    .studio-preview-panel__head {
+    .studio-preview-panel__head{
       padding: 1rem 1rem .5rem;
       border-bottom: 1px solid var(--border-default-grey);
       background: var(--background-alt-grey);
     }
 
     .studio-panel__body,
-    .studio-preview-panel__body {
-      padding: 1rem;
-    }
+    .studio-preview-panel__body{ padding: 1rem; }
 
-    .studio-dropzone {
+    .studio-dropzone{
       border: 2px dashed var(--border-default-blue-france);
       border-radius: 1rem;
       background: var(--background-alt-blue-france);
       padding: 1.25rem;
-      text-align: center;
-      transition: .2s ease;
+      text-align:center;
+      transition:.2s ease;
     }
-
-    .studio-dropzone.dragover {
+    .studio-dropzone.dragover{
       transform: translateY(-1px);
       box-shadow: var(--studio-shadow);
       background: #eef4ff;
     }
 
-    .studio-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: .75rem;
+    /* Zone plus grande pour manipuler les photos */
+    .studio-photo-zone{
+      border: 1px solid var(--border-default-grey);
+      border-radius: 1rem;
+      background: #fff;
+      padding: 1rem;
+      min-height: 520px;
+    }
+    .studio-photo-zone.is-empty{
+      display:flex;
+      align-items:center;
+      justify-content:center;
     }
 
-    .studio-thumb-card {
-      background: #fff;
-      border: 1px solid var(--studio-card-border);
-      border-radius: .75rem;
-      overflow: hidden;
+    .studio-grid{
+      display:grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1rem;
+    }
+
+    .studio-thumb-card{
+      background:#fff;
+      border:1px solid var(--studio-card-border);
+      border-radius:.75rem;
+      overflow:hidden;
       box-shadow: 0 2px 10px rgba(0,0,0,.04);
     }
 
-    .studio-thumb-card__img {
+    .studio-thumb-card__img{
       aspect-ratio: 4 / 3;
-      width: 100%;
+      width:100%;
       object-fit: cover;
-      display: block;
-      background: #ddd;
+      display:block;
+      background:#ddd;
     }
 
-    .studio-thumb-card__body {
-      padding: .65rem;
-    }
+    .studio-thumb-card__body{ padding: .75rem; }
 
-    .studio-thumb-card__actions {
-      display: flex;
-      justify-content: space-between;
-      gap: .5rem;
-      align-items: center;
-      margin-top: .5rem;
+    .studio-thumb-card__actions{
+      display:flex;
+      justify-content:space-between;
+      gap:.5rem;
+      align-items:center;
+      margin-top:.5rem;
     }
 
     .studio-input-compact input,
     .studio-input-compact textarea,
-    .studio-input-compact select {
-      margin-bottom: 0;
-    }
+    .studio-input-compact select{ margin-bottom:0; }
 
-    .studio-preview-wrap {
-      display: grid;
-      gap: 1rem;
-    }
+    .studio-preview-wrap{ display:grid; gap: 1rem; }
 
-    .sheet-page {
+    .sheet-page{
       width: min(100%, 820px);
       margin: 0 auto;
-      background: #fff;
-      color: #1b1b35;
-      min-height: 1120px;
-      padding: 48px;
+      background:#fff;
+      color:#1b1b35;
+      min-height:1120px;
+      padding:48px;
       box-shadow: var(--studio-page-shadow);
-      position: relative;
+      position:relative;
     }
 
-    .sheet-cover__header {
+    .sheet-cover__header{
       border-bottom: 3px solid #000091;
       padding-bottom: 1rem;
       margin-bottom: 1.5rem;
     }
-
-    .sheet-cover__title {
-      font-size: 2rem;
-      font-weight: 700;
-      line-height: 1.15;
-      margin: 0;
+    .sheet-cover__title{
+      font-size:2rem;
+      font-weight:700;
+      line-height:1.15;
+      margin:0;
     }
 
-    .sheet-meta {
-      display: grid;
+    .sheet-meta{
+      display:grid;
       grid-template-columns: 220px 1fr;
-      gap: .65rem 1rem;
-      margin: 1.5rem 0;
-      font-size: 1rem;
+      gap:.65rem 1rem;
+      margin:1.5rem 0;
+      font-size:1rem;
+    }
+    .sheet-meta div:nth-child(odd){ font-weight:700; }
+
+    .sheet-summary{
+      border:1px solid #d6d6d6;
+      border-radius:.75rem;
+      padding:1rem;
+      white-space:pre-wrap;
+      min-height:120px;
+      background:#fcfcfd;
     }
 
-    .sheet-meta div:nth-child(odd) {
-      font-weight: 700;
-    }
-
-    .sheet-summary {
-      border: 1px solid #d6d6d6;
-      border-radius: .75rem;
-      padding: 1rem;
-      white-space: pre-wrap;
-      min-height: 120px;
-      background: #fcfcfd;
-    }
-
-    .sheet-map-block {
-      margin-top: 1.5rem;
-    }
+    .sheet-map-block{ margin-top:1.5rem; }
 
     .map-canvas,
-    .sheet-map-preview {
-      position: relative;
-      border: 1px solid #d6d6d6;
-      border-radius: .75rem;
-      overflow: hidden;
-      background: #f2f2f2;
+    .sheet-map-preview{
+      position:relative;
+      border:1px solid #d6d6d6;
+      border-radius:.75rem;
+      overflow:hidden;
+      background:#f2f2f2;
     }
-
     .map-canvas img,
-    .sheet-map-preview img {
-      display: block;
-      width: 100%;
-      height: auto;
-      max-height: 360px;
-      object-fit: contain;
-      background: #f2f2f2;
+    .sheet-map-preview img{
+      display:block;
+      width:100%;
+      height:auto;
+      max-height:360px;
+      object-fit:contain;
+      background:#f2f2f2;
     }
 
     .map-pin,
-    .sheet-map-pin {
-      position: absolute;
-      width: 22px;
-      height: 22px;
+    .sheet-map-pin{
+      position:absolute;
+      width:22px;
+      height:22px;
       background: var(--studio-pin);
-      border: 3px solid #fff;
+      border:3px solid #fff;
       border-radius: 50% 50% 50% 0;
       transform: rotate(-45deg) translate(-50%, -50%);
       box-shadow: 0 3px 12px rgba(0,0,0,.25);
-      pointer-events: none;
+      pointer-events:none;
     }
-
     .sheet-map-pin::after,
-    .map-pin::after {
-      content: '';
-      position: absolute;
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: #fff;
+    .map-pin::after{
+      content:'';
+      position:absolute;
+      width:7px;
+      height:7px;
+      border-radius:50%;
+      background:#fff;
       inset: 4px auto auto 4px;
     }
 
-    .sheet-photo-slot {
-      width: 100%;
-      border: 1px solid #d6d6d6;
-      border-radius: .75rem;
-      padding: 1rem;
-      background: #fff;
-      box-sizing: border-box;
+    .sheet-photo-slot{
+      width:100%;
+      border:1px solid #d6d6d6;
+      border-radius:.75rem;
+      padding:1rem;
+      background:#fff;
+      box-sizing:border-box;
     }
-
-    .sheet-photo-slot + .sheet-photo-slot {
-      margin-top: 2.2rem;
+    .sheet-photo-slot + .sheet-photo-slot{ margin-top: 2.2rem; }
+    .sheet-photo-slot.right{ margin-left:auto; max-width:82%; }
+    .sheet-photo-slot.left{ margin-right:auto; max-width:82%; }
+    .sheet-photo-slot img{
+      width:100%;
+      max-height:400px;
+      object-fit:contain;
+      display:block;
+      background:#f8f8f8;
+      border-radius:.5rem;
     }
-
-    .sheet-photo-slot.right {
-      margin-left: auto;
-      max-width: 82%;
-    }
-
-    .sheet-photo-slot.left {
-      margin-right: auto;
-      max-width: 82%;
-    }
-
-    .sheet-photo-slot img {
-      width: 100%;
-      max-height: 400px;
-      object-fit: contain;
-      display: block;
-      background: #f8f8f8;
-      border-radius: .5rem;
-    }
-
-    .sheet-photo-slot__caption {
-      font-size: 1rem;
-      font-weight: 700;
-      margin-top: .75rem;
-      text-align: center;
+    .sheet-photo-slot__caption{
+      font-size:1rem;
+      font-weight:700;
+      margin-top:.75rem;
+      text-align:center;
       word-break: break-word;
     }
 
-    .empty-state {
-      border: 1px dashed #c6c6c6;
-      border-radius: .75rem;
+    .empty-state{
+      border:1px dashed #c6c6c6;
+      border-radius:.75rem;
       padding: 2rem 1rem;
-      text-align: center;
-      color: #666;
-      background: #fff;
+      text-align:center;
+      color:#666;
+      background:#fff;
+      width: 100%;
     }
 
-    .sticky-preview-actions {
+    .sticky-preview-actions{
       position: sticky;
       top: .75rem;
       z-index: 5;
-      display: flex;
-      justify-content: flex-end;
-      gap: .5rem;
+      display:flex;
+      justify-content:flex-end;
+      gap:.5rem;
       margin-bottom: 1rem;
-      flex-wrap: wrap;
+      flex-wrap:wrap;
     }
 
-    .fr-textarea--sm {
-      min-height: 6rem;
+    .fr-textarea--sm{ min-height: 6rem; }
+    .fr-fieldset__element + .fr-fieldset__element{ margin-top: .75rem; }
+
+    .studio-badge-soft{
+      display:inline-flex;
+      align-items:center;
+      gap:.35rem;
+      font-size:.875rem;
+      padding:.25rem .6rem;
+      border-radius:999px;
+      background:#eef4ff;
+      color:#000091;
+      font-weight:600;
     }
 
-    .fr-fieldset__element + .fr-fieldset__element {
-      margin-top: .75rem;
+    @media (max-width: 1180px){
+      .studio-shell{ grid-template-columns: 1fr; }
+      .sheet-page{ padding: 24px; min-height: auto; }
+      .studio-grid{ grid-template-columns: repeat(3, minmax(0, 1fr)); }
     }
-
-    .studio-badge-soft {
-      display: inline-flex;
-      align-items: center;
-      gap: .35rem;
-      font-size: .875rem;
-      padding: .25rem .6rem;
-      border-radius: 999px;
-      background: #eef4ff;
-      color: #000091;
-      font-weight: 600;
-    }
-
-    @media (max-width: 1180px) {
-      .studio-shell {
-        grid-template-columns: 1fr;
-      }
-
-      .sheet-page {
-        padding: 24px;
-        min-height: auto;
-      }
-    }
-
-    @media (max-width: 760px) {
-      .studio-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-
-      .sheet-meta {
-        grid-template-columns: 1fr;
-      }
+    @media (max-width: 760px){
+      .studio-grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .sheet-meta{ grid-template-columns: 1fr; }
+      .studio-photo-zone{ min-height: 420px; }
     }
   </style>
 </head>
+
 <body>
-  <div class="fr-container-fluid fr-py-3w">
+  <!-- HEADER (GoFast) conservé, menu renommé -->
+  <header role="banner" class="fr-header">
+    <div class="fr-header__body">
+      <div class="fr-container">
+        <div class="fr-header__body-row">
+          <div class="fr-header__brand fr-enlarge-link">
+            <div class="fr-header__brand-top">
+              <div class="fr-header__logo">
+                <p class="fr-logo">
+                  Ministère<br>de l’Intérieur
+                </p>
+              </div>
+              <div class="fr-header__navbar">
+                <button class="fr-btn--menu fr-btn" data-fr-opened="false" aria-controls="modal-menu" aria-haspopup="menu" title="Menu">
+                  Menu
+                </button>
+              </div>
+            </div>
+
+            <div class="fr-header__service">
+              <a href="#" title="Accueil">
+                <p class="fr-header__service-title">Studio</p>
+              </a>
+              <p class="fr-header__service-tagline">Générateur de planches photographiques</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MENU -->
+    <div class="fr-header__menu fr-modal" id="modal-menu" aria-labelledby="modal-menu-title">
+      <div class="fr-container">
+        <button class="fr-btn--close fr-btn" aria-controls="modal-menu" title="Fermer">Fermer</button>
+        <div class="fr-header__menu-links"></div>
+        <nav class="fr-nav" role="navigation" aria-label="Menu principal">
+          <ul class="fr-nav__list">
+            <li class="fr-nav__item"><a class="fr-nav__link" href="#conception">Conception</a></li>
+            <li class="fr-nav__item"><a class="fr-nav__link" href="#page-presentation">Page de présentation</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTENU STUDIO (ajouté sous le header) -->
+  <main class="fr-container fr-py-3w studio-main">
     <div class="fr-alert fr-alert--info fr-mb-3w">
       <h3 class="fr-alert__title">Studio - Générateur de planches photographiques</h3>
       <p>Version autonome HTML. Export <strong>WEB</strong> et <strong>PDF</strong> opérationnels. Export <strong>ODT</strong> préparé dans l’interface mais non activé à ce stade, car il nécessitera un moteur de génération dédié.</p>
     </div>
 
     <div class="studio-shell">
-      <aside class="studio-panel">
+      <!-- CONCEPTION -->
+      <aside class="studio-panel" id="conception">
         <div class="studio-panel__head">
           <p class="fr-badge fr-badge--blue-france fr-badge--no-icon fr-mb-1w">Conception</p>
           <h1 class="fr-h4 fr-mb-1v">Paramétrage de la planche</h1>
@@ -346,7 +366,8 @@
             <p class="fr-text--xs fr-mt-1w fr-mb-0" id="photoCount">0 photographie importée.</p>
           </section>
 
-          <section class="fr-mb-4w">
+          <!-- PAGE DE PRÉSENTATION (ancre menu) -->
+          <section class="fr-mb-4w" id="page-presentation">
             <h2 class="fr-h6">2. Page de présentation</h2>
 
             <div class="fr-input-group studio-input-compact">
@@ -435,6 +456,7 @@
         </div>
       </aside>
 
+      <!-- PRÉVISUALISATION -->
       <section class="studio-preview-panel">
         <div class="studio-preview-panel__head">
           <div class="fr-grid-row fr-grid-row--middle fr-grid-row--gutters">
@@ -444,7 +466,10 @@
               <p class="fr-text--sm fr-mb-0">Grille des photographies et rendu du document final avec deux photographies par page en quinconce.</p>
             </div>
             <div class="fr-col-auto">
-              <span class="studio-badge-soft"><span class="fr-icon-eye-line" aria-hidden="true"></span><span id="pageCounter">1 page</span></span>
+              <span class="studio-badge-soft">
+                <span class="fr-icon-eye-line" aria-hidden="true"></span>
+                <span id="pageCounter">1 page</span>
+              </span>
             </div>
           </div>
         </div>
@@ -457,8 +482,14 @@
 
           <section class="fr-mb-4w">
             <h3 class="fr-h6">Photographies importées</h3>
-            <div id="photoGrid" class="studio-grid"></div>
-            <div id="photoGridEmpty" class="empty-state">Aucune photographie importée pour le moment.</div>
+
+            <!-- Zone agrandie -->
+            <div id="photoZone" class="studio-photo-zone is-empty">
+              <div style="width:100%">
+                <div id="photoGrid" class="studio-grid"></div>
+                <div id="photoGridEmpty" class="empty-state">Aucune photographie importée pour le moment.</div>
+              </div>
+            </div>
           </section>
 
           <section>
@@ -468,7 +499,7 @@
         </div>
       </section>
     </div>
-  </div>
+  </main>
 
   <template id="photoCardTemplate">
     <article class="studio-thumb-card">
@@ -486,21 +517,19 @@
     </article>
   </template>
 
-  <script src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.13.1/dist/dsfr/dsfr.module.min.js" type="module"></script>
+  <!-- DSFR JS -->
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.13.1/dist/dsfr/dsfr.module.min.js"></script>
   <script nomodule src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.13.1/dist/dsfr/dsfr.nomodule.min.js"></script>
-  
-  <script>
-  window.addEventListener('DOMContentLoaded', function () {
-    document.documentElement.setAttribute('data-fr-scheme', 'light');
-    try {
-      localStorage.setItem('scheme', 'light');
-    } catch (e) {}
 
-    if (window.dsfr) {
-      dsfr(document.documentElement).scheme.scheme = 'light';
-    }
-  });
-</script>
+  <script>
+    window.addEventListener('DOMContentLoaded', function () {
+      document.documentElement.setAttribute('data-fr-scheme', 'light');
+      try { localStorage.setItem('scheme', 'light'); } catch (e) {}
+      if (window.dsfr) {
+        dsfr(document.documentElement).scheme.scheme = 'light';
+      }
+    });
+  </script>
 
   <script>
     const state = {
@@ -514,6 +543,7 @@
       mapInput: document.getElementById('mapInput'),
       dropzone: document.getElementById('dropzone'),
       clearPhotosBtn: document.getElementById('clearPhotosBtn'),
+      photoZone: document.getElementById('photoZone'),
       photoGrid: document.getElementById('photoGrid'),
       photoGridEmpty: document.getElementById('photoGridEmpty'),
       previewPages: document.getElementById('previewPages'),
@@ -549,11 +579,7 @@
     function formatDate(value) {
       if (!value) return '';
       try {
-        return new Intl.DateTimeFormat('fr-FR', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric'
-        }).format(new Date(value));
+        return new Intl.DateTimeFormat('fr-FR', { day:'2-digit', month:'2-digit', year:'numeric' }).format(new Date(value));
       } catch {
         return value;
       }
@@ -616,7 +642,11 @@
 
     function renderPhotoGrid() {
       els.photoGrid.innerHTML = '';
-      els.photoGridEmpty.hidden = state.photos.length > 0;
+
+      const has = state.photos.length > 0;
+      els.photoGridEmpty.hidden = has;
+      els.photoZone.classList.toggle('is-empty', !has);
+
       state.photos.forEach((photo, index) => {
         const node = els.photoCardTemplate.content.firstElementChild.cloneNode(true);
         const img = node.querySelector('img');
@@ -637,6 +667,7 @@
         removeBtn.addEventListener('click', () => removePhoto(photo.id));
         els.photoGrid.appendChild(node);
       });
+
       els.photoCount.textContent = `${state.photos.length} photographie${state.photos.length > 1 ? 's importée' : ' importée'}.`;
     }
 
@@ -764,7 +795,6 @@ body{margin:0;padding:24px;background:#efefef;font-family:Marianne,Arial,sans-se
 .sheet-map-pin::after{content:'';position:absolute;width:7px;height:7px;border-radius:50%;background:#fff;inset:4px auto auto 4px}
 .sheet-photo-slot{width:100%;border:1px solid #d6d6d6;border-radius:.75rem;padding:1rem;background:#fff;box-sizing:border-box}.sheet-photo-slot+.sheet-photo-slot{margin-top:2.2rem}.sheet-photo-slot.right{margin-left:auto;max-width:82%}.sheet-photo-slot.left{margin-right:auto;max-width:82%}.sheet-photo-slot img{width:100%;max-height:400px;object-fit:contain;display:block;background:#f8f8f8;border-radius:.5rem}.sheet-photo-slot__caption{font-size:1rem;font-weight:700;margin-top:.75rem;text-align:center;word-break:break-word}
 .empty-state{border:1px dashed #c6c6c6;border-radius:.75rem;padding:2rem 1rem;text-align:center;color:#666;background:#fff;margin-top:4rem}
-.map-title{margin:0 0 .75rem 0;font-size:1.1rem}
 @media print{body{padding:0;background:#fff}.sheet-page{box-shadow:none;margin:0 auto;page-break-after:always}.sheet-page:last-child{page-break-after:auto}}
 </style>
 </head>
@@ -815,14 +845,8 @@ ${buildFullDocumentHtml()}
 
     function handleGenerate() {
       const format = els.exportFormat.value;
-      if (format === 'web') {
-        exportWeb();
-        return;
-      }
-      if (format === 'pdf') {
-        exportPdf();
-        return;
-      }
+      if (format === 'web') return exportWeb();
+      if (format === 'pdf') return exportPdf();
       alert('L’export ODT est prévu dans la structure de l’application, mais il n’est pas encore activé dans cette première version HTML autonome.');
     }
 
@@ -835,17 +859,14 @@ ${buildFullDocumentHtml()}
       e.preventDefault();
       els.dropzone.classList.add('dragover');
     });
-
     els.dropzone.addEventListener('dragleave', () => {
       els.dropzone.classList.remove('dragover');
     });
-
     els.dropzone.addEventListener('drop', (e) => {
       e.preventDefault();
       els.dropzone.classList.remove('dragover');
       addPhotos(e.dataTransfer.files);
     });
-
     els.dropzone.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
@@ -856,14 +877,8 @@ ${buildFullDocumentHtml()}
     els.clearPhotosBtn.addEventListener('click', clearPhotos);
 
     [
-      els.presetTitle,
-      els.customTitle,
-      els.unitField,
-      els.referenceField,
-      els.dateField,
-      els.placeField,
-      els.authorField,
-      els.summaryField
+      els.presetTitle, els.customTitle, els.unitField, els.referenceField,
+      els.dateField, els.placeField, els.authorField, els.summaryField
     ].forEach(el => el.addEventListener('input', renderDocumentPreview));
 
     els.presetTitle.addEventListener('change', () => {
