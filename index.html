@@ -28,7 +28,7 @@
     html, body { min-height: 100%; }
     body { background: var(--background-default-grey); margin: 0; }
 
-    /* Espace latéral (sans full-width) */
+    /* Espace latéral */
     .studio-main {
       padding-left: 2rem;
       padding-right: 2rem;
@@ -44,20 +44,21 @@
       align-items:start;
     }
 
+    /* ✅ PAS de coins arrondis + ✅ PAS de bi-ton : même fond partout */
     .studio-panel,
     .studio-preview-panel{
       background: var(--background-default-grey);
       border: 1px solid var(--border-default-grey);
-      border-radius: 1rem;
-      box-shadow: var(--studio-shadow);
-      overflow:hidden;
+      border-radius: 0;
+      box-shadow: none;
+      overflow: hidden;
     }
 
     .studio-panel__head,
     .studio-preview-panel__head{
       padding: 1rem 1rem .5rem;
       border-bottom: 1px solid var(--border-default-grey);
-      background: var(--background-alt-grey);
+      background: var(--background-default-grey); /* pas de gris différent */
     }
 
     .studio-panel__body,
@@ -65,7 +66,7 @@
 
     .studio-dropzone{
       border: 2px dashed var(--border-default-blue-france);
-      border-radius: 1rem;
+      border-radius: 0;
       background: var(--background-alt-blue-france);
       padding: 1.25rem;
       text-align:center;
@@ -73,14 +74,14 @@
     }
     .studio-dropzone.dragover{
       transform: translateY(-1px);
-      box-shadow: var(--studio-shadow);
+      box-shadow: none;
       background: #eef4ff;
     }
 
     /* Zone plus grande pour manipuler les photos */
     .studio-photo-zone{
       border: 1px solid var(--border-default-grey);
-      border-radius: 1rem;
+      border-radius: 0;
       background: #fff;
       padding: 1rem;
       min-height: 520px;
@@ -100,9 +101,9 @@
     .studio-thumb-card{
       background:#fff;
       border:1px solid var(--studio-card-border);
-      border-radius:.75rem;
+      border-radius: 0;
       overflow:hidden;
-      box-shadow: 0 2px 10px rgba(0,0,0,.04);
+      box-shadow: none;
     }
 
     .studio-thumb-card__img{
@@ -163,7 +164,7 @@
 
     .sheet-summary{
       border:1px solid #d6d6d6;
-      border-radius:.75rem;
+      border-radius: 0;
       padding:1rem;
       white-space:pre-wrap;
       min-height:120px;
@@ -176,7 +177,7 @@
     .sheet-map-preview{
       position:relative;
       border:1px solid #d6d6d6;
-      border-radius:.75rem;
+      border-radius: 0;
       overflow:hidden;
       background:#f2f2f2;
     }
@@ -197,7 +198,7 @@
       height:22px;
       background: var(--studio-pin);
       border:3px solid #fff;
-      border-radius: 50% 50% 50% 0;
+      border-radius: 50% 50% 50% 0; /* pin OK */
       transform: rotate(-45deg) translate(-50%, -50%);
       box-shadow: 0 3px 12px rgba(0,0,0,.25);
       pointer-events:none;
@@ -216,7 +217,7 @@
     .sheet-photo-slot{
       width:100%;
       border:1px solid #d6d6d6;
-      border-radius:.75rem;
+      border-radius: 0;
       padding:1rem;
       background:#fff;
       box-sizing:border-box;
@@ -230,7 +231,7 @@
       object-fit:contain;
       display:block;
       background:#f8f8f8;
-      border-radius:.5rem;
+      border-radius: 0;
     }
     .sheet-photo-slot__caption{
       font-size:1rem;
@@ -242,7 +243,7 @@
 
     .empty-state{
       border:1px dashed #c6c6c6;
-      border-radius:.75rem;
+      border-radius: 0;
       padding: 2rem 1rem;
       text-align:center;
       color:#666;
@@ -270,7 +271,7 @@
       gap:.35rem;
       font-size:.875rem;
       padding:.25rem .6rem;
-      border-radius:999px;
+      border-radius: 999px; /* badge OK */
       background:#eef4ff;
       color:#000091;
       font-weight:600;
@@ -335,13 +336,8 @@
     </div>
   </header>
 
-  <!-- CONTENU STUDIO (ajouté sous le header) -->
+  <!-- ✅ on remet un main propre (il manquait dans ta version) -->
   <main class="fr-container fr-py-3w studio-main">
-    <div class="fr-alert fr-alert--info fr-mb-3w">
-      <h3 class="fr-alert__title">Studio - Générateur de planches photographiques</h3>
-      <p>Version autonome HTML. Export <strong>WEB</strong> et <strong>PDF</strong> opérationnels. Export <strong>ODT</strong> préparé dans l’interface mais non activé à ce stade, car il nécessitera un moteur de génération dédié.</p>
-    </div>
-
     <div class="studio-shell">
       <!-- CONCEPTION -->
       <aside class="studio-panel" id="conception">
@@ -366,7 +362,6 @@
             <p class="fr-text--xs fr-mt-1w fr-mb-0" id="photoCount">0 photographie importée.</p>
           </section>
 
-          <!-- PAGE DE PRÉSENTATION (ancre menu) -->
           <section class="fr-mb-4w" id="page-presentation">
             <h2 class="fr-h6">2. Page de présentation</h2>
 
@@ -482,8 +477,6 @@
 
           <section class="fr-mb-4w">
             <h3 class="fr-h6">Photographies importées</h3>
-
-            <!-- Zone agrandie -->
             <div id="photoZone" class="studio-photo-zone is-empty">
               <div style="width:100%">
                 <div id="photoGrid" class="studio-grid"></div>
@@ -532,11 +525,7 @@
   </script>
 
   <script>
-    const state = {
-      photos: [],
-      mapDataUrl: '',
-      pin: null
-    };
+    const state = { photos: [], mapDataUrl: '', pin: null };
 
     const els = {
       photoInput: document.getElementById('photoInput'),
@@ -580,9 +569,7 @@
       if (!value) return '';
       try {
         return new Intl.DateTimeFormat('fr-FR', { day:'2-digit', month:'2-digit', year:'numeric' }).format(new Date(value));
-      } catch {
-        return value;
-      }
+      } catch { return value; }
     }
 
     function getFinalTitle() {
@@ -727,13 +714,15 @@
       }
 
       const chunks = [];
-      for (let i = 0; i < state.photos.length; i += 2) {
-        chunks.push(state.photos.slice(i, i + 2));
-      }
+      for (let i = 0; i < state.photos.length; i += 2) chunks.push(state.photos.slice(i, i + 2));
 
       return chunks.map((chunk, pageIndex) => {
         const slots = chunk.map((photo, idx) => {
-          const alignment = idx === 0 ? (pageIndex % 2 === 0 ? 'left' : 'right') : (pageIndex % 2 === 0 ? 'right' : 'left');
+          const alignment =
+            idx === 0
+              ? (pageIndex % 2 === 0 ? 'left' : 'right')
+              : (pageIndex % 2 === 0 ? 'right' : 'left');
+
           return `
             <section class="sheet-photo-slot ${alignment}">
               <img src="${photo.dataUrl}" alt="${escapeHtml(photo.name)}">
@@ -766,10 +755,7 @@
       const rect = els.mapImage.getBoundingClientRect();
       const x = ((event.clientX - rect.left) / rect.width) * 100;
       const y = ((event.clientY - rect.top) / rect.height) * 100;
-      state.pin = {
-        x: Math.max(0, Math.min(100, x)),
-        y: Math.max(0, Math.min(100, y))
-      };
+      state.pin = { x: Math.max(0, Math.min(100, x)), y: Math.max(0, Math.min(100, y)) };
       els.mapPin.hidden = false;
       els.mapPin.style.left = `${state.pin.x}%`;
       els.mapPin.style.top = `${state.pin.y}%`;
@@ -789,12 +775,12 @@ body{margin:0;padding:24px;background:#efefef;font-family:Marianne,Arial,sans-se
 .sheet-cover__header{border-bottom:3px solid #000091;padding-bottom:1rem;margin-bottom:1.5rem}
 .sheet-cover__title{font-size:2rem;font-weight:700;line-height:1.15;margin:0}
 .sheet-meta{display:grid;grid-template-columns:220px 1fr;gap:.65rem 1rem;margin:1.5rem 0;font-size:1rem}.sheet-meta div:nth-child(odd){font-weight:700}
-.sheet-summary{border:1px solid #d6d6d6;border-radius:.75rem;padding:1rem;white-space:pre-wrap;min-height:120px;background:#fcfcfd}
-.sheet-map-preview{position:relative;border:1px solid #d6d6d6;border-radius:.75rem;overflow:hidden;background:#f2f2f2}.sheet-map-preview img{display:block;width:100%;height:auto;max-height:360px;object-fit:contain;background:#f2f2f2}
+.sheet-summary{border:1px solid #d6d6d6;border-radius:0;padding:1rem;white-space:pre-wrap;min-height:120px;background:#fcfcfd}
+.sheet-map-preview{position:relative;border:1px solid #d6d6d6;border-radius:0;overflow:hidden;background:#f2f2f2}.sheet-map-preview img{display:block;width:100%;height:auto;max-height:360px;object-fit:contain;background:#f2f2f2}
 .sheet-map-pin{position:absolute;width:22px;height:22px;background:#e1000f;border:3px solid #fff;border-radius:50% 50% 50% 0;transform:rotate(-45deg) translate(-50%,-50%);box-shadow:0 3px 12px rgba(0,0,0,.25)}
 .sheet-map-pin::after{content:'';position:absolute;width:7px;height:7px;border-radius:50%;background:#fff;inset:4px auto auto 4px}
-.sheet-photo-slot{width:100%;border:1px solid #d6d6d6;border-radius:.75rem;padding:1rem;background:#fff;box-sizing:border-box}.sheet-photo-slot+.sheet-photo-slot{margin-top:2.2rem}.sheet-photo-slot.right{margin-left:auto;max-width:82%}.sheet-photo-slot.left{margin-right:auto;max-width:82%}.sheet-photo-slot img{width:100%;max-height:400px;object-fit:contain;display:block;background:#f8f8f8;border-radius:.5rem}.sheet-photo-slot__caption{font-size:1rem;font-weight:700;margin-top:.75rem;text-align:center;word-break:break-word}
-.empty-state{border:1px dashed #c6c6c6;border-radius:.75rem;padding:2rem 1rem;text-align:center;color:#666;background:#fff;margin-top:4rem}
+.sheet-photo-slot{width:100%;border:1px solid #d6d6d6;border-radius:0;padding:1rem;background:#fff;box-sizing:border-box}.sheet-photo-slot+.sheet-photo-slot{margin-top:2.2rem}.sheet-photo-slot.right{margin-left:auto;max-width:82%}.sheet-photo-slot.left{margin-right:auto;max-width:82%}.sheet-photo-slot img{width:100%;max-height:400px;object-fit:contain;display:block;background:#f8f8f8;border-radius:0}.sheet-photo-slot__caption{font-size:1rem;font-weight:700;margin-top:.75rem;text-align:center;word-break:break-word}
+.empty-state{border:1px dashed #c6c6c6;border-radius:0;padding:2rem 1rem;text-align:center;color:#666;background:#fff;margin-top:4rem}
 @media print{body{padding:0;background:#fff}.sheet-page{box-shadow:none;margin:0 auto;page-break-after:always}.sheet-page:last-child{page-break-after:auto}}
 </style>
 </head>
@@ -876,10 +862,8 @@ ${buildFullDocumentHtml()}
 
     els.clearPhotosBtn.addEventListener('click', clearPhotos);
 
-    [
-      els.presetTitle, els.customTitle, els.unitField, els.referenceField,
-      els.dateField, els.placeField, els.authorField, els.summaryField
-    ].forEach(el => el.addEventListener('input', renderDocumentPreview));
+    [els.presetTitle, els.customTitle, els.unitField, els.referenceField, els.dateField, els.placeField, els.authorField, els.summaryField]
+      .forEach(el => el.addEventListener('input', renderDocumentPreview));
 
     els.presetTitle.addEventListener('change', () => {
       if (!els.customTitle.value.trim()) renderDocumentPreview();
