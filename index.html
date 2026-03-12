@@ -1,16 +1,12 @@
 <!DOCTYPE html>
-<html lang="fr" data-fr-scheme="system">
+<html lang="fr" data-fr-scheme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <script>
-    (function () {
-      try {
-        var saved = localStorage.getItem('scheme');
-        if (saved) document.documentElement.setAttribute('data-fr-scheme', saved);
-      } catch (e) {}
-    })();
+    document.documentElement.setAttribute('data-fr-scheme', 'light');
   </script>
+
   <title>Studio - Générateur de planches photographiques</title>
 
   <link rel="icon" type="image/png" href="https://www.interieur.gouv.fr/themes/custom/dsfr/src/images/logo/favicon.png">
