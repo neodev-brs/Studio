@@ -318,6 +318,25 @@
       }
     }
 
+    /* ✅ Par défaut : comportement "avant" (sans description) */
+    .sheet-photo-slot.no-desc{
+      padding-bottom: 1rem; /* comme avant, compact */
+    }
+
+    /* Le titre ne doit pas créer trop d’air si pas de description */
+    .sheet-photo-slot.no-desc .sheet-photo-slot__caption{
+      margin-top: .75rem; /* garde le rendu d'origine */
+      margin-bottom: 0;   /* ✅ pas d’espace fantôme */
+    }
+
+    /* ✅ Quand il y a une description, on gère l’espacement proprement */
+    .sheet-photo-slot.has-desc .sheet-photo-slot__caption{
+      margin-bottom: 0; /* évite double marge caption + desc */
+    }
+    .sheet-photo-slot.has-desc .sheet-photo-slot__desc{
+      margin-top: .35rem; /* ton réglage actuel, OK */
+    }
+
     .empty-state{
       border:1px dashed var(--border-default-grey);
       border-radius: 0;
@@ -962,13 +981,13 @@
               ? (pageIndex % 2 === 0 ? 'left' : 'right')
               : (pageIndex % 2 === 0 ? 'right' : 'left');
 
+          const hasDesc = (photo.description || '').trim().length > 0;
+
           return `
-            <section class="sheet-photo-slot ${alignment}">
-              <img src="${photo.dataUrl}" alt="${escapeHtml(photo.title || photo.name || '')}">
-                <div class="sheet-photo-slot__caption">${escapeHtml(photo.title || `Cliché N° ${pageIndex * 2 + idx + 1}`)}</div>
-                ${(photo.description || '').trim()
-                  ? `<div class="sheet-photo-slot__desc">${escapeHtml(photo.description)}</div>`
-                  : ``}
+            <section class="sheet-photo-slot ${alignment} ${hasDesc ? 'has-desc' : 'no-desc'}">
+              <img src="${photo.dataUrl}" alt="${escapeHtml(photo.title || '')}">
+              <div class="sheet-photo-slot__caption">${escapeHtml(photo.title || `Cliché N° ${pageIndex * 2 + idx + 1}`)}</div>
+              ${hasDesc ? `<div class="sheet-photo-slot__desc">${escapeHtml(photo.description.trim())}</div>` : ``}
             </section>`;
         }).join('');
 
@@ -1059,6 +1078,24 @@ body{margin:0;padding:24px;background:#efefef;font-family:Marianne,Arial,sans-se
     break-inside: avoid !important;
     page-break-inside: avoid !important;
   }
+}
+  /* ✅ Par défaut : comportement "avant" (sans description) */
+.sheet-photo-slot.no-desc{
+  padding-bottom: 1rem; /* comme avant, compact */
+}
+
+/* Le titre ne doit pas créer trop d’air si pas de description */
+.sheet-photo-slot.no-desc .sheet-photo-slot__caption{
+  margin-top: .75rem; /* garde le rendu d'origine */
+  margin-bottom: 0;   /* ✅ pas d’espace fantôme */
+}
+
+/* ✅ Quand il y a une description, on gère l’espacement proprement */
+.sheet-photo-slot.has-desc .sheet-photo-slot__caption{
+  margin-bottom: 0; /* évite double marge caption + desc */
+}
+.sheet-photo-slot.has-desc .sheet-photo-slot__desc{
+  margin-top: .35rem; /* ton réglage actuel, OK */
 }
 .empty-state{border:1px dashed #c6c6c6;border-radius:0;padding:2rem 1rem;text-align:center;color:#666;background:#fff;margin-top:4rem}
 @media print{body{padding:0;background:#fff}.sheet-page{box-shadow:none;margin:0 auto;page-break-after:always}.sheet-page:last-child{page-break-after:auto}}
