@@ -296,6 +296,28 @@
       word-break: break-word;
     }
 
+    /* ✅ Ne jamais couper un cliché sur 2 pages à l'impression */
+    .sheet-photo-slot{
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    /* Bonus : certains navigateurs sont plus stables si l'image aussi est protégée */
+    .sheet-photo-slot img,
+    .sheet-photo-slot__caption,
+    .sheet-photo-slot__desc{
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    /* ✅ Et en mode print on force (certains Chrome/Edge sont capricieux) */
+    @media print{
+      .sheet-photo-slot{
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+      }
+    }
+
     .empty-state{
       border:1px dashed var(--border-default-grey);
       border-radius: 0;
@@ -649,7 +671,10 @@
 
         <div class="fr-input-group studio-input-compact fr-mb-0">
           <label class="fr-label fr-text--xs">Description</label>
-          <textarea class="fr-input fr-textarea fr-textarea--sm" rows="3" placeholder="Texte libre..."></textarea>
+          <textarea class="fr-input fr-textarea fr-textarea--sm"
+          rows="3"
+          maxlength="150"
+          placeholder="Texte libre..."></textarea>
         </div>
 
         <div class="studio-thumb-card__actions">
@@ -801,10 +826,13 @@
     });
 
     descTextarea.addEventListener('input', (e) => {
+      // ✅ limite stricte 150 (espaces inclus)
+      if (e.target.value.length > 150) {
+        e.target.value = e.target.value.slice(0, 150);
+      }
       photo.description = e.target.value;
       renderDocumentPreview();
     });
-
     removeBtn.addEventListener('click', () => removePhoto(photo.id));
 
     /* Drag & drop */
@@ -1011,6 +1039,27 @@ body{margin:0;padding:24px;background:#efefef;font-family:Marianne,Arial,sans-se
 .sheet-map-pin__svg path{fill:#e1000f;}
 .sheet-map-pin__svg circle{fill:#ffffff;}
 .sheet-photo-slot{width:100%;border:1px solid #d6d6d6;border-radius:0;padding:1rem;background:#fff;box-sizing:border-box}.sheet-photo-slot+.sheet-photo-slot{margin-top:2.2rem}.sheet-photo-slot.right{margin-left:auto;max-width:82%}.sheet-photo-slot.left{margin-right:auto;max-width:82%}.sheet-photo-slot img{width:100%;max-height:400px;object-fit:contain;display:block;background:#f8f8f8;border-radius:0}.sheet-photo-slot__caption{font-size:1rem;font-weight:700;margin-top:.75rem;text-align:center;word-break:break-word}.sheet-photo-slot__desc{margin-top:.35rem;text-align:center;font-size:.95rem;font-weight:400;white-space:pre-wrap;word-break:break-word}
+/* ✅ Ne jamais couper un cliché sur 2 pages à l'impression */
+.sheet-photo-slot{
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+/* Bonus : certains navigateurs sont plus stables si l'image aussi est protégée */
+.sheet-photo-slot img,
+.sheet-photo-slot__caption,
+.sheet-photo-slot__desc{
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+/* ✅ Et en mode print on force (certains Chrome/Edge sont capricieux) */
+@media print{
+  .sheet-photo-slot{
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+}
 .empty-state{border:1px dashed #c6c6c6;border-radius:0;padding:2rem 1rem;text-align:center;color:#666;background:#fff;margin-top:4rem}
 @media print{body{padding:0;background:#fff}.sheet-page{box-shadow:none;margin:0 auto;page-break-after:always}.sheet-page:last-child{page-break-after:auto}}
 </style>
