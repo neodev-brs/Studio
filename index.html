@@ -839,6 +839,23 @@
     const meta = node.querySelector('.photo-meta');
     const removeBtn = node.querySelector('.remove-photo-btn');
 
+    // ✅ Empêche le drag de casser le double-clic / la sélection dans les champs
+    [titleInput, descTextarea].forEach(el => {
+      el.addEventListener('mousedown', (e) => {
+        e.stopPropagation();
+        node.draggable = false;
+      });
+      el.addEventListener('focus', () => {
+        node.draggable = false;
+      });
+      el.addEventListener('blur', () => {
+        node.draggable = true;
+      });
+      el.addEventListener('dragstart', (e) => {
+        e.preventDefault();
+      });
+    });
+
     img.src = photo.dataUrl;
     img.alt = photo.title || '';
 
@@ -868,6 +885,11 @@
     node.dataset.photoId = photo.id;
 
     node.addEventListener('dragstart', (e) => {
+      if (e.target.closest('input, textarea, select, button')) {
+        e.preventDefault();
+        return;
+      }
+
       node.classList.add('is-dragging');
       e.dataTransfer.effectAllowed = 'move';
       e.dataTransfer.setData('text/plain', photo.id);
