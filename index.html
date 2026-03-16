@@ -273,6 +273,23 @@
       font-weight:600;
     }
 
+    .studio-thumb-card{
+      cursor: grab;
+    }
+
+    .studio-thumb-card:active{
+      cursor: grabbing;
+    }
+
+    .studio-thumb-card.is-dragging{
+      opacity: .45;
+    }
+
+    .studio-thumb-card.is-drop-target{
+      outline: 2px dashed #000091;
+      outline-offset: 2px;
+    }
+
     @media (max-width: 1180px){
       .studio-shell{ grid-template-columns: 1fr; }
       .sheet-page{ padding: 24px; min-height: auto; }
@@ -645,7 +662,7 @@
       renderAll();
     }
 
-    function renderPhotoGrid() {
+        function renderPhotoGrid() {
       els.photoGrid.innerHTML = '';
 
       const has = state.photos.length > 0;
@@ -670,6 +687,54 @@
         });
 
         removeBtn.addEventListener('click', () => removePhoto(photo.id));
+
+        /* Drag & drop */
+        node.setAttribute('draggable', 'true');
+        node.dataset.photoId = photo.id;
+
+        node.addEventListener('dragstart', (e) => {
+          node.classList.add('is-dragging');
+          e.dataTransfer.effectAllowed = 'move';
+          e.dataTransfer.setData('text/plain', photo.id);
+        });
+
+        node.addEventListener('dragend', () => {
+          node.classList.remove('is-dragging');
+          els.photoGrid.querySelectorAll('.is-drop-target').forEach(el => {
+            el.classList.remove('is-drop-target');
+          });
+        });
+
+        node.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = 'move';
+          node.classList.add('is-drop-target');
+        });
+
+        node.addEventListener('dragleave', () => {
+          node.classList.remove('is-drop-target');
+        });
+
+        node.addEventListener('drop', (e) => {
+          e.preventDefault();
+          node.classList.remove('is-drop-target');
+
+          const draggedId = e.dataTransfer.getData('text/plain');
+          const targetId = photo.id;
+
+          if (!draggedId || draggedId === targetId) return;
+
+          const fromIndex = state.photos.findIndex(p => p.id === draggedId);
+          const toIndex = state.photos.findIndex(p => p.id === targetId);
+
+          if (fromIndex === -1 || toIndex === -1) return;
+
+          const [movedPhoto] = state.photos.splice(fromIndex, 1);
+          state.photos.splice(toIndex, 0, movedPhoto);
+
+          renderAll();
+        });
+
         els.photoGrid.appendChild(node);
       });
 
