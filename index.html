@@ -406,12 +406,13 @@
           <div class="fr-header__tools-links">
             <ul class="fr-btns-group">
               <li>
-                <button
-                  aria-controls="display"
-                  data-fr-opened="false"
-                  type="button"
-                  id="display-button"
-                  class="fr-btn--display fr-btn">
+                <button type="button" class="fr-btn fr-btn--tertiary fr-icon-refresh-line" id="resetBtn">
+                  Réinitialiser
+                </button>
+              </li>
+
+              <li>
+                <button aria-controls="display" data-fr-opened="false" type="button" id="display-button" class="fr-btn--display fr-btn">
                   Paramètres d'affichage
                 </button>
               </li>
@@ -680,7 +681,8 @@
       generateBtn: document.getElementById('generateBtn'),
       printBtn: document.getElementById('printBtn'),
       refreshBtn: document.getElementById('refreshBtn'),
-      photoCardTemplate: document.getElementById('photoCardTemplate')
+      photoCardTemplate: document.getElementById('photoCardTemplate'),
+      resetBtn: document.getElementById('resetBtn')
     };
 
     function escapeHtml(value) {
@@ -1031,6 +1033,34 @@ ${buildFullDocumentHtml()}
       if (format === 'pdf') return exportPdf();
       alert('L’export ODT est prévu dans la structure de l’application, mais il n’est pas encore activé dans cette première version HTML autonome.');
     }
+
+    function resetAll() {
+  // 1) Etat application
+  state.photos = [];
+  state.mapDataUrl = '';
+  state.pin = null;
+
+  // 2) Inputs fichiers
+  if (els.photoInput) els.photoInput.value = '';
+  if (els.mapInput) els.mapInput.value = '';
+
+  // 3) Formulaire page de présentation
+  const fields = [
+    els.presetTitle, els.customTitle, els.unitField, els.referenceField,
+    els.dateField, els.placeField, els.authorField, els.summaryField
+  ];
+  fields.forEach(el => { if (el) el.value = ''; });
+
+  // 4) UI carte
+  if (els.mapImage) els.mapImage.src = '';
+  if (els.mapCanvas) els.mapCanvas.hidden = true;
+  if (els.mapPin) els.mapPin.hidden = true;
+
+  // 5) Re-render
+  renderAll();
+}
+
+els.resetBtn?.addEventListener('click', resetAll);
 
     /* Events */
     els.photoInput.addEventListener('change', (e) => {
