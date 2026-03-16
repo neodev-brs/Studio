@@ -337,6 +337,15 @@
       margin-top: .35rem; /* ton réglage actuel, OK */
     }
 
+    /* Espace par défaut entre les 2 clichés */
+    .sheet-photo-slot + .sheet-photo-slot{ margin-top: 2.2rem; }
+
+    /* ✅ Si au moins un des 2 clichés n'a pas de description, on aère plus */
+    .sheet-photo-slot.no-desc + .sheet-photo-slot,
+    .sheet-photo-slot + .sheet-photo-slot.no-desc{
+      margin-top: 4rem;
+    }
+
     .empty-state{
       border:1px dashed var(--border-default-grey);
       border-radius: 0;
@@ -1096,6 +1105,14 @@ body{margin:0;padding:24px;background:#efefef;font-family:Marianne,Arial,sans-se
 }
 .sheet-photo-slot.has-desc .sheet-photo-slot__desc{
   margin-top: .35rem; /* ton réglage actuel, OK */
+}
+/* Espace par défaut entre les 2 clichés */
+.sheet-photo-slot + .sheet-photo-slot{ margin-top: 2.2rem; }
+
+/* ✅ Si au moins un des 2 clichés n'a pas de description, on aère plus */
+.sheet-photo-slot.no-desc + .sheet-photo-slot,
+.sheet-photo-slot + .sheet-photo-slot.no-desc{
+  margin-top: 4rem;
 }
 .empty-state{border:1px dashed #c6c6c6;border-radius:0;padding:2rem 1rem;text-align:center;color:#666;background:#fff;margin-top:4rem}
 @media print{body{padding:0;background:#fff}.sheet-page{box-shadow:none;margin:0 auto;page-break-after:always}.sheet-page:last-child{page-break-after:auto}}
