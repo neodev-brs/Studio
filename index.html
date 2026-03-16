@@ -845,6 +845,10 @@
       });
     }
 
+    function isAutoTitle(title) {
+      return /^Cliché N°\s*\d+$/i.test((title || '').trim());
+    }
+
     function renderPhotoGrid() {
   els.photoGrid.innerHTML = '';
 
@@ -1268,8 +1272,19 @@ els.resetBtn?.addEventListener('click', resetAll);
     );
 
     els.numberingToggle?.addEventListener('change', () => {
-      state.numbering = !!els.numberingToggle.checked;
-      if (state.numbering) applyNumbering();
+      const checked = !!els.numberingToggle.checked;
+      state.numbering = checked;
+
+      if (checked) {
+        // ✅ on force la numérotation
+        applyNumbering();
+      } else {
+        // ✅ on vide uniquement les titres auto "Cliché N°X"
+        state.photos.forEach(p => {
+          if (isAutoTitle(p.title)) p.title = '';
+        });
+      }
+
       renderAll();
     });
 
