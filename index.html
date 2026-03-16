@@ -90,7 +90,7 @@
 
     .studio-grid{
       display:grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 1rem;
     }
 
@@ -278,11 +278,15 @@
       .sheet-page{ padding: 24px; min-height: auto; }
       .studio-grid{ grid-template-columns: repeat(3, minmax(0, 1fr)); }
     }
-    @media (max-width: 760px){
+    @media (max-width: 900px){
       .studio-grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .sheet-meta{ grid-template-columns: 1fr; }
       .studio-photo-zone{ min-height: 420px; }
     }
+    @media (max-width: 560px){
+      .studio-grid{ grid-template-columns: 1fr; }
+    }
+
   </style>
 </head>
 
