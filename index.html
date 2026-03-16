@@ -429,7 +429,6 @@
       .studio-grid{ grid-template-columns: 1fr; }
     }
 
-
   .studio-credit {
     position: fixed;
     bottom: 8px;
@@ -900,7 +899,7 @@
     img.alt = photo.title || '';
 
     // Valeurs
-    titleInput.value = photo.title || `Cliché N° ${index + 1}`;
+    titleInput.value = state.numbering ? `Cliché N° ${index + 1}` : (photo.title || '');
     titleInput.disabled = state.numbering;
     descTextarea.value = photo.description || '';
     meta.textContent = `${index + 1} · ${photo.sizeLabel}`;
@@ -1060,7 +1059,9 @@
           return `
             <section class="sheet-photo-slot ${alignment} ${hasDesc ? 'has-desc' : 'no-desc'}">
               <img src="${photo.dataUrl}" alt="${escapeHtml(photo.title || '')}">
-              <div class="sheet-photo-slot__caption">${escapeHtml(photo.title || `Cliché N° ${pageIndex * 2 + idx + 1}`)}</div>
+              <div class="sheet-photo-slot__caption">${
+                escapeHtml(state.numbering ? `Cliché N° ${pageIndex * 2 + idx + 1}` : (photo.title || ''))
+              }</div>
               ${hasDesc ? `<div class="sheet-photo-slot__desc">${escapeHtml(photo.description.trim())}</div>` : ``}
             </section>`;
         }).join('');
