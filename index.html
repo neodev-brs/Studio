@@ -406,6 +406,14 @@
       outline-offset: 2px;
     }
 
+    .sticky-preview-actions{
+      justify-content: space-between; /* gauche: toggle / droite: boutons */
+      align-items: center;
+    }
+    .studio-numbering-toggle{
+      margin-right: auto;
+    }
+
     @media (max-width: 1180px){
       .studio-shell{ grid-template-columns: 1fr; }
       .sheet-page{ padding: 24px; min-height: auto; }
@@ -665,8 +673,14 @@
 
         <div class="studio-preview-panel__body">
           <div class="sticky-preview-actions">
+            <div class="studio-numbering-toggle">
+              <div class="fr-toggle fr-toggle--label-left fr-toggle--sm">
+                <input type="checkbox" class="fr-toggle__input" id="numberingToggle" checked>
+                <label class="fr-toggle__label" for="numberingToggle">Numérotation</label>
+              </div>
+            </div>
+
             <button type="button" class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-printer-line" id="printBtn">Imprimer / PDF</button>
-            <button type="button" class="fr-btn fr-btn--tertiary fr-btn--sm fr-icon-refresh-line" id="refreshBtn">Actualiser l’aperçu</button>
           </div>
 
           <section class="fr-mb-4w" id="photosPreviewSection">
@@ -721,12 +735,13 @@
   <script nomodule src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.13.1/dist/dsfr/dsfr.nomodule.min.js"></script>
 
   <script>
-    const state = { photos: [], mapDataUrl: '', pin: null };
+    const state = { photos: [], mapDataUrl: '', pin: null, numbering: true };
 
     const els = {
       photoInput: document.getElementById('photoInput'),
       mapInput: document.getElementById('mapInput'),
       dropzone: document.getElementById('dropzone'),
+      numberingToggle: document.getElementById('numberingToggle'),
 
       photoZone: document.getElementById('photoZone'),
       photoGrid: document.getElementById('photoGrid'),
@@ -751,7 +766,6 @@
       exportFormat: document.getElementById('exportFormat'),
       generateBtn: document.getElementById('generateBtn'),
       printBtn: document.getElementById('printBtn'),
-      refreshBtn: document.getElementById('refreshBtn'),
       photoCardTemplate: document.getElementById('photoCardTemplate'),
       resetBtn: document.getElementById('resetBtn')
     };
@@ -815,12 +829,20 @@
           dataUrl
         });
       }
+      applyNumbering();
       renderAll();
     }
 
     function removePhoto(id) {
       state.photos = state.photos.filter(photo => photo.id !== id);
       renderAll();
+    }
+
+    function applyNumbering() {
+      if (!state.numbering) return;
+      state.photos.forEach((p, i) => {
+        p.title = `Cliché N° ${i + 1}`;
+      });
     }
 
     function renderPhotoGrid() {
@@ -861,11 +883,13 @@
 
     // Valeurs
     titleInput.value = photo.title || `Cliché N° ${index + 1}`;
+    titleInput.disabled = state.numbering;
     descTextarea.value = photo.description || '';
     meta.textContent = `${index + 1} · ${photo.sizeLabel}`;
 
     // Events
     titleInput.addEventListener('input', (e) => {
+      if (state.numbering) return; // sécurité
       photo.title = e.target.value;
       renderDocumentPreview();
     });
@@ -929,6 +953,7 @@
       const [movedPhoto] = state.photos.splice(fromIndex, 1);
       state.photos.splice(toIndex, 0, movedPhoto);
 
+      applyNumbering();
       renderAll();
     });
 
@@ -1197,6 +1222,8 @@ ${buildFullDocumentHtml()}
   state.photos = [];
   state.mapDataUrl = '';
   state.pin = null;
+  state.numbering = true;
+  if (els.numberingToggle) els.numberingToggle.checked = true;
 
   // 2) Inputs fichiers
   if (els.photoInput) els.photoInput.value = '';
@@ -1240,6 +1267,12 @@ els.resetBtn?.addEventListener('click', resetAll);
       })
     );
 
+    els.numberingToggle?.addEventListener('change', () => {
+      state.numbering = !!els.numberingToggle.checked;
+      if (state.numbering) applyNumbering();
+      renderAll();
+    });
+
     els.dropzone.addEventListener("drop", (e) => {
       const files = [...(e.dataTransfer.files || [])].filter(f => (f.type || "").startsWith("image/"));
       if (files.length) addPhotos(files);
@@ -1270,7 +1303,6 @@ els.resetBtn?.addEventListener('click', resetAll);
 
     els.generateBtn.addEventListener('click', handleGenerate);
     els.printBtn.addEventListener('click', exportPdf);
-    els.refreshBtn.addEventListener('click', renderAll);
 
     /* Navigation mono-fichier */
     function setViewFromHash(){
