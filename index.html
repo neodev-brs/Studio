@@ -770,91 +770,97 @@
       renderAll();
     }
 
-        function renderPhotoGrid() {
-      els.photoGrid.innerHTML = '';
+    function renderPhotoGrid() {
+  els.photoGrid.innerHTML = '';
 
-      const has = state.photos.length > 0;
-      els.photoGridEmpty.hidden = has;
-      els.photoZone.classList.toggle('is-empty', !has);
+  const has = state.photos.length > 0;
+  els.photoGridEmpty.hidden = has;
+  els.photoZone.classList.toggle('is-empty', !has);
 
-      state.photos.forEach((photo, index) => {
-        const node = els.photoCardTemplate.content.firstElementChild.cloneNode(true);
-        const img = node.querySelector('img');
-        const titleInput = node.querySelector('input');
-      const descTextarea = node.querySelector('textarea');
+  state.photos.forEach((photo, index) => {
+    const node = els.photoCardTemplate.content.firstElementChild.cloneNode(true);
 
-      img.src = photo.dataUrl;
-      img.alt = photo.title || photo.name || '';
-      titleInput.value = photo.title || `Cliché N° ${index + 1}`;
-      descTextarea.value = photo.description || '';
-      meta.textContent = `${index + 1} · ${photo.sizeLabel}`;
+    const img = node.querySelector('img');
+    const titleInput = node.querySelector('input');
+    const descTextarea = node.querySelector('textarea');
+    const meta = node.querySelector('.photo-meta');
+    const removeBtn = node.querySelector('.remove-photo-btn');
 
-      titleInput.addEventListener('input', (e) => {
-        photo.title = e.target.value;
-        renderDocumentPreview();
+    img.src = photo.dataUrl;
+    img.alt = photo.title || '';
+
+    // Valeurs
+    titleInput.value = photo.title || `Cliché N° ${index + 1}`;
+    descTextarea.value = photo.description || '';
+    meta.textContent = `${index + 1} · ${photo.sizeLabel}`;
+
+    // Events
+    titleInput.addEventListener('input', (e) => {
+      photo.title = e.target.value;
+      renderDocumentPreview();
+    });
+
+    descTextarea.addEventListener('input', (e) => {
+      photo.description = e.target.value;
+      renderDocumentPreview();
+    });
+
+    removeBtn.addEventListener('click', () => removePhoto(photo.id));
+
+    /* Drag & drop */
+    node.setAttribute('draggable', 'true');
+    node.dataset.photoId = photo.id;
+
+    node.addEventListener('dragstart', (e) => {
+      node.classList.add('is-dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', photo.id);
+    });
+
+    node.addEventListener('dragend', () => {
+      node.classList.remove('is-dragging');
+      els.photoGrid.querySelectorAll('.is-drop-target').forEach(el => {
+        el.classList.remove('is-drop-target');
       });
+    });
 
-      descTextarea.addEventListener('input', (e) => {
-        photo.description = e.target.value;
-        renderDocumentPreview();
-      });
+    node.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      node.classList.add('is-drop-target');
+    });
 
-        removeBtn.addEventListener('click', () => removePhoto(photo.id));
+    node.addEventListener('dragleave', () => {
+      node.classList.remove('is-drop-target');
+    });
 
-        /* Drag & drop */
-        node.setAttribute('draggable', 'true');
-        node.dataset.photoId = photo.id;
+    node.addEventListener('drop', (e) => {
+      e.preventDefault();
+      node.classList.remove('is-drop-target');
 
-        node.addEventListener('dragstart', (e) => {
-          node.classList.add('is-dragging');
-          e.dataTransfer.effectAllowed = 'move';
-          e.dataTransfer.setData('text/plain', photo.id);
-        });
+      const draggedId = e.dataTransfer.getData('text/plain');
+      const targetId = photo.id;
 
-        node.addEventListener('dragend', () => {
-          node.classList.remove('is-dragging');
-          els.photoGrid.querySelectorAll('.is-drop-target').forEach(el => {
-            el.classList.remove('is-drop-target');
-          });
-        });
+      if (!draggedId || draggedId === targetId) return;
 
-        node.addEventListener('dragover', (e) => {
-          e.preventDefault();
-          e.dataTransfer.dropEffect = 'move';
-          node.classList.add('is-drop-target');
-        });
+      const fromIndex = state.photos.findIndex(p => p.id === draggedId);
+      const toIndex = state.photos.findIndex(p => p.id === targetId);
 
-        node.addEventListener('dragleave', () => {
-          node.classList.remove('is-drop-target');
-        });
+      if (fromIndex === -1 || toIndex === -1) return;
 
-        node.addEventListener('drop', (e) => {
-          e.preventDefault();
-          node.classList.remove('is-drop-target');
+      const [movedPhoto] = state.photos.splice(fromIndex, 1);
+      state.photos.splice(toIndex, 0, movedPhoto);
 
-          const draggedId = e.dataTransfer.getData('text/plain');
-          const targetId = photo.id;
+      renderAll();
+    });
 
-          if (!draggedId || draggedId === targetId) return;
+    els.photoGrid.appendChild(node);
+  });
 
-          const fromIndex = state.photos.findIndex(p => p.id === draggedId);
-          const toIndex = state.photos.findIndex(p => p.id === targetId);
-
-          if (fromIndex === -1 || toIndex === -1) return;
-
-          const [movedPhoto] = state.photos.splice(fromIndex, 1);
-          state.photos.splice(toIndex, 0, movedPhoto);
-
-          renderAll();
-        });
-
-        els.photoGrid.appendChild(node);
-      });
-
-      if (els.photoCount) {
-        els.photoCount.textContent = `${state.photos.length} photographie${state.photos.length > 1 ? 's importée' : ' importée'}.`;
-      }
-    }
+  if (els.photoCount) {
+    els.photoCount.textContent = `${state.photos.length} photographie${state.photos.length > 1 ? 's importée' : ' importée'}.`;
+  }
+}
 
     function buildCoverPageHtml(form) {
       const mapHtml = state.mapDataUrl
