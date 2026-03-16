@@ -1,12 +1,57 @@
 <!DOCTYPE html>
-<html lang="fr" data-fr-scheme="light">
+<html lang="fr" data-fr-scheme="system">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <script>
-    try { localStorage.setItem('scheme', 'light'); } catch (e) {}
-    document.documentElement.setAttribute('data-fr-scheme', 'light');
+    const e = "system";
+    const t = "dark";
+    const c = "dark";
+    const o = "data-fr-theme";
+    const a = "data-fr-scheme";
+    const r = `:root[${o}], :root[${a}]`;
+
+    const setDarkTheme = () => {
+      document.documentElement.setAttribute(o, c);
+      document.documentElement.style.colorScheme = "dark";
+    };
+
+    const setSystemTheme = () => {
+      if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+        setDarkTheme();
+      }
+    };
+
+    (() => {
+      if (document.documentElement.matches(r)) {
+        const storageAvailable = (() => {
+          try {
+            return "localStorage" in window && window.localStorage !== null;
+          } catch (e) {
+            return false;
+          }
+        })();
+
+        const storedScheme = storageAvailable ? localStorage.getItem("scheme") : "";
+        const attrScheme = document.documentElement.getAttribute(a);
+
+        switch (true) {
+          case storedScheme === t:
+            setDarkTheme();
+            break;
+          case storedScheme === e:
+            setSystemTheme();
+            break;
+          case attrScheme === t:
+            setDarkTheme();
+            break;
+          case attrScheme === e:
+            setSystemTheme();
+            break;
+        }
+      }
+    })();
   </script>
 
   <title>Studio - Générateur de planches photographiques</title>
@@ -78,7 +123,7 @@
     .studio-photo-zone{
       border: 1px solid var(--border-default-grey);
       border-radius: 0;
-      background: #fff;
+      background: var(--background-default-grey);
       padding: 1rem;
       min-height: 520px;
     }
@@ -95,8 +140,8 @@
     }
 
     .studio-thumb-card{
-      background:#fff;
-      border:1px solid var(--studio-card-border);
+      background: var(--background-default-grey);
+      border:1px solid var(--border-default-grey);
       border-radius: 0;
       overflow:hidden;
       box-shadow: none;
@@ -107,7 +152,7 @@
       width:100%;
       object-fit: cover;
       display:block;
-      background:#ddd;
+      background: var(--background-contrast-grey);
     }
 
     .studio-thumb-card__body{ padding: .75rem; }
@@ -243,12 +288,12 @@
     }
 
     .empty-state{
-      border:1px dashed #c6c6c6;
+      border:1px dashed var(--border-default-grey);
       border-radius: 0;
       padding: 2rem 1rem;
       text-align:center;
-      color:#666;
-      background:#fff;
+      color: var(--text-mention-grey);
+      background: var(--background-default-grey);
       width: 100%;
     }
 
@@ -273,8 +318,8 @@
       font-size:.875rem;
       padding:.25rem .6rem;
       border-radius: 999px;
-      background:#eef4ff;
-      color:#000091;
+      background: var(--background-contrast-blue-france);
+      color: var(--text-action-high-blue-france);
       font-weight:600;
     }
 
@@ -315,48 +360,154 @@
 <body>
   <!-- HEADER (GoFast) conservé, menu renommé -->
   <header role="banner" class="fr-header">
-    <div class="fr-header__body">
-      <div class="fr-container">
-        <div class="fr-header__body-row">
-          <div class="fr-header__brand fr-enlarge-link">
-            <div class="fr-header__brand-top">
-              <div class="fr-header__logo">
+  <div class="fr-header__body">
+    <div class="fr-container">
+      <div class="fr-header__body-row">
+        <div class="fr-header__brand fr-enlarge-link">
+          <div class="fr-header__brand-top">
+            <div class="fr-header__logo">
+              <a href="#" title="Accueil - Studio - Ministère de l’Intérieur">
                 <p class="fr-logo">
                   Ministère<br>de l’Intérieur
                 </p>
-              </div>
-              <div class="fr-header__navbar">
-                <button class="fr-btn--menu fr-btn" data-fr-opened="false" aria-controls="modal-menu" aria-haspopup="menu" title="Menu">
-                  Menu
-                </button>
-              </div>
-            </div>
-
-            <div class="fr-header__service">
-              <a href="#" title="Accueil">
-                <p class="fr-header__service-title">Studio</p>
               </a>
-              <p class="fr-header__service-tagline">Générateur de planches photographiques</p>
+            </div>
+            <div class="fr-header__navbar">
+              <button
+                class="fr-btn--menu fr-btn"
+                data-fr-opened="false"
+                aria-controls="modal-menu"
+                aria-haspopup="menu"
+                id="button-menu"
+                title="Menu"
+                type="button">
+                Menu
+              </button>
+            </div>
+          </div>
+
+          <div class="fr-header__service">
+            <a href="#" title="Accueil - Studio - Ministère de l’Intérieur">
+              <p class="fr-header__service-title">Studio</p>
+            </a>
+            <p class="fr-header__service-tagline">Générateur de planches photographiques</p>
+          </div>
+        </div>
+
+        <div class="fr-header__tools">
+          <div class="fr-header__tools-links">
+            <ul class="fr-btns-group">
+              <li>
+                <button
+                  class="fr-btn--display fr-btn"
+                  aria-controls="fr-theme-modal"
+                  data-fr-opened="false"
+                  title="Paramètres d’affichage"
+                  type="button">
+                  Paramètres d’affichage
+                </button>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MENU -->
+  <div class="fr-header__menu fr-modal" id="modal-menu" aria-labelledby="button-menu">
+    <div class="fr-container">
+      <button class="fr-btn--close fr-btn" aria-controls="modal-menu" title="Fermer" type="button">Fermer</button>
+      <div class="fr-header__menu-links"></div>
+      <nav class="fr-nav" role="navigation" aria-label="Menu principal">
+        <ul class="fr-nav__list">
+          <li class="fr-nav__item"><a class="fr-nav__link" href="#conception">Conception</a></li>
+          <li class="fr-nav__item"><a class="fr-nav__link" href="#page-presentation">Page de présentation</a></li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+
+  <!-- PARAMÈTRES D’AFFICHAGE -->
+  <dialog id="fr-theme-modal" class="fr-modal" aria-labelledby="fr-theme-modal-title">
+    <div class="fr-container fr-container--fluid fr-container-md">
+      <div class="fr-grid-row fr-grid-row--center">
+        <div class="fr-col-12 fr-col-md-6 fr-col-lg-4">
+          <div class="fr-modal__body">
+            <div class="fr-modal__header">
+              <button aria-controls="fr-theme-modal" title="Fermer" type="button" class="fr-btn--close fr-btn">
+                Fermer
+              </button>
+            </div>
+            <div class="fr-modal__content">
+              <h1 id="fr-theme-modal-title" class="fr-modal__title">
+                Paramètres d’affichage
+              </h1>
+
+              <div class="fr-display">
+                <fieldset class="fr-fieldset" id="display-fieldset">
+                  <legend class="fr-fieldset__legend fr-fieldset__legend--regular" id="display-fieldset-legend">
+                    Choisissez un thème pour personnaliser l’apparence du site.
+                  </legend>
+
+                  <div class="fr-fieldset__element">
+                    <div class="fr-radio-group fr-radio-rich">
+                      <input type="radio" id="fr-radios-theme-light" name="fr-radios-theme" value="light">
+                      <label class="fr-label" for="fr-radios-theme-light">
+                        Thème clair
+                      </label>
+                      <div class="fr-radio-rich__pictogram">
+                        <svg aria-hidden="true" class="fr-artwork" viewBox="0 0 80 80" width="80" height="80">
+                          <use class="fr-artwork-decorative" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.13.1/dist/artwork/pictograms/environment/sun.svg#artwork-decorative"></use>
+                          <use class="fr-artwork-minor" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.13.1/dist/artwork/pictograms/environment/sun.svg#artwork-minor"></use>
+                          <use class="fr-artwork-major" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.13.1/dist/artwork/pictograms/environment/sun.svg#artwork-major"></use>
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="fr-fieldset__element">
+                    <div class="fr-radio-group fr-radio-rich">
+                      <input type="radio" id="fr-radios-theme-dark" name="fr-radios-theme" value="dark">
+                      <label class="fr-label" for="fr-radios-theme-dark">
+                        Thème sombre
+                      </label>
+                      <div class="fr-radio-rich__pictogram">
+                        <svg aria-hidden="true" class="fr-artwork" viewBox="0 0 80 80" width="80" height="80">
+                          <use class="fr-artwork-decorative" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.13.1/dist/artwork/pictograms/environment/moon.svg#artwork-decorative"></use>
+                          <use class="fr-artwork-minor" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.13.1/dist/artwork/pictograms/environment/moon.svg#artwork-minor"></use>
+                          <use class="fr-artwork-major" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.13.1/dist/artwork/pictograms/environment/moon.svg#artwork-major"></use>
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="fr-fieldset__element">
+                    <div class="fr-radio-group fr-radio-rich">
+                      <input type="radio" id="fr-radios-theme-system" name="fr-radios-theme" value="system">
+                      <label class="fr-label" for="fr-radios-theme-system">
+                        Système
+                        <span class="fr-hint-text">Utilise les paramètres système</span>
+                      </label>
+                      <div class="fr-radio-rich__pictogram">
+                        <svg aria-hidden="true" class="fr-artwork" viewBox="0 0 80 80" width="80" height="80">
+                          <use class="fr-artwork-decorative" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.13.1/dist/artwork/pictograms/system/system.svg#artwork-decorative"></use>
+                          <use class="fr-artwork-minor" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.13.1/dist/artwork/pictograms/system/system.svg#artwork-minor"></use>
+                          <use class="fr-artwork-major" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.13.1/dist/artwork/pictograms/system/system.svg#artwork-major"></use>
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+
+                </fieldset>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-
-    <!-- MENU -->
-    <div class="fr-header__menu fr-modal" id="modal-menu" aria-labelledby="modal-menu-title">
-      <div class="fr-container">
-        <button class="fr-btn--close fr-btn" aria-controls="modal-menu" title="Fermer">Fermer</button>
-        <div class="fr-header__menu-links"></div>
-        <nav class="fr-nav" role="navigation" aria-label="Menu principal">
-          <ul class="fr-nav__list">
-            <li class="fr-nav__item"><a class="fr-nav__link" href="#conception">Conception</a></li>
-            <li class="fr-nav__item"><a class="fr-nav__link" href="#page-presentation">Page de présentation</a></li>
-          </ul>
-        </nav>
-      </div>
-    </div>
-  </header>
+  </dialog>
+</header>
 
   <main class="fr-container fr-py-3w studio-main">
 
@@ -562,14 +713,6 @@
   <!-- DSFR JS -->
   <script type="module" src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.13.1/dist/dsfr/dsfr.module.min.js"></script>
   <script nomodule src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.13.1/dist/dsfr/dsfr.nomodule.min.js"></script>
-
-  <script>
-    window.addEventListener('DOMContentLoaded', function () {
-      document.documentElement.setAttribute('data-fr-scheme', 'light');
-      try { localStorage.setItem('scheme', 'light'); } catch (e) {}
-      if (window.dsfr) dsfr(document.documentElement).scheme.scheme = 'light';
-    });
-  </script>
 
   <script>
     const state = { photos: [], mapDataUrl: '', pin: null };
