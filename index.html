@@ -197,8 +197,11 @@
       border-radius: 50% 50% 50% 0;
       transform: rotate(-45deg) translate(-50%, -50%);
       box-shadow: 0 3px 12px rgba(0,0,0,.25);
-      pointer-events:none;
+
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
     }
+    
     .sheet-map-pin::after,
     .map-pin::after{
       content:'';
