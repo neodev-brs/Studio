@@ -922,7 +922,7 @@ dialog.fr-modal .fr-modal__body{
     </article>
   </template>
 
-<!--<dialog id="photo-editor" class="fr-modal" aria-labelledby="photo-editor-title">
+<dialog id="photo-editor" class="fr-modal" aria-labelledby="photo-editor-title">
   <div class="fr-container fr-container--fluid fr-container-md">
     <div class="fr-grid-row fr-grid-row--center">
       <div class="fr-col-12 fr-col-md-10 fr-col-lg-9">
@@ -990,7 +990,7 @@ dialog.fr-modal .fr-modal__body{
       </div>
     </div>
   </div>
-</dialog> -->
+</dialog>
 
   <!-- DSFR JS -->
   <script type="module" src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.13.1/dist/dsfr/dsfr.module.min.js"></script>
@@ -2174,78 +2174,6 @@ els.resetBtn?.addEventListener('click', resetAll);
               </fieldset>
             </div>
 
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</dialog>
-
-<dialog id="photo-editor" class="fr-modal" aria-labelledby="photo-editor-title">
-  <div class="fr-container fr-container--fluid fr-container-md">
-    <div class="fr-grid-row fr-grid-row--center">
-      <div class="fr-col-12 fr-col-md-10 fr-col-lg-9">
-        <div class="fr-modal__body">
-          <div class="fr-modal__header">
-            <form method="dialog">
-              <button class="fr-btn--close fr-btn" title="Fermer" type="submit">Fermer</button>
-            </form>
-          </div>
-
-          <div class="fr-modal__content">
-            <h1 id="photo-editor-title" class="fr-modal__title">Éditeur photo</h1>
-
-            <div class="fr-grid-row fr-grid-row--gutters">
-              <!-- Canvas -->
-              <div class="fr-col-12 fr-col-md-8">
-                <div class="studio-editor-canvas-wrap">
-                  <canvas id="editorCanvas"></canvas>
-                </div>
-
-                <div class="fr-mt-2w" style="display:flex; gap:.5rem; flex-wrap:wrap;">
-                  <button type="button" class="fr-btn fr-btn--secondary fr-btn--sm" id="toolAdjust">Réglages</button>
-                  <button type="button" class="fr-btn fr-btn--secondary fr-btn--sm" id="toolCrop">Recadrage</button>
-                  <button type="button" class="fr-btn fr-btn--secondary fr-btn--sm" id="toolCircle">Cercle rouge</button>
-                  <button type="button" class="fr-btn fr-btn--secondary fr-btn--sm" id="toolArrow">Flèche rouge</button>
-                  <button type="button" class="fr-btn fr-btn--tertiary fr-btn--sm" id="toolReset">Réinitialiser</button>
-                </div>
-
-                <p class="fr-text--xs fr-mt-1w fr-mb-0" id="editorHint"></p>
-              </div>
-
-              <!-- Controls -->
-              <div class="fr-col-12 fr-col-md-4">
-                <div class="studio-editor-panel">
-                  <h2 class="fr-h6 fr-mb-2w">Réglages</h2>
-
-                  <div class="fr-input-group">
-                    <label class="fr-label" for="adjBrightness">Luminosité</label>
-                    <input class="fr-range" id="adjBrightness" type="range" min="-40" max="40" value="0">
-                  </div>
-
-                  <div class="fr-input-group">
-                    <label class="fr-label" for="adjContrast">Contraste</label>
-                    <input class="fr-range" id="adjContrast" type="range" min="-40" max="40" value="0">
-                  </div>
-
-                  <div class="fr-input-group">
-                    <label class="fr-label" for="adjSaturation">Saturation</label>
-                    <input class="fr-range" id="adjSaturation" type="range" min="-40" max="40" value="0">
-                  </div>
-
-                  <hr class="fr-mt-2w fr-mb-2w">
-
-                  <div style="display:flex; gap:.5rem; flex-wrap:wrap;">
-                    <button type="button" class="fr-btn fr-btn--secondary" id="editorCancel">Annuler</button>
-                    <button type="button" class="fr-btn" id="editorApply">Appliquer</button>
-                  </div>
-
-                  <p class="fr-text--xs fr-mt-1w fr-mb-0">
-                    “Appliquer” remplace la photo par la version modifiée.
-                  </p>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>
