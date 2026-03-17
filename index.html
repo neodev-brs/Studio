@@ -937,6 +937,16 @@
       </div>
     </article>
   </template>
+<button
+  type="button"
+  id="photo-editor-opener"
+  aria-controls="photo-editor"
+  data-fr-opened="false"
+  aria-hidden="true"
+  style="position:fixed;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;"
+>
+  Ouvrir l’éditeur photo
+</button>
 
 <dialog id="photo-editor" class="fr-modal" aria-labelledby="photo-editor-title">
   <div class="fr-container fr-container--fluid fr-container-md">
@@ -1151,9 +1161,8 @@
     editor.dialog?.addEventListener('close', () => {
       editor.dialog?.removeAttribute('data-fr-opened');
 
-      // ouvre le <dialog> nativement
-      editor.dialog?.setAttribute('data-fr-opened', 'true');
-      editor.dialog?.showModal?.();
+      const opener = document.getElementById('photo-editor-opener');
+      if (opener) opener.setAttribute('data-fr-opened', 'false');
 
       editor.photoId = null;
     });
