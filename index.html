@@ -561,6 +561,40 @@
   padding: 1rem;
   background: var(--background-default-grey);
 }
+/* ✅ FIX : <dialog> DSFR visible quand open (sinon: modal invisible qui bloque tout) */
+dialog.fr-modal{
+  /* le DSFR met souvent .fr-modal à display:none; on force le comportement natif du dialog */
+  padding: 0 !important;
+  border: 0 !important;
+  margin: 0 !important;
+  background: transparent !important;
+
+  /* plein écran + au-dessus de tout */
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: none !important;
+  max-height: none !important;
+  z-index: 10000 !important;
+}
+
+dialog.fr-modal[open]{
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* fond assombri natif du dialog */
+dialog.fr-modal::backdrop{
+  background: rgba(0,0,0,.5);
+}
+
+/* scroll à l'intérieur de la modale si besoin */
+dialog.fr-modal .fr-modal__body{
+  max-height: calc(100vh - 3rem);
+  overflow: auto;
+}
 
   </style>
 </head>
