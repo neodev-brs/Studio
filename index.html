@@ -1344,7 +1344,7 @@ ${buildFullDocumentHtml()}
 
   // 3) Formulaire page de présentation
   const fields = [
-    els.presetTitle, els.customTitle, els.unitField, els.referenceField,
+    els.presetTitle, els.customTitle, els.caseTypeField, els.unitField, els.referenceField,
     els.dateField, els.placeField, els.authorField, els.summaryField
   ];
   fields.forEach(el => { if (el) el.value = ''; });
@@ -1402,8 +1402,10 @@ els.resetBtn?.addEventListener('click', resetAll);
       if (files.length) addPhotos(files);
     });
 
-    [els.presetTitle, els.customTitle, els.unitField, els.referenceField, els.dateField, els.placeField, els.authorField, els.summaryField]
+    [els.presetTitle, els.customTitle, els.caseTypeField, els.unitField, els.referenceField, els.dateField, els.placeField, els.authorField, els.summaryField]
       .forEach(el => el && el.addEventListener('input', renderDocumentPreview));
+
+    els.caseTypeField?.addEventListener('change', renderDocumentPreview);
 
     els.presetTitle?.addEventListener('change', () => {
       if (!(els.customTitle?.value || "").trim()) renderDocumentPreview();
