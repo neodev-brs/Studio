@@ -1043,6 +1043,11 @@ dialog.fr-modal[open]{
 
     editor.ctx = editor.canvas.getContext('2d') || null;
 
+    editor.dialog?.addEventListener('close', () => {
+    editor.dialog?.removeAttribute('data-fr-opened');
+    editor.photoId = null;
+});
+
     function editorSetHint(txt){ if (editor.hint) editor.hint.textContent = txt || ''; }
 
     function editorGetAdjustments(){
@@ -1151,9 +1156,6 @@ dialog.fr-modal[open]{
       editor.img.src = editor.baseUrl;
 
       editor.dialog?.setAttribute('data-fr-opened', 'true');
-      editor.dialog?.showModal?.();
-
-      // Ouvrir modal DSFR (dialog)
       editor.dialog?.showModal?.();
     }
 
