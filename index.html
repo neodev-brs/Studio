@@ -708,7 +708,7 @@
                 <div class="fr-input-group studio-input-compact">
                   <label class="fr-label" for="caseTypeField">Cadre d'enquête</label>
                   <select class="fr-select" id="caseTypeField">
-                    <option value="">—</option>
+                    <option value="">Sélectionner un cadre d'enquête</option>
                     <option>Enquête préliminaire</option>
                     <option>Enquête de flagrance</option>
                     <option>Commission rogatoire</option>
@@ -725,7 +725,7 @@
                 </div>
 
                 <div class="fr-input-group studio-input-compact">
-                  <label class="fr-label" for="referenceField">Référence / procédure</label>
+                  <label class="fr-label" for="referenceField">Références de la procédure</label>
                   <input class="fr-input" id="referenceField" type="text" placeholder="Ex. PV n° / Natinf / dossier">
                 </div>
 
@@ -745,7 +745,7 @@
                 </div>
 
                 <div class="fr-input-group studio-input-compact">
-                  <label class="fr-label" for="authorField">Rédacteur / enquêteur</label>
+                  <label class="fr-label" for="authorField">Infraction</label>
                   <input class="fr-input" id="authorField" type="text" placeholder="Nom, grade, qualité">
                 </div>
 
@@ -1175,13 +1175,13 @@
           </header>
 
           <section class="sheet-meta">
-            <div>Type d'enquête</div>
+            <div>Cadre d'enquête</div>
             <div>${escapeHtml(form.caseType || '—')}</div>
 
             <div>Service / unité</div>
             <div>${escapeHtml(form.unit || '—')}</div>
 
-            <div>Référence / procédure</div>
+            <div>Références de la procédure</div>
             <div>${escapeHtml(form.reference || '—')}</div>
 
             <div>Date</div>
@@ -1190,7 +1190,7 @@
             <div>Lieu</div>
             <div>${escapeHtml(form.place || '—')}</div>
 
-            <div>Rédacteur / enquêteur</div>
+            <div>Infraction</div>
             <div>${escapeHtml(form.author || '—')}</div>
           </section>
 
