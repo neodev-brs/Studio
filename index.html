@@ -562,6 +562,22 @@
   background: var(--background-default-grey);
 }
 
+/* ✅ Modale éditeur : réduire paddings haut/bas */
+.studio-modal-content{
+  padding-top: .5rem !important;
+  padding-bottom: .75rem !important; /* réduit l'espace vide en bas */
+}
+
+/* réduit aussi l’air interne du body DSFR */
+#photo-editor .fr-modal__body{
+  padding-bottom: .75rem !important;
+}
+
+/* ✅ Descend légèrement le titre */
+.studio-modal-title{
+  margin-top: .25rem !important; /* descend un peu */
+}
+
 /* Petit "0" centré sous la barre */
 .fr-range-group { position: relative; }
 .studio-range-mid{
@@ -631,7 +647,7 @@
             <a href="#" title="Accueil">
               <p class="fr-header__service-title">Studio</p>
             </a>
-            <p class="fr-header__service-tagline">Concepteur de planches photographiques</p>
+            <p class="fr-header__service-tagline">Générateur de planches photographiques</p>
           </div>
         </div>
 
