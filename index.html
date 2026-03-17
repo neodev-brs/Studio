@@ -562,6 +562,10 @@
   background: var(--background-default-grey);
 }
 
+dialog.fr-modal[open]{
+  display: flex;
+}
+
   </style>
 </head>
 
@@ -1146,11 +1150,15 @@
       };
       editor.img.src = editor.baseUrl;
 
+      editor.dialog?.setAttribute('data-fr-opened', 'true');
+      editor.dialog?.showModal?.();
+
       // Ouvrir modal DSFR (dialog)
       editor.dialog?.showModal?.();
     }
 
     function editorClose(){
+      editor.dialog?.removeAttribute('data-fr-opened');
       editor.dialog?.close?.();
       editor.photoId = null;
     }
