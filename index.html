@@ -561,40 +561,6 @@
   padding: 1rem;
   background: var(--background-default-grey);
 }
-/* ✅ FIX : <dialog> DSFR visible quand open (sinon: modal invisible qui bloque tout) */
-dialog.fr-modal{
-  /* le DSFR met souvent .fr-modal à display:none; on force le comportement natif du dialog */
-  padding: 0 !important;
-  border: 0 !important;
-  margin: 0 !important;
-  background: transparent !important;
-
-  /* plein écran + au-dessus de tout */
-  position: fixed !important;
-  inset: 0 !important;
-  width: 100vw !important;
-  height: 100vh !important;
-  max-width: none !important;
-  max-height: none !important;
-  z-index: 10000 !important;
-}
-
-dialog.fr-modal[open]{
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-}
-
-/* fond assombri natif du dialog */
-dialog.fr-modal::backdrop{
-  background: rgba(0,0,0,.5);
-}
-
-/* scroll à l'intérieur de la modale si besoin */
-dialog.fr-modal .fr-modal__body{
-  max-height: calc(100vh - 3rem);
-  overflow: auto;
-}
 
   </style>
 </head>
@@ -921,6 +887,15 @@ dialog.fr-modal .fr-modal__body{
       </div>
     </article>
   </template>
+<button
+  type="button"
+  class="fr-btn"
+  id="photo-editor-opener"
+  aria-controls="photo-editor"
+  data-fr-opened="false"
+  hidden>
+  Ouvrir l’éditeur photo
+</button>
 
 <dialog id="photo-editor" class="fr-modal" aria-labelledby="photo-editor-title">
   <div class="fr-container fr-container--fluid fr-container-md">
@@ -928,9 +903,13 @@ dialog.fr-modal .fr-modal__body{
       <div class="fr-col-12 fr-col-md-10 fr-col-lg-9">
         <div class="fr-modal__body">
           <div class="fr-modal__header">
-            <form method="dialog">
-              <button class="fr-btn--close fr-btn" title="Fermer" type="submit">Fermer</button>
-            </form>
+            <button
+              class="fr-btn fr-btn--close"
+              type="button"
+              aria-controls="photo-editor"
+              title="Fermer">
+              Fermer
+            </button>
           </div>
 
           <div class="fr-modal__content">
@@ -1183,8 +1162,8 @@ dialog.fr-modal .fr-modal__body{
       };
       editor.img.src = editor.baseUrl;
 
-      editor.dialog?.setAttribute('data-fr-opened', 'true');
-      editor.dialog?.showModal?.();
+        const opener = document.getElementById('photo-editor-opener');
+        if (opener) opener.click();
     }
 
     function editorClose(){
