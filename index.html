@@ -562,6 +562,19 @@
   background: var(--background-default-grey);
 }
 
+/* Petit "0" centré sous la barre */
+.fr-range-group { position: relative; }
+.studio-range-mid{
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: calc(100% + .25rem); /* ✅ sous la barre */
+  font-size: .75rem;
+  opacity: .7;
+  pointer-events: none;
+  user-select: none;
+}
+
   </style>
 </head>
 
@@ -889,11 +902,12 @@
   </template>
 <button
   type="button"
-  class="fr-btn"
   id="photo-editor-opener"
   aria-controls="photo-editor"
   data-fr-opened="false"
-  hidden>
+  aria-hidden="true"
+  style="position:fixed;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;"
+>
   Ouvrir l’éditeur photo
 </button>
 
@@ -936,21 +950,84 @@
                 <div class="studio-editor-panel">
                   <h2 class="fr-h6 fr-mb-2w">Réglages</h2>
 
-                  <div class="fr-input-group">
-                    <label class="fr-label" for="adjBrightness">Luminosité</label>
-                    <input class="fr-range" id="adjBrightness" type="range" min="-40" max="40" value="0">
+                  <div class="fr-range-group">
+                    <label id="adjBrightnessLabel" class="fr-label">
+                      Luminosité
+                      <span class="fr-hint-text">-50 à +50</span>
+                    </label>
+
+                    <div class="fr-range fr-range--sm" data-fr-prefix="" data-fr-suffix="">
+                      <span class="fr-range__output" id="adjBrightnessOut">0</span>
+                      <input
+                        class="fr-range__input"
+                        id="adjBrightness"
+                        name="adjBrightness"
+                        type="range"
+                        min="-50"
+                        max="50"
+                        step="1"
+                        value="0"
+                        aria-labelledby="adjBrightnessLabel"
+                      >
+                      <span class="fr-range__min" aria-hidden="true">-50</span>
+                      <span class="fr-range__max" aria-hidden="true">+50</span>
+                    </div>
+
+                    <!-- 0 au milieu (visuel) -->
+                    <div class="studio-range-mid" aria-hidden="true">0</div>
                   </div>
 
-                  <div class="fr-input-group">
-                    <label class="fr-label" for="adjContrast">Contraste</label>
-                    <input class="fr-range" id="adjContrast" type="range" min="-40" max="40" value="0">
+                  <div class="fr-range-group">
+                  <label id="adjContrastLabel" class="fr-label">
+                    Contraste
+                    <span class="fr-hint-text">-50 à +50</span>
+                  </label>
+
+                  <div class="fr-range fr-range--sm">
+                    <span class="fr-range__output" id="adjContrastOut">0</span>
+                    <input
+                      class="fr-range__input"
+                      id="adjContrast"
+                      name="adjContrast"
+                      type="range"
+                      min="-50"
+                      max="50"
+                      step="1"
+                      value="0"
+                      aria-labelledby="adjContrastLabel"
+                    >
+                    <span class="fr-range__min" aria-hidden="true">-50</span>
+                    <span class="fr-range__max" aria-hidden="true">+50</span>
                   </div>
 
-                  <div class="fr-input-group">
-                    <label class="fr-label" for="adjSaturation">Saturation</label>
-                    <input class="fr-range" id="adjSaturation" type="range" min="-40" max="40" value="0">
+                  <div class="studio-range-mid" aria-hidden="true">0</div>
+                </div>
+
+                  <div class="fr-range-group">
+                  <label id="adjSaturationLabel" class="fr-label">
+                    Saturation
+                    <span class="fr-hint-text">-50 à +50</span>
+                  </label>
+
+                  <div class="fr-range fr-range--sm">
+                    <span class="fr-range__output" id="adjSaturationOut">0</span>
+                    <input
+                      class="fr-range__input"
+                      id="adjSaturation"
+                      name="adjSaturation"
+                      type="range"
+                      min="-50"
+                      max="50"
+                      step="1"
+                      value="0"
+                      aria-labelledby="adjSaturationLabel"
+                    >
+                    <span class="fr-range__min" aria-hidden="true">-50</span>
+                    <span class="fr-range__max" aria-hidden="true">+50</span>
                   </div>
 
+                  <div class="studio-range-mid" aria-hidden="true">0</div>
+                </div>
                   <hr class="fr-mt-2w fr-mb-2w">
 
                   <div style="display:flex; gap:.5rem; flex-wrap:wrap;">
@@ -1050,10 +1127,25 @@
 
     editor.ctx = editor.canvas.getContext('2d') || null;
 
+    function syncRangeOutput(inputEl, outputEl){
+      if (!inputEl || !outputEl) return;
+      outputEl.textContent = String(Number(inputEl.value || 0));
+    }
+
+    function syncAllEditorOutputs(){
+      syncRangeOutput(editor.adjBrightness, document.getElementById('adjBrightnessOut'));
+      syncRangeOutput(editor.adjContrast,   document.getElementById('adjContrastOut'));
+      syncRangeOutput(editor.adjSaturation, document.getElementById('adjSaturationOut'));
+    }
+
     editor.dialog?.addEventListener('close', () => {
-    editor.dialog?.removeAttribute('data-fr-opened');
-    editor.photoId = null;
-});
+      editor.dialog?.removeAttribute('data-fr-opened');
+
+      const opener = document.getElementById('photo-editor-opener');
+      if (opener) opener.setAttribute('data-fr-opened', 'false');
+
+      editor.photoId = null;
+    });
 
     function editorSetHint(txt){ if (editor.hint) editor.hint.textContent = txt || ''; }
 
@@ -1150,6 +1242,8 @@
       if (editor.adjContrast) editor.adjContrast.value = 0;
       if (editor.adjSaturation) editor.adjSaturation.value = 0;
 
+      syncAllEditorOutputs();
+
       // Base = photo actuelle (si déjà éditée, on ré-édite dessus)
       editor.baseUrl = photo.objectUrl;
 
@@ -1158,6 +1252,7 @@
         editor.baseW = editor.img.naturalWidth || editor.img.width;
         editor.baseH = editor.img.naturalHeight || editor.img.height;
         editorSetHint('Réglages : bouge les curseurs. Recadrage : clique-glisse pour un rectangle.');
+        syncAllEditorOutputs();
         editorRedraw();
       };
       editor.img.src = editor.baseUrl;
@@ -1167,8 +1262,14 @@
     }
 
     function editorClose(){
-      editor.dialog?.removeAttribute('data-fr-opened');
-      editor.dialog?.close?.();
+      // ✅ fermer “à la DSFR” (comme le bouton Fermer de la modale)
+      const closeBtn = editor.dialog?.querySelector('.fr-btn--close[aria-controls="photo-editor"]');
+      if (closeBtn) closeBtn.click();
+
+      // ✅ sécurité : reset état du contrôleur
+      const opener = document.getElementById('photo-editor-opener');
+      if (opener) opener.setAttribute('data-fr-opened', 'false');
+
       editor.photoId = null;
     }
 
@@ -1177,88 +1278,85 @@
     }
 
     async function editorApply(){
-      const photo = state.photos.find(p => p.id === editor.photoId);
-      if (!photo) return;
+      try {
+        const photo = state.photos.find(p => p.id === editor.photoId);
+        if (!photo) return;
 
-      // 1) rendre la version “finale” sur un canvas de sortie (crop inclus si présent)
-      const outCanvas = document.createElement('canvas');
-      const outCtx = outCanvas.getContext('2d');
+        const outCanvas = document.createElement('canvas');
+        const outCtx = outCanvas.getContext('2d');
 
-      const crop = editor.cropRect && editor.cropRect.w > 10 && editor.cropRect.h > 10
-        ? editor.cropRect
-        : { x:0, y:0, w: editor.baseW, h: editor.baseH };
+        const crop = editor.cropRect && editor.cropRect.w > 10 && editor.cropRect.h > 10
+          ? editor.cropRect
+          : { x:0, y:0, w: editor.baseW, h: editor.baseH };
 
-      outCanvas.width = Math.round(crop.w);
-      outCanvas.height = Math.round(crop.h);
+        outCanvas.width = Math.round(crop.w);
+        outCanvas.height = Math.round(crop.h);
 
-      const {brightness, contrast, saturate} = editorGetAdjustments();
-      outCtx.filter = `brightness(${brightness}%) contrast(${contrast}%) saturate(${saturate}%)`;
+        const {brightness, contrast, saturate} = editorGetAdjustments();
+        outCtx.filter = `brightness(${brightness}%) contrast(${contrast}%) saturate(${saturate}%)`;
 
-      // draw image cropped
-      outCtx.drawImage(
-        editor.img,
-        crop.x, crop.y, crop.w, crop.h,
-        0, 0, crop.w, crop.h
-      );
-      outCtx.filter = 'none';
+        outCtx.drawImage(
+          editor.img,
+          crop.x, crop.y, crop.w, crop.h,
+          0, 0, crop.w, crop.h
+        );
+        outCtx.filter = 'none';
 
-      // 2) redraw shapes in cropped coords
-      outCtx.save();
-      outCtx.strokeStyle = '#e1000f';
-      outCtx.fillStyle = '#e1000f';
-      outCtx.lineWidth = 6;
-      outCtx.lineCap = 'round';
-      outCtx.lineJoin = 'round';
+        outCtx.save();
+        outCtx.strokeStyle = '#e1000f';
+        outCtx.fillStyle = '#e1000f';
+        outCtx.lineWidth = 6;
+        outCtx.lineCap = 'round';
+        outCtx.lineJoin = 'round';
 
-      for (const sh of editor.shapes){
-        if (sh.type === 'circle'){
-          const cx = sh.cx - crop.x;
-          const cy = sh.cy - crop.y;
-          outCtx.beginPath();
-          outCtx.ellipse(cx, cy, Math.abs(sh.rx), Math.abs(sh.ry), 0, 0, Math.PI*2);
-          outCtx.stroke();
-        } else if (sh.type === 'arrow'){
-          const x1 = sh.x1 - crop.x, y1 = sh.y1 - crop.y;
-          const x2 = sh.x2 - crop.x, y2 = sh.y2 - crop.y;
+        for (const sh of editor.shapes){
+          if (sh.type === 'circle'){
+            const cx = sh.cx - crop.x;
+            const cy = sh.cy - crop.y;
+            outCtx.beginPath();
+            outCtx.ellipse(cx, cy, Math.abs(sh.rx), Math.abs(sh.ry), 0, 0, Math.PI*2);
+            outCtx.stroke();
+          } else if (sh.type === 'arrow'){
+            const x1 = sh.x1 - crop.x, y1 = sh.y1 - crop.y;
+            const x2 = sh.x2 - crop.x, y2 = sh.y2 - crop.y;
 
-          outCtx.beginPath();
-          outCtx.moveTo(x1,y1);
-          outCtx.lineTo(x2,y2);
-          outCtx.stroke();
+            outCtx.beginPath();
+            outCtx.moveTo(x1,y1);
+            outCtx.lineTo(x2,y2);
+            outCtx.stroke();
 
-          const angle = Math.atan2(y2 - y1, x2 - x1);
-          const headLen = 28;
-          const a1 = angle - Math.PI/7;
-          const a2 = angle + Math.PI/7;
+            const angle = Math.atan2(y2 - y1, x2 - x1);
+            const headLen = 28;
+            const a1 = angle - Math.PI/7;
+            const a2 = angle + Math.PI/7;
 
-          outCtx.beginPath();
-          outCtx.moveTo(x2, y2);
-          outCtx.lineTo(x2 - headLen*Math.cos(a1), y2 - headLen*Math.sin(a1));
-          outCtx.lineTo(x2 - headLen*Math.cos(a2), y2 - headLen*Math.sin(a2));
-          outCtx.closePath();
-          outCtx.fill();
+            outCtx.beginPath();
+            outCtx.moveTo(x2, y2);
+            outCtx.lineTo(x2 - headLen*Math.cos(a1), y2 - headLen*Math.sin(a1));
+            outCtx.lineTo(x2 - headLen*Math.cos(a2), y2 - headLen*Math.sin(a2));
+            outCtx.closePath();
+            outCtx.fill();
+          }
         }
+        outCtx.restore();
+
+        const blob = await canvasToBlob(outCanvas, 'image/jpeg', 0.92);
+        if (!blob) return;
+
+        if (photo.objectUrl) URL.revokeObjectURL(photo.objectUrl);
+        if (photo.thumbUrl) URL.revokeObjectURL(photo.thumbUrl);
+
+        const newObj = URL.createObjectURL(blob);
+        photo.objectUrl = newObj;
+
+        const thumbBlob = await canvasToBlob(outCanvas, 'image/jpeg', 0.82);
+        photo.thumbUrl = URL.createObjectURL(thumbBlob);
+
+        renderAll();
+      } finally {
+        // ✅ ferme quoi qu’il arrive (même si return plus haut)
+        editorClose();
       }
-      outCtx.restore();
-
-      // 3) convertir en Blob => objectUrl
-      const blob = await canvasToBlob(outCanvas, 'image/jpeg', 0.92);
-      if (!blob) return;
-
-      // cleanup anciens urls
-      if (photo.objectUrl) URL.revokeObjectURL(photo.objectUrl);
-      if (photo.thumbUrl) URL.revokeObjectURL(photo.thumbUrl);
-
-      const newObj = URL.createObjectURL(blob);
-      photo.objectUrl = newObj;
-
-      // thumb
-      const thumbBlob = await canvasToBlob(outCanvas, 'image/jpeg', 0.82);
-      photo.thumbUrl = URL.createObjectURL(thumbBlob);
-
-      // ferme + rerender
-      editorClose();
-      renderAll();
     }
 
     function editorReset(){
@@ -1381,7 +1479,10 @@
 
     // controls events
     [editor.adjBrightness, editor.adjContrast, editor.adjSaturation].forEach(el => {
-      el?.addEventListener('input', editorRedraw);
+      el?.addEventListener('input', () => {
+        syncAllEditorOutputs();
+        editorRedraw();
+      });
     });
 
     editor.toolAdjust?.addEventListener('click', () => editorSetTool('adjust'));
