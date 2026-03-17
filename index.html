@@ -441,6 +441,25 @@
     user-select: none;
   }
 
+    /* ✅ Le document (pages blanches) doit rester lisible même en thème sombre DSFR */
+  .sheet-page,
+  .sheet-page *{
+    color-scheme: light; /* empêche certains ajustements auto */
+  }
+
+  .sheet-page{
+    color: #1b1b35 !important; /* texte "papier" */
+  }
+
+  .sheet-cover__title{
+    color: #1b1b35 !important; /* titre toujours noir */
+  }
+
+  /* (optionnel) la ligne "STUDIO..." doit rester bleue sur fond blanc */
+  .sheet-cover__header p{
+    color: #000091 !important;
+  }
+
   </style>
 </head>
 
