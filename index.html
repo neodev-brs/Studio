@@ -626,6 +626,20 @@
                 </div>
 
                 <div class="fr-input-group studio-input-compact">
+                  <label class="fr-label" for="caseTypeField">Cadre d'enquête</label>
+                  <select class="fr-select" id="caseTypeField">
+                    <option value="">—</option>
+                    <option>Enquête préliminaire</option>
+                    <option>Enquête de flagrance</option>
+                    <option>Commission rogatoire</option>
+                    <option>Découverte de cadavre</option>
+                    <option>Découverte de personne grièvement blessée</option>
+                    <option>Disparition de personne</option>
+                    <option>Recherche d'une personne en fuite</option>
+                  </select>
+                </div>
+
+                <div class="fr-input-group studio-input-compact">
                   <label class="fr-label" for="unitField">Service / unité</label>
                   <input class="fr-input" id="unitField" type="text" placeholder="Ex. Brigade territoriale de ...">
                 </div>
@@ -784,6 +798,7 @@
 
       presetTitle: document.getElementById('presetTitle'),
       customTitle: document.getElementById('customTitle'),
+      caseTypeField: document.getElementById('caseTypeField'),
       unitField: document.getElementById('unitField'),
       referenceField: document.getElementById('referenceField'),
       dateField: document.getElementById('dateField'),
@@ -825,6 +840,7 @@
     function getFormData() {
       return {
         title: getFinalTitle(),
+        caseType: (els.caseTypeField?.value || "").trim(),
         unit: (els.unitField?.value || "").trim(),
         reference: (els.referenceField?.value || "").trim(),
         date: formatDate(els.dateField?.value),
@@ -1065,11 +1081,16 @@
       return `
         <article class="sheet-page sheet-cover">
           <header class="sheet-cover__header">
-            <p style="margin:0 0 .4rem 0;font-size:.95rem;font-weight:700;color:#000091;">STUDIO · GÉNÉRATEUR DE PLANCHES PHOTOGRAPHIQUES</p>
+            <p style="margin:0 0 .4rem 0;font-size:.95rem;font-weight:700;color:#000091;text-align:center;letter-spacing:.08em;">
+              GENDARMERIE NATIONALE
+            </p>
             <h1 class="sheet-cover__title">${escapeHtml(form.title)}</h1>
           </header>
 
           <section class="sheet-meta">
+            <div>Type d'enquête</div>
+            <div>${escapeHtml(form.caseType || '—')}</div>
+
             <div>Service / unité</div>
             <div>${escapeHtml(form.unit || '—')}</div>
 
@@ -1086,10 +1107,12 @@
             <div>${escapeHtml(form.author || '—')}</div>
           </section>
 
+          ${form.summary ? `
           <section>
             <h2 style="margin:0 0 .75rem 0;font-size:1.1rem;">Observations</h2>
-            <div class="sheet-summary">${escapeHtml(form.summary || 'Aucune observation renseignée.')}</div>
+            <div class="sheet-summary">${escapeHtml(form.summary)}</div>
           </section>
+          ` : ``}
 
           ${mapHtml}
         </article>`;
