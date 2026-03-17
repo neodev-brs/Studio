@@ -460,6 +460,33 @@
   color: #000091 !important;
 }
 
+/* ✅ Logo MI discret, en haut à gauche, hors cadre */
+.sheet-cover{
+  position: relative;
+}
+
+.sheet-mi-logo{
+  position: absolute;
+  top: 18px;          /* ajuste si besoin */
+  left: 18px;         /* ajuste si besoin */
+  width: 92px;        /* discret */
+  height: auto;
+  opacity: .22;       /* discret */
+  pointer-events: none;
+  user-select: none;
+  z-index: 1;
+  filter: grayscale(100%); /* optionnel, plus “sobre” */
+}
+
+/* Assure que le contenu passe “au-dessus” si jamais ça se chevauche */
+.sheet-cover__header,
+.sheet-meta,
+.sheet-summary,
+.sheet-map-block{
+  position: relative;
+  z-index: 2;
+}
+
   </style>
 </head>
 
@@ -1080,6 +1107,11 @@
 
       return `
         <article class="sheet-page sheet-cover">
+            <img class="sheet-mi-logo"
+         src="https://www.interieur.gouv.fr/themes/custom/dsfr/src/images/logo/logo-mi.svg"
+         alt=""
+         aria-hidden="true">
+         
           <header class="sheet-cover__header">
             <p style="margin:0 0 .4rem 0;font-size:.95rem;font-weight:700;color:#000091;text-align:center;letter-spacing:.08em;">
               GENDARMERIE NATIONALE
