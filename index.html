@@ -543,6 +543,25 @@
   }
 }
 
+.studio-editor-canvas-wrap{
+  border: 1px solid var(--border-default-grey);
+  background: #f2f2f2;
+  overflow: hidden;
+}
+
+#editorCanvas{
+  display:block;
+  width:100%;
+  height:auto;
+  cursor: crosshair;
+}
+
+.studio-editor-panel{
+  border: 1px solid var(--border-default-grey);
+  padding: 1rem;
+  background: var(--background-default-grey);
+}
+
   </style>
 </head>
 
@@ -850,14 +869,96 @@
 
         <div class="studio-thumb-card__actions">
           <span class="fr-text--xs photo-meta"></span>
-          <button type="button"
-                  class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-delete-bin-line remove-photo-btn">
-            Retirer
-          </button>
+
+          <div style="display:flex; gap:.25rem;">
+            <button type="button"
+                    class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-edit-line edit-photo-btn"
+                    title="Éditer la photographie"
+                    aria-label="Éditer la photographie">
+              Éditer
+            </button>
+
+            <button type="button"
+                    class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-delete-bin-line remove-photo-btn">
+              Retirer
+            </button>
+          </div>
         </div>
       </div>
     </article>
   </template>
+
+  <dialog id="photo-editor" class="fr-modal" aria-labelledby="photo-editor-title">
+  <div class="fr-container fr-container--fluid fr-container-md">
+    <div class="fr-grid-row fr-grid-row--center">
+      <div class="fr-col-12 fr-col-md-10 fr-col-lg-9">
+        <div class="fr-modal__body">
+          <div class="fr-modal__header">
+            <form method="dialog">
+              <button class="fr-btn--close fr-btn" title="Fermer" type="submit">Fermer</button>
+            </form>
+          </div>
+
+          <div class="fr-modal__content">
+            <h1 id="photo-editor-title" class="fr-modal__title">Éditeur photo</h1>
+
+            <div class="fr-grid-row fr-grid-row--gutters">
+              <!-- Canvas -->
+              <div class="fr-col-12 fr-col-md-8">
+                <div class="studio-editor-canvas-wrap">
+                  <canvas id="editorCanvas"></canvas>
+                </div>
+
+                <div class="fr-mt-2w" style="display:flex; gap:.5rem; flex-wrap:wrap;">
+                  <button type="button" class="fr-btn fr-btn--secondary fr-btn--sm" id="toolAdjust">Réglages</button>
+                  <button type="button" class="fr-btn fr-btn--secondary fr-btn--sm" id="toolCrop">Recadrage</button>
+                  <button type="button" class="fr-btn fr-btn--secondary fr-btn--sm" id="toolCircle">Cercle rouge</button>
+                  <button type="button" class="fr-btn fr-btn--secondary fr-btn--sm" id="toolArrow">Flèche rouge</button>
+                  <button type="button" class="fr-btn fr-btn--tertiary fr-btn--sm" id="toolReset">Réinitialiser</button>
+                </div>
+
+                <p class="fr-text--xs fr-mt-1w fr-mb-0" id="editorHint"></p>
+              </div>
+
+              <!-- Controls -->
+              <div class="fr-col-12 fr-col-md-4">
+                <div class="studio-editor-panel">
+                  <h2 class="fr-h6 fr-mb-2w">Réglages</h2>
+
+                  <div class="fr-input-group">
+                    <label class="fr-label" for="adjBrightness">Luminosité</label>
+                    <input class="fr-range" id="adjBrightness" type="range" min="-40" max="40" value="0">
+                  </div>
+
+                  <div class="fr-input-group">
+                    <label class="fr-label" for="adjContrast">Contraste</label>
+                    <input class="fr-range" id="adjContrast" type="range" min="-40" max="40" value="0">
+                  </div>
+
+                  <div class="fr-input-group">
+                    <label class="fr-label" for="adjSaturation">Saturation</label>
+                    <input class="fr-range" id="adjSaturation" type="range" min="-40" max="40" value="0">
+                  </div>
+
+                  <hr class="fr-mt-2w fr-mb-2w">
+
+                  <div style="display:flex; gap:.5rem; flex-wrap:wrap;">
+                    <button type="button" class="fr-btn fr-btn--secondary" id="editorCancel">Annuler</button>
+                    <button type="button" class="fr-btn" id="editorApply">Appliquer</button>
+                  </div>
+
+                  <p class="fr-text--xs fr-mt-1w fr-mb-0">
+                    “Appliquer” remplace la photo par la version modifiée.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</dialog>
 
   <!-- DSFR JS -->
   <script type="module" src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.13.1/dist/dsfr/dsfr.module.min.js"></script>
@@ -899,6 +1000,381 @@
       photoCardTemplate: document.getElementById('photoCardTemplate'),
       resetBtn: document.getElementById('resetBtn')
     };
+
+        // ======== Photo Editor (canvas) ========
+    const editor = {
+      dialog: document.getElementById('photo-editor'),
+      canvas: document.getElementById('editorCanvas'),
+      hint: document.getElementById('editorHint'),
+
+      toolAdjust: document.getElementById('toolAdjust'),
+      toolCrop: document.getElementById('toolCrop'),
+      toolCircle: document.getElementById('toolCircle'),
+      toolArrow: document.getElementById('toolArrow'),
+      toolReset: document.getElementById('toolReset'),
+
+      adjBrightness: document.getElementById('adjBrightness'),
+      adjContrast: document.getElementById('adjContrast'),
+      adjSaturation: document.getElementById('adjSaturation'),
+
+      btnCancel: document.getElementById('editorCancel'),
+      btnApply: document.getElementById('editorApply'),
+
+      ctx: null,
+      photoId: null,
+
+      // Image source "de départ" pour l’éditeur (on ne touche pas à l’original tant qu’on n’applique pas)
+      img: new Image(),
+      baseUrl: '',
+      baseW: 0,
+      baseH: 0,
+
+      tool: 'adjust', // adjust | crop | circle | arrow
+      cropRect: null, // {x,y,w,h} en coords image
+      shapes: [],     // [{type:'circle'|'arrow', ...} coords image]
+
+      dragging: false,
+      dragStart: null
+    };
+
+    editor.ctx = editor.canvas.getContext('2d') || null;
+
+    function editorSetHint(txt){ if (editor.hint) editor.hint.textContent = txt || ''; }
+
+    function editorGetAdjustments(){
+      const b = Number(editor.adjBrightness?.value || 0);
+      const c = Number(editor.adjContrast?.value || 0);
+      const s = Number(editor.adjSaturation?.value || 0);
+
+      // CSS filter: brightness/contrast/saturate en %
+      // 0 => neutre (100%)
+      const brightness = 100 + b;
+      const contrast   = 100 + c;
+      const saturate   = 100 + s;
+
+      return { brightness, contrast, saturate };
+    }
+
+    function editorRedraw(){
+      const ctx = editor.ctx;
+      if (!ctx || !editor.baseW || !editor.baseH) return;
+
+      // Canvas = même taille que l’image (simple et fiable)
+      editor.canvas.width  = editor.baseW;
+      editor.canvas.height = editor.baseH;
+
+      const {brightness, contrast, saturate} = editorGetAdjustments();
+      ctx.clearRect(0,0,editor.baseW,editor.baseH);
+      ctx.filter = `brightness(${brightness}%) contrast(${contrast}%) saturate(${saturate}%)`;
+      ctx.drawImage(editor.img, 0, 0, editor.baseW, editor.baseH);
+      ctx.filter = 'none';
+
+      // Overlay: crop rectangle (si actif)
+      // Overlay: crop rectangle (uniquement si c'est un vrai rect)
+    if (editor.cropRect && !editor.cropRect._tempCircle && !editor.cropRect._tempArrow) {
+      ctx.save();
+      ctx.strokeStyle = '#e1000f';
+      ctx.lineWidth = 3;
+      ctx.setLineDash([10,6]);
+      ctx.strokeRect(editor.cropRect.x, editor.cropRect.y, editor.cropRect.w, editor.cropRect.h);
+      ctx.restore();
+    }
+
+      // Overlay: annotations
+      ctx.save();
+      ctx.strokeStyle = '#e1000f';
+      ctx.fillStyle = '#e1000f';
+      ctx.lineWidth = 6; // “fin” mais visible en A4, ajuste si besoin
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+
+      for (const sh of editor.shapes){
+        if (sh.type === 'circle'){
+          ctx.beginPath();
+          ctx.ellipse(sh.cx, sh.cy, Math.abs(sh.rx), Math.abs(sh.ry), 0, 0, Math.PI*2);
+          ctx.stroke();
+        } else if (sh.type === 'arrow'){
+          // ligne
+          ctx.beginPath();
+          ctx.moveTo(sh.x1, sh.y1);
+          ctx.lineTo(sh.x2, sh.y2);
+          ctx.stroke();
+
+          // tête de flèche
+          const angle = Math.atan2(sh.y2 - sh.y1, sh.x2 - sh.x1);
+          const headLen = 28;
+          const a1 = angle - Math.PI/7;
+          const a2 = angle + Math.PI/7;
+
+          ctx.beginPath();
+          ctx.moveTo(sh.x2, sh.y2);
+          ctx.lineTo(sh.x2 - headLen*Math.cos(a1), sh.y2 - headLen*Math.sin(a1));
+          ctx.lineTo(sh.x2 - headLen*Math.cos(a2), sh.y2 - headLen*Math.sin(a2));
+          ctx.closePath();
+          ctx.fill();
+        }
+      }
+
+      ctx.restore();
+    }
+
+    function editorOpen(photoId){
+      const photo = state.photos.find(p => p.id === photoId);
+      if (!photo) return;
+
+      editor.photoId = photoId;
+      editor.tool = 'adjust';
+      editor.cropRect = null;
+      editor.shapes = [];
+      editor.dragging = false;
+      editor.dragStart = null;
+
+      // reset sliders
+      if (editor.adjBrightness) editor.adjBrightness.value = 0;
+      if (editor.adjContrast) editor.adjContrast.value = 0;
+      if (editor.adjSaturation) editor.adjSaturation.value = 0;
+
+      // Base = photo actuelle (si déjà éditée, on ré-édite dessus)
+      editor.baseUrl = photo.objectUrl;
+
+      editor.img = new Image();
+      editor.img.onload = () => {
+        editor.baseW = editor.img.naturalWidth || editor.img.width;
+        editor.baseH = editor.img.naturalHeight || editor.img.height;
+        editorSetHint('Réglages : bouge les curseurs. Recadrage : clique-glisse pour un rectangle.');
+        editorRedraw();
+      };
+      editor.img.src = editor.baseUrl;
+
+      // Ouvrir modal DSFR (dialog)
+      editor.dialog?.showModal?.();
+    }
+
+    function editorClose(){
+      editor.dialog?.close?.();
+      editor.photoId = null;
+    }
+
+    function canvasToBlob(canvas, type='image/jpeg', quality=0.9){
+      return new Promise(resolve => canvas.toBlob(resolve, type, quality));
+    }
+
+    async function editorApply(){
+      const photo = state.photos.find(p => p.id === editor.photoId);
+      if (!photo) return;
+
+      // 1) rendre la version “finale” sur un canvas de sortie (crop inclus si présent)
+      const outCanvas = document.createElement('canvas');
+      const outCtx = outCanvas.getContext('2d');
+
+      const crop = editor.cropRect && editor.cropRect.w > 10 && editor.cropRect.h > 10
+        ? editor.cropRect
+        : { x:0, y:0, w: editor.baseW, h: editor.baseH };
+
+      outCanvas.width = Math.round(crop.w);
+      outCanvas.height = Math.round(crop.h);
+
+      const {brightness, contrast, saturate} = editorGetAdjustments();
+      outCtx.filter = `brightness(${brightness}%) contrast(${contrast}%) saturate(${saturate}%)`;
+
+      // draw image cropped
+      outCtx.drawImage(
+        editor.img,
+        crop.x, crop.y, crop.w, crop.h,
+        0, 0, crop.w, crop.h
+      );
+      outCtx.filter = 'none';
+
+      // 2) redraw shapes in cropped coords
+      outCtx.save();
+      outCtx.strokeStyle = '#e1000f';
+      outCtx.fillStyle = '#e1000f';
+      outCtx.lineWidth = 6;
+      outCtx.lineCap = 'round';
+      outCtx.lineJoin = 'round';
+
+      for (const sh of editor.shapes){
+        if (sh.type === 'circle'){
+          const cx = sh.cx - crop.x;
+          const cy = sh.cy - crop.y;
+          outCtx.beginPath();
+          outCtx.ellipse(cx, cy, Math.abs(sh.rx), Math.abs(sh.ry), 0, 0, Math.PI*2);
+          outCtx.stroke();
+        } else if (sh.type === 'arrow'){
+          const x1 = sh.x1 - crop.x, y1 = sh.y1 - crop.y;
+          const x2 = sh.x2 - crop.x, y2 = sh.y2 - crop.y;
+
+          outCtx.beginPath();
+          outCtx.moveTo(x1,y1);
+          outCtx.lineTo(x2,y2);
+          outCtx.stroke();
+
+          const angle = Math.atan2(y2 - y1, x2 - x1);
+          const headLen = 28;
+          const a1 = angle - Math.PI/7;
+          const a2 = angle + Math.PI/7;
+
+          outCtx.beginPath();
+          outCtx.moveTo(x2, y2);
+          outCtx.lineTo(x2 - headLen*Math.cos(a1), y2 - headLen*Math.sin(a1));
+          outCtx.lineTo(x2 - headLen*Math.cos(a2), y2 - headLen*Math.sin(a2));
+          outCtx.closePath();
+          outCtx.fill();
+        }
+      }
+      outCtx.restore();
+
+      // 3) convertir en Blob => objectUrl
+      const blob = await canvasToBlob(outCanvas, 'image/jpeg', 0.92);
+      if (!blob) return;
+
+      // cleanup anciens urls
+      if (photo.objectUrl) URL.revokeObjectURL(photo.objectUrl);
+      if (photo.thumbUrl) URL.revokeObjectURL(photo.thumbUrl);
+
+      const newObj = URL.createObjectURL(blob);
+      photo.objectUrl = newObj;
+
+      // thumb
+      const thumbBlob = await canvasToBlob(outCanvas, 'image/jpeg', 0.82);
+      photo.thumbUrl = URL.createObjectURL(thumbBlob);
+
+      // ferme + rerender
+      editorClose();
+      renderAll();
+    }
+
+    function editorReset(){
+      if (editor.adjBrightness) editor.adjBrightness.value = 0;
+      if (editor.adjContrast) editor.adjContrast.value = 0;
+      if (editor.adjSaturation) editor.adjSaturation.value = 0;
+      editor.cropRect = null;
+      editor.shapes = [];
+      editor.tool = 'adjust';
+      editorSetHint('Réglages : bouge les curseurs. Recadrage : clique-glisse pour un rectangle.');
+      editorRedraw();
+    }
+
+    function editorSetTool(t){
+      editor.tool = t;
+      if (t === 'adjust') editorSetHint('Réglages : bouge les curseurs.');
+      if (t === 'crop') editorSetHint('Recadrage : clique-glisse pour définir le rectangle (puis “Appliquer”).');
+      if (t === 'circle') editorSetHint('Cercle : clique-glisse pour tracer un cercle/ellipse rouge.');
+      if (t === 'arrow') editorSetHint('Flèche : clique-glisse pour tracer une flèche rouge.');
+    }
+
+    function editorCanvasPoint(evt){
+      const rect = editor.canvas.getBoundingClientRect();
+      const x = (evt.clientX - rect.left) * (editor.canvas.width / rect.width);
+      const y = (evt.clientY - rect.top) * (editor.canvas.height / rect.height);
+      return {x,y};
+    }
+
+    // Canvas interactions
+    editor.canvas?.addEventListener('mousedown', (e) => {
+      if (!editor.photoId) return;
+      const p = editorCanvasPoint(e);
+      editor.dragging = true;
+      editor.dragStart = p;
+
+      if (editor.tool === 'crop'){
+        editor.cropRect = { x: p.x, y: p.y, w: 0, h: 0 };
+      }
+      if (editor.tool === 'circle'){
+        // on stocke “temp” via cropRect pour prévisualiser
+        editor.cropRect = { x: p.x, y: p.y, w: 0, h: 0, _tempCircle:true };
+      }
+      if (editor.tool === 'arrow'){
+        editor.cropRect = { x: p.x, y: p.y, w: 0, h: 0, _tempArrow:true };
+      }
+    });
+
+    editor.canvas?.addEventListener('mousemove', (e) => {
+      if (!editor.dragging || !editor.dragStart) return;
+      const p = editorCanvasPoint(e);
+
+      const x = Math.min(editor.dragStart.x, p.x);
+      const y = Math.min(editor.dragStart.y, p.y);
+      const w = Math.abs(p.x - editor.dragStart.x);
+      const h = Math.abs(p.y - editor.dragStart.y);
+
+      if (editor.tool === 'crop'){
+        editor.cropRect = { x, y, w, h };
+      } else if (editor.tool === 'circle'){
+        editor.cropRect = { x, y, w, h, _tempCircle:true };
+      } else if (editor.tool === 'arrow'){
+        // pour arrow on garde start/end dans cropRect
+        editor.cropRect = { x1: editor.dragStart.x, y1: editor.dragStart.y, x2: p.x, y2: p.y, _tempArrow:true };
+      }
+      editorRedraw();
+
+      // dessine preview circle/arrow
+      const ctx = editor.ctx;
+      if (editor.cropRect?._tempCircle){
+        ctx.save();
+        ctx.strokeStyle = '#e1000f';
+        ctx.lineWidth = 6;
+        const cx = x + w/2, cy = y + h/2, rx = w/2, ry = h/2;
+        ctx.beginPath();
+        ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI*2);
+        ctx.stroke();
+        ctx.restore();
+      }
+      if (editor.cropRect?._tempArrow){
+        ctx.save();
+        ctx.strokeStyle = '#e1000f';
+        ctx.fillStyle = '#e1000f';
+        ctx.lineWidth = 6;
+        ctx.lineCap='round';
+        const a = editor.cropRect;
+        ctx.beginPath(); ctx.moveTo(a.x1,a.y1); ctx.lineTo(a.x2,a.y2); ctx.stroke();
+        const angle = Math.atan2(a.y2-a.y1, a.x2-a.x1);
+        const headLen=28, a1=angle-Math.PI/7, a2=angle+Math.PI/7;
+        ctx.beginPath();
+        ctx.moveTo(a.x2,a.y2);
+        ctx.lineTo(a.x2-headLen*Math.cos(a1), a.y2-headLen*Math.sin(a1));
+        ctx.lineTo(a.x2-headLen*Math.cos(a2), a.y2-headLen*Math.sin(a2));
+        ctx.closePath(); ctx.fill();
+        ctx.restore();
+      }
+    });
+
+    editor.canvas?.addEventListener('mouseup', (e) => {
+      if (!editor.dragging) return;
+      editor.dragging = false;
+      const p = editorCanvasPoint(e);
+
+      // finalize circle / arrow
+      if (editor.tool === 'circle' && editor.cropRect?._tempCircle){
+        const r = editor.cropRect;
+        const cx = r.x + r.w/2, cy = r.y + r.h/2, rx = r.w/2, ry = r.h/2;
+        if (rx > 6 && ry > 6) editor.shapes.push({ type:'circle', cx, cy, rx, ry });
+        editor.cropRect = null;
+        editorRedraw();
+      }
+
+      if (editor.tool === 'arrow' && editor.cropRect?._tempArrow){
+        const a = editor.cropRect;
+        const dx = a.x2 - a.x1, dy = a.y2 - a.y1;
+        if (Math.hypot(dx,dy) > 15) editor.shapes.push({ type:'arrow', x1:a.x1, y1:a.y1, x2:a.x2, y2:a.y2 });
+        editor.cropRect = null;
+        editorRedraw();
+      }
+    });
+
+    // controls events
+    [editor.adjBrightness, editor.adjContrast, editor.adjSaturation].forEach(el => {
+      el?.addEventListener('input', editorRedraw);
+    });
+
+    editor.toolAdjust?.addEventListener('click', () => editorSetTool('adjust'));
+    editor.toolCrop?.addEventListener('click', () => editorSetTool('crop'));
+    editor.toolCircle?.addEventListener('click', () => editorSetTool('circle'));
+    editor.toolArrow?.addEventListener('click', () => editorSetTool('arrow'));
+
+    editor.toolReset?.addEventListener('click', editorReset);
+    editor.btnCancel?.addEventListener('click', editorClose);
+    editor.btnApply?.addEventListener('click', editorApply);
 
     function escapeHtml(value) {
       return String(value ?? '')
@@ -1036,6 +1512,7 @@
     const titleInput = node.querySelector('input');
     const descTextarea = node.querySelector('textarea');
     const meta = node.querySelector('.photo-meta');
+    const editBtn = node.querySelector('.edit-photo-btn');
     const removeBtn = node.querySelector('.remove-photo-btn');
 
     // ✅ Empêche le drag de casser le double-clic / la sélection dans les champs
@@ -1079,6 +1556,7 @@
       renderDocumentPreviewDebounced();
     });
 
+    editBtn?.addEventListener('click', () => editorOpen(photo.id));
     removeBtn.addEventListener('click', () => removePhoto(photo.id));
 
     /* Drag & drop */
@@ -1398,7 +1876,7 @@ body{margin:0;padding:24px;background:#efefef;font-family:Marianne,Arial,sans-se
     box-shadow: none !important;
     page-break-after: always;
   }
-    
+
   .sheet-page:last-child{ page-break-after: auto; }
 
   /* éviter que Chrome “shrink-to-fit” */
