@@ -575,6 +575,26 @@
   user-select: none;
 }
 
+/* Header de la modale : titre + fermer sur la même ligne */
+#photo-editor .studio-modal-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:1rem;
+  padding: .75rem 1rem;      /* réduit l’espace en haut */
+}
+
+/* Le titre ne doit pas rajouter de marges */
+#photo-editor .studio-modal-title{
+  margin: 0;
+}
+
+/* On réduit le padding inutile du contenu */
+#photo-editor .studio-modal-content{
+  padding-top: .5rem;
+  padding-bottom: .75rem;    /* réduit le bas */
+}
+
   </style>
 </head>
 
@@ -916,7 +936,9 @@
     <div class="fr-grid-row fr-grid-row--center">
       <div class="fr-col-12 fr-col-md-10 fr-col-lg-9">
         <div class="fr-modal__body">
-          <div class="fr-modal__header">
+          <div class="fr-modal__header studio-modal-head">
+            <h1 id="photo-editor-title" class="fr-modal__title studio-modal-title">Éditeur photo</h1>
+
             <button
               class="fr-btn fr-btn--close"
               type="button"
@@ -926,8 +948,7 @@
             </button>
           </div>
 
-          <div class="fr-modal__content">
-            <h1 id="photo-editor-title" class="fr-modal__title">Éditeur photo</h1>
+          <div class="fr-modal__content studio-modal-content">
 
             <div class="fr-grid-row fr-grid-row--gutters">
               <div class="fr-col-12 fr-col-md-8">
