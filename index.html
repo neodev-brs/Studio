@@ -523,14 +523,17 @@
   }
 
   /* ✅ la page doit remplir la feuille (sinon ça “rétrécit au centre”) */
-  .sheet-page{
+    .sheet-page{
     width: 210mm !important;
     min-height: 297mm !important;
     margin: 0 !important;
-    padding: 15mm !important; /* marge interne “propre”, ajuste si besoin */
+    padding: 15mm !important;
+    box-sizing: border-box !important; /* ✅ LE FIX FIREFOX */
+    max-width: none !important;        /* ✅ pas de contrainte “min/max” */
     box-shadow: none !important;
     page-break-after: always;
   }
+
   .sheet-page:last-child{ page-break-after: auto; }
 
   /* éviter que Chrome “shrink-to-fit” */
@@ -1385,14 +1388,17 @@ body{margin:0;padding:24px;background:#efefef;font-family:Marianne,Arial,sans-se
   }
 
   /* ✅ la page doit remplir la feuille (sinon ça “rétrécit au centre”) */
-  .sheet-page{
+    .sheet-page{
     width: 210mm !important;
     min-height: 297mm !important;
     margin: 0 !important;
-    padding: 15mm !important; /* marge interne “propre”, ajuste si besoin */
+    padding: 15mm !important;
+    box-sizing: border-box !important; /* ✅ LE FIX FIREFOX */
+    max-width: none !important;        /* ✅ pas de contrainte “min/max” */
     box-shadow: none !important;
     page-break-after: always;
   }
+    
   .sheet-page:last-child{ page-break-after: auto; }
 
   /* éviter que Chrome “shrink-to-fit” */
