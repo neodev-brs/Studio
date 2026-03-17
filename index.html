@@ -748,7 +748,7 @@
   <script nomodule src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.13.1/dist/dsfr/dsfr.nomodule.min.js"></script>
 
   <script>
-    const state = { photos: [], mapDataUrl: '', pin: null, numbering: true };
+    const state = { photos: [], mapDataUrl: '', mapObjectUrl: '', pin: null, numbering: true };
 
     const els = {
       photoInput: document.getElementById('photoInput'),
@@ -820,33 +820,65 @@
       return base || `Photographie ${index + 1}`;
     }
 
-    function readFileAsDataUrl(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
+    function createObjectUrl(file) {
+      return URL.createObjectURL(file);
+    }
+
+    async function createThumbnail(file, maxSize = 800, quality = 0.82) {
+      const bitmap = await createImageBitmap(file);
+
+      const ratio = Math.min(maxSize / bitmap.width, maxSize / bitmap.height, 1);
+      const width = Math.round(bitmap.width * ratio);
+      const height = Math.round(bitmap.height * ratio);
+
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+
+      const ctx = canvas.getContext('2d', { alpha: false });
+      ctx.drawImage(bitmap, 0, 0, width, height);
+      bitmap.close();
+
+      return await new Promise((resolve) => {
+        canvas.toBlob((blob) => {
+          resolve(URL.createObjectURL(blob));
+        }, 'image/jpeg', quality);
       });
     }
 
     async function addPhotos(files) {
       const imageFiles = Array.from(files || []).filter(file => (file.type || "").startsWith('image/'));
+
       for (const file of imageFiles) {
-        const dataUrl = await readFileAsDataUrl(file);
+        const thumbUrl = await createThumbnail(file);
+
         state.photos.push({
           id: crypto.randomUUID(),
-          title: `Cliché N° ${state.photos.length + 1}`,   // ✅ titre par défaut
-          description: "",                                 // ✅ description vide
+          title: `Cliché N° ${state.photos.length + 1}`,
+          description: "",
           fileName: file.name,
           sizeLabel: `${Math.max(1, Math.round(file.size / 1024))} Ko`,
-          dataUrl
+          file,
+          objectUrl: URL.createObjectURL(file),
+          thumbUrl
         });
       }
+
       applyNumbering();
       renderAll();
     }
 
     function removePhoto(id) {
+      const photo = state.photos.find(p => p.id === id);
+
+      if (photo?.objectUrl) {
+        URL.revokeObjectURL(photo.objectUrl);
+      }
+
+      if (photo?.thumbUrl) {
+        URL.revokeObjectURL(photo.thumbUrl);
+      }
+
       state.photos = state.photos.filter(photo => photo.id !== id);
       renderAll();
     }
@@ -861,6 +893,16 @@
     function isAutoTitle(title) {
       return /^Cliché N°\s*\d+$/i.test((title || '').trim());
     }
+
+    function debounce(fn, delay = 250) {
+      let timer;
+      return (...args) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => fn(...args), delay);
+      };
+    }
+
+    const renderDocumentPreviewDebounced = debounce(renderDocumentPreview, 200);
 
     function renderPhotoGrid() {
   els.photoGrid.innerHTML = '';
@@ -895,7 +937,7 @@
       });
     });
 
-    img.src = photo.dataUrl;
+    img.src = photo.thumbUrl || photo.objectUrl;
     img.alt = photo.title || '';
 
     // Valeurs
@@ -906,19 +948,19 @@
 
     // Events
     titleInput.addEventListener('input', (e) => {
-      if (state.numbering) return; // sécurité
+      if (state.numbering) return;
       photo.title = e.target.value;
-      renderDocumentPreview();
+      renderDocumentPreviewDebounced();
     });
 
     descTextarea.addEventListener('input', (e) => {
-      // ✅ limite stricte 150 (espaces inclus)
       if (e.target.value.length > 150) {
         e.target.value = e.target.value.slice(0, 150);
       }
       photo.description = e.target.value;
-      renderDocumentPreview();
+      renderDocumentPreviewDebounced();
     });
+
     removeBtn.addEventListener('click', () => removePhoto(photo.id));
 
     /* Drag & drop */
@@ -1058,7 +1100,7 @@
 
           return `
             <section class="sheet-photo-slot ${alignment} ${hasDesc ? 'has-desc' : 'no-desc'}">
-              <img src="${photo.dataUrl}" alt="${escapeHtml(photo.title || '')}">
+              <img src="${photo.objectUrl}" alt="${escapeHtml(photo.title || '')}">
               <div class="sheet-photo-slot__caption">${
                 escapeHtml(state.numbering ? `Cliché N° ${pageIndex * 2 + idx + 1}` : (photo.title || ''))
               }</div>
@@ -1237,6 +1279,16 @@ ${buildFullDocumentHtml()}
     }
 
     function resetAll() {
+      state.photos.forEach(photo => {
+        if (photo.objectUrl) URL.revokeObjectURL(photo.objectUrl);
+        if (photo.thumbUrl) URL.revokeObjectURL(photo.thumbUrl);
+      });
+
+        if (state.mapObjectUrl) {
+      URL.revokeObjectURL(state.mapObjectUrl);
+    }
+    state.mapObjectUrl = '';
+
   // 1) Etat application
   state.photos = [];
   state.mapDataUrl = '';
@@ -1315,11 +1367,17 @@ els.resetBtn?.addEventListener('click', resetAll);
       if (!(els.customTitle?.value || "").trim()) renderDocumentPreview();
     });
 
-    els.mapInput.addEventListener('change', async (e) => {
+    els.mapInput.addEventListener('change', (e) => {
       const file = e.target.files?.[0];
       if (!file) return;
-      state.mapDataUrl = await readFileAsDataUrl(file);
-      els.mapImage.src = state.mapDataUrl;
+
+      if (state.mapObjectUrl) {
+        URL.revokeObjectURL(state.mapObjectUrl);
+      }
+
+      state.mapObjectUrl = URL.createObjectURL(file);
+      state.mapDataUrl = state.mapObjectUrl; // on garde le même nom dans le reste du code
+      els.mapImage.src = state.mapObjectUrl;
       els.mapCanvas.hidden = false;
       state.pin = null;
       els.mapPin.hidden = true;
