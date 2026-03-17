@@ -441,123 +441,24 @@
     user-select: none;
   }
 
-    /* ✅ Le document (pages blanches) doit rester lisible même en thème sombre DSFR */
-  .sheet-page,
-  .sheet-page *{
-    color-scheme: light; /* empêche certains ajustements auto */
-  }
+  /* ✅ Le document (pages blanches) doit rester lisible même en thème sombre DSFR */
+.sheet-page,
+.sheet-page *{
+  color-scheme: light; /* empêche certains ajustements auto */
+}
 
-  .sheet-page{
-    color: #1b1b35 !important; /* texte "papier" */
-  }
+.sheet-page{
+  color: #1b1b35 !important; /* texte "papier" */
+}
 
-  .sheet-cover__title{
-    color: #1b1b35 !important; /* titre toujours noir */
-  }
+.sheet-cover__title{
+  color: #1b1b35 !important; /* titre toujours noir */
+}
 
-  /* (optionnel) la ligne "STUDIO..." doit rester bleue sur fond blanc */
-  .sheet-cover__header p{
-    color: #000091 !important;
-  }
-
-  /* ===== Nouveau look page de présentation ===== */
-
-  .cover-top{
-    display:flex;
-    align-items:flex-start;
-    justify-content:space-between;
-    gap: 1rem;
-    border-bottom: 3px solid #000091;
-    padding-bottom: 1rem;
-    margin-bottom: 1.25rem;
-  }
-
-  .cover-top__kicker{
-    font-size: .9rem;
-    font-weight: 700;
-    letter-spacing: .02em;
-    color: #000091 !important;
-    margin-bottom: .35rem;
-  }
-
-  .cover-top__title{
-    margin: 0;
-  }
-
-  .cover-top__flag{
-    display:flex;
-    width: 14px;
-    min-width:14px;
-    height: 64px;
-    border: 1px solid #e5e5e5;
-  }
-
-  .cover-flag__blue{ flex:1; background:#000091; }
-  .cover-flag__white{ flex:1; background:#fff; }
-  .cover-flag__red{ flex:1; background:#e1000f; }
-
-  .cover-section{
-    margin-top: 1.1rem;
-  }
-
-  .cover-h2{
-    font-size: 1.05rem;
-    margin: 0 0 .6rem 0;
-    padding-left: .65rem;
-    border-left: 4px solid #000091;
-    color: #1b1b35 !important;
-  }
-
-  .cover-meta{
-    border: 1px solid #d6d6d6;
-    background: #fff;
-  }
-
-  .cover-meta__row{
-    display:grid;
-    grid-template-columns: 220px 1fr;
-    gap: .75rem;
-    padding: .65rem .85rem;
-    border-top: 1px solid #e9e9e9;
-  }
-
-  .cover-meta__row:first-child{
-    border-top: 0;
-  }
-
-  .cover-meta__label{
-    font-weight: 700;
-    color: #1b1b35 !important;
-  }
-
-  .cover-meta__value{
-    color: #1b1b35 !important;
-  }
-
-  .cover-notes{
-    border: 1px solid #d6d6d6;
-    background: #f6f6f6;
-    padding: .85rem;
-    white-space: pre-wrap;
-    min-height: 120px;
-    color: #1b1b35 !important;
-  }
-
-  .cover-map{
-    position:relative;
-    border:1px solid #d6d6d6;
-    background:#f2f2f2;
-    overflow:hidden;
-  }
-
-  .cover-map img{
-    display:block;
-    width:100%;
-    height:auto;
-    max-height:360px;
-    object-fit:contain;
-    background:#f2f2f2;
-  }
+/* (optionnel) la ligne "STUDIO..." doit rester bleue sur fond blanc */
+.sheet-cover__header p{
+  color: #000091 !important;
+}
 
   </style>
 </head>
@@ -1145,9 +1046,9 @@
     function buildCoverPageHtml(form) {
       const mapHtml = state.mapDataUrl
         ? `
-          <section class="cover-section">
-            <h2 class="cover-h2">Localisation</h2>
-            <div class="cover-map">
+          <div class="sheet-map-block">
+            <h3 style="margin:0 0 .75rem 0;font-size:1.1rem;">Localisation</h3>
+            <div class="sheet-map-preview">
               <img src="${state.mapDataUrl}" alt="Carte localisant les faits">
               ${state.pin ? `
               <span class="sheet-map-pin" style="left:${state.pin.x}%;top:${state.pin.y}%;" aria-hidden="true">
@@ -1156,65 +1057,41 @@
                   <circle cx="12" cy="10" r="3.2"></circle>
                 </svg>
               </span>
-              ` : ''}
+            ` : ''}
             </div>
-          </section>`
+          </div>`
         : '';
 
       return `
         <article class="sheet-page sheet-cover">
-
-          <header class="cover-top">
-            <div class="cover-top__brand">
-              <div class="cover-top__kicker">STUDIO · GÉNÉRATEUR DE PLANCHES PHOTOGRAPHIQUES</div>
-              <h1 class="sheet-cover__title cover-top__title">${escapeHtml(form.title)}</h1>
-            </div>
-            <div class="cover-top__flag" aria-hidden="true">
-              <span class="cover-flag__blue"></span>
-              <span class="cover-flag__white"></span>
-              <span class="cover-flag__red"></span>
-            </div>
+          <header class="sheet-cover__header">
+            <p style="margin:0 0 .4rem 0;font-size:.95rem;font-weight:700;color:#000091;">STUDIO · GÉNÉRATEUR DE PLANCHES PHOTOGRAPHIQUES</p>
+            <h1 class="sheet-cover__title">${escapeHtml(form.title)}</h1>
           </header>
 
-          <section class="cover-section">
-            <h2 class="cover-h2">Informations</h2>
-            <div class="cover-meta">
-              <div class="cover-meta__row">
-                <div class="cover-meta__label">Service / unité</div>
-                <div class="cover-meta__value">${escapeHtml(form.unit || '—')}</div>
-              </div>
+          <section class="sheet-meta">
+            <div>Service / unité</div>
+            <div>${escapeHtml(form.unit || '—')}</div>
 
-              <div class="cover-meta__row">
-                <div class="cover-meta__label">Référence / procédure</div>
-                <div class="cover-meta__value">${escapeHtml(form.reference || '—')}</div>
-              </div>
+            <div>Référence / procédure</div>
+            <div>${escapeHtml(form.reference || '—')}</div>
 
-              <div class="cover-meta__row">
-                <div class="cover-meta__label">Date</div>
-                <div class="cover-meta__value">${escapeHtml(form.date || '—')}</div>
-              </div>
+            <div>Date</div>
+            <div>${escapeHtml(form.date || '—')}</div>
 
-              <div class="cover-meta__row">
-                <div class="cover-meta__label">Lieu</div>
-                <div class="cover-meta__value">${escapeHtml(form.place || '—')}</div>
-              </div>
+            <div>Lieu</div>
+            <div>${escapeHtml(form.place || '—')}</div>
 
-              <div class="cover-meta__row">
-                <div class="cover-meta__label">Rédacteur / enquêteur</div>
-                <div class="cover-meta__value">${escapeHtml(form.author || '—')}</div>
-              </div>
-            </div>
+            <div>Rédacteur / enquêteur</div>
+            <div>${escapeHtml(form.author || '—')}</div>
           </section>
 
-          <section class="cover-section">
-            <h2 class="cover-h2">Observations</h2>
-            <div class="cover-notes">
-              ${escapeHtml(form.summary || 'Aucune observation renseignée.')}
-            </div>
+          <section>
+            <h2 style="margin:0 0 .75rem 0;font-size:1.1rem;">Observations</h2>
+            <div class="sheet-summary">${escapeHtml(form.summary || 'Aucune observation renseignée.')}</div>
           </section>
 
           ${mapHtml}
-
         </article>`;
     }
 
