@@ -645,7 +645,6 @@
     Ouvrir l’éditeur photo
   </button>
 
-
   <!-- HEADER (GoFast) conservé, menu renommé -->
   <header role="banner" class="fr-header">
   <div class="fr-header__body">
@@ -901,7 +900,7 @@
 
         <div class="studio-preview-panel__body">
           <div class="sticky-preview-actions">
-            <div class="studio-numbering-toggle">
+            <div class="studio-numbering-toggle" id="numberingToggleWrap">
               <div class="fr-toggle fr-toggle--label-left fr-toggle--sm">
                 <input type="checkbox" class="fr-toggle__input" id="numberingToggle" checked>
                 <label class="fr-toggle__label" for="numberingToggle">Numérotation</label>
@@ -1100,6 +1099,7 @@
       mapInput: document.getElementById('mapInput'),
       dropzone: document.getElementById('dropzone'),
       numberingToggle: document.getElementById('numberingToggle'),
+      numberingToggleWrap: document.getElementById('numberingToggleWrap'),
 
       photoZone: document.getElementById('photoZone'),
       photoGrid: document.getElementById('photoGrid'),
@@ -1903,6 +1903,10 @@
       // ✅ Masquer / afficher la zone photos dans la preview (on garde comme tu l'as fait)
       const photosSection = document.getElementById("photosPreviewSection");
       if (photosSection) photosSection.style.display = isPresentationView ? "none" : "";
+
+      if (els.numberingToggleWrap) {
+      els.numberingToggleWrap.style.display = isPresentationView ? "none" : "";
+}
     }
 
     function renderAll() {
