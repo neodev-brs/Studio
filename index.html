@@ -481,6 +481,23 @@
   z-index: 1;
 }
 
+/* ✅ "GENDARMERIE NATIONALE" aligné avec le logo MI (même hauteur) */
+.sheet-gn-title{
+  position: absolute;
+  top: 18px;               /* ✅ même valeur que .sheet-mi-logo */
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  font-size: .95rem;
+  font-weight: 700;
+  color: #000091;
+  letter-spacing: .08em;
+  text-align: center;
+  pointer-events: none;
+  user-select: none;
+  z-index: 2;
+}
+
 /* Assure que le contenu passe “au-dessus” si jamais ça se chevauche */
 .sheet-cover__header,
 .sheet-meta,
@@ -1785,11 +1802,10 @@
               aria-hidden="true"
               loading="eager"
               decoding="async">
+            
+            <p class="sheet-gn-title">GENDARMERIE NATIONALE</p>
 
           <header class="sheet-cover__header">
-            <p style="margin:0 0 .4rem 0;font-size:.95rem;font-weight:700;color:#000091;text-align:center;letter-spacing:.08em;">
-              GENDARMERIE NATIONALE
-            </p>
             <h1 class="sheet-cover__title">${escapeHtml(form.title)}</h1>
           </header>
 
@@ -1915,6 +1931,21 @@ body{margin:0;padding:24px;background:#efefef;font-family:Marianne,Arial,sans-se
 .sheet-page{width:min(100%,820px);margin:0 auto 24px;background:#fff;min-height:1120px;padding:48px;box-shadow:0 12px 32px rgba(0,0,0,.12);box-sizing:border-box;position:relative}
 .sheet-cover__header{border-bottom:3px solid #000091;padding-bottom:1rem;margin-bottom:1.5rem}
 .sheet-cover__title{font-size:2rem;font-weight:700;line-height:1.15;margin:0}
+.sheet-gn-title{
+  position:absolute;
+  top:18px;              /* même hauteur que le logo MI */
+  left:50%;
+  transform:translateX(-50%);
+  margin:0;
+  font-size:.95rem;
+  font-weight:700;
+  color:#000091;
+  letter-spacing:.08em;
+  text-align:center;
+  pointer-events:none;
+  user-select:none;
+  z-index:2;
+}
 .sheet-meta{display:grid;grid-template-columns:220px 1fr;gap:.65rem 1rem;margin:1.5rem 0;font-size:1rem}.sheet-meta div:nth-child(odd){font-weight:700}
 .sheet-summary{border:1px solid #d6d6d6;border-radius:0;padding:1rem;white-space:pre-wrap;min-height:120px;background:#fcfcfd}
 .sheet-map-preview{position:relative;border:1px solid #d6d6d6;border-radius:0;overflow:hidden;background:#f2f2f2}.sheet-map-preview img{display:block;width:100%;height:auto;max-height:360px;object-fit:contain;background:#f2f2f2}
