@@ -906,8 +906,6 @@
                 <label class="fr-toggle__label" for="numberingToggle">Numérotation</label>
               </div>
             </div>
-
-            <button type="button" class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-printer-line" id="printBtn">Imprimer / PDF</button>
           </div>
 
           <section class="fr-mb-4w" id="photosPreviewSection">
@@ -1124,7 +1122,6 @@
 
       exportFormat: document.getElementById('exportFormat'),
       generateBtn: document.getElementById('generateBtn'),
-      printBtn: document.getElementById('printBtn'),
       photoCardTemplate: document.getElementById('photoCardTemplate'),
       resetBtn: document.getElementById('resetBtn')
     };
@@ -2229,7 +2226,6 @@ els.resetBtn?.addEventListener('click', resetAll);
     });
 
     els.generateBtn.addEventListener('click', handleGenerate);
-    els.printBtn.addEventListener('click', exportPdf);
 
     /* Navigation mono-fichier */
     function setViewFromHash(){
