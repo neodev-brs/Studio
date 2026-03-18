@@ -629,6 +629,11 @@
   padding-bottom: .75rem;    /* réduit le bas */
 }
 
+/* ✅ Page de présentation : aérer entre Date/Lieu et Infraction */
+#view-presentation .studio-infra-gap{
+  margin-top: .5rem; /* ajuste à .25rem / .75rem si besoin */
+}
+
   </style>
 </head>
 
@@ -832,7 +837,7 @@
             </div>
           </div>
 
-          <div class="fr-input-group studio-input-compact">
+          <div class="fr-input-group studio-input-compact studio-infra-gap">
             <label class="fr-label" for="authorField">Infraction</label>
             <input class="fr-input" id="authorField" type="text" placeholder="Ex. Natinf 7154, vol par effraction...">
           </div>
@@ -1839,7 +1844,7 @@
             <div>Cadre d'enquête</div>
             <div>${escapeHtml(form.caseType || '—')}</div>
 
-            <div>Service / unité</div>
+            <div>Unité ou service</div>
             <div>${escapeHtml(form.unit || '—')}</div>
 
             <div>Références de la procédure</div>
