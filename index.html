@@ -1123,6 +1123,23 @@
   </div>
 </dialog>
 
+<!-- ✅ Indicateur d'étapes (1 seule fois dans le DOM) -->
+<div class="fr-stepper fr-mb-2w" id="studioStepper" hidden>
+  <h2 class="fr-stepper__title">
+    <span id="studioStepperLabel">Conception</span>
+    <span class="fr-stepper__state" id="studioStepperState">Étape 1 sur 3</span>
+  </h2>
+
+  <div class="fr-stepper__steps"
+       id="studioStepperSteps"
+       data-fr-current-step="1"
+       data-fr-steps="3"></div>
+
+  <p class="fr-stepper__details" id="studioStepperDetails">
+    <span class="fr-text--bold">Étape suivante&nbsp;:</span> Page de présentation
+  </p>
+</div>
+
   <!-- DSFR JS -->
   <script type="module" src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.13.1/dist/dsfr/dsfr.module.min.js"></script>
   <script nomodule src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.13.1/dist/dsfr/dsfr.nomodule.min.js"></script>
@@ -2431,23 +2448,6 @@ els.resetBtn?.addEventListener('click', resetAll);
     </div>
   </div>
 </dialog>
-
-<!-- ✅ Indicateur d'étapes (1 seule fois dans le DOM) -->
-<div class="fr-stepper fr-mb-2w" id="studioStepper" hidden>
-  <h2 class="fr-stepper__title">
-    <span id="studioStepperLabel">Conception</span>
-    <span class="fr-stepper__state" id="studioStepperState">Étape 1 sur 3</span>
-  </h2>
-
-  <div class="fr-stepper__steps"
-       id="studioStepperSteps"
-       data-fr-current-step="1"
-       data-fr-steps="3"></div>
-
-  <p class="fr-stepper__details" id="studioStepperDetails">
-    <span class="fr-text--bold">Étape suivante&nbsp;:</span> Page de présentation
-  </p>
-</div>
 
 <footer class="studio-credit">
   STUDIO 2026 - MDC HUGO BRES--MALANCHERE
