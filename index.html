@@ -635,14 +635,16 @@
 <body>
 <!--HOOK OBLIGATOIRE POUR RAMENER EN HAUT DE LA PAGE APRES UNE MODIF VIA L'EDITEUR-->
   <button
-  type="button"
-  class="fr-btn"
-  id="photo-editor-opener"
-  aria-controls="photo-editor"
-  data-fr-opened="false"
-  hidden>
-  Ouvrir l’éditeur photo
-</button>
+    type="button"
+    id="photo-editor-opener"
+    aria-controls="photo-editor"
+    data-fr-opened="false"
+    aria-hidden="true"
+    style="position:fixed;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;"
+  >
+    Ouvrir l’éditeur photo
+  </button>
+
 
   <!-- HEADER (GoFast) conservé, menu renommé -->
   <header role="banner" class="fr-header">
