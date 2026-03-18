@@ -729,177 +729,176 @@
 
     <div class="studio-shell">
       <!-- COLONNE GAUCHE (vue) -->
-      <div>
-        <!-- VUE CONCEPTION : 1 + 4 -->
-        <section id="view-conception" class="studio-view is-active">
-          <aside class="studio-panel" id="conception">
-            <div class="studio-panel__head">
-              <h1 class="fr-h4 fr-mb-1v">Paramétrage de la planche</h1>
-              <p class="fr-text--sm fr-mb-0">Import des photographies et génération du document final.</p>
-            </div>
+<div>
+  <!-- VUE CONCEPTION : 1 -->
+  <section id="view-conception" class="studio-view is-active">
+    <aside class="studio-panel" id="conception">
+      <div class="studio-panel__head">
+        <h1 class="fr-h4 fr-mb-1v">Paramétrage de la planche</h1>
+        <p class="fr-text--sm fr-mb-0">Import des photographies et génération du document final.</p>
+      </div>
 
-            <div class="studio-panel__body">
-              <section class="fr-mb-4w">
-                <h2 class="fr-h6">1. Import des photographies</h2>
+      <div class="studio-panel__body">
+        <section class="fr-mb-4w">
+          <h2 class="fr-h6">1. Import des photographies</h2>
 
-                <div class="fr-upload-group fr-mt-2w">
-                  <label class="fr-label" for="photoInput">
-                    Sélectionnez une ou plusieurs photographies
-                    <span class="fr-hint-text">Formats image (JPG, PNG, etc.).</span>
-                  </label>
-                  <input class="fr-upload" type="file" id="photoInput" accept="image/*" multiple />
-                </div>
+          <div class="fr-upload-group fr-mt-2w">
+            <label class="fr-label" for="photoInput">
+              Sélectionnez une ou plusieurs photographies
+              <span class="fr-hint-text">Formats image (JPG, PNG, etc.).</span>
+            </label>
+            <input class="fr-upload" type="file" id="photoInput" accept="image/*" multiple />
+          </div>
 
-                <div id="dropzone" class="fr-mt-2w fr-p-2w"
-                     style="border: 2px dashed var(--border-default-grey); border-radius: 8px;">
-                  <strong>Glisser-déposer</strong> les fichiers ici
-                  <div class="fr-hint-text fr-mt-1v">Astuce : vous pouvez aussi déposer des fichiers directement depuis votre bureau.</div>
-                </div>
+          <div id="dropzone" class="fr-mt-2w fr-p-2w"
+               style="border: 2px dashed var(--border-default-grey); border-radius: 8px;">
+            <strong>Glisser-déposer</strong> les fichiers ici
+            <div class="fr-hint-text fr-mt-1v">Astuce : vous pouvez aussi déposer des fichiers directement depuis votre bureau.</div>
+          </div>
 
-                <p class="fr-text--xs fr-mt-1w fr-mb-0" id="photoCount">0 photographie importée.</p>
-              </section>
-            </div>
-          </aside>
-        </section>
-
-        <!-- VUE PAGE DE PRÉSENTATION : 2 + 3 -->
-        <section id="view-presentation" class="studio-view">
-          <aside class="studio-panel" id="page-presentation">
-            <div class="studio-panel__head">
-              <h1 class="fr-h4 fr-mb-1v">Page de présentation</h1>
-              <p class="fr-text--sm fr-mb-0">Renseigne les champs qui alimentent la première page du document.</p>
-            </div>
-
-            <div class="studio-panel__body">
-              <section class="fr-mb-4w">
-                <h2 class="fr-h6">2. Page de présentation</h2>
-
-                <div class="fr-input-group studio-input-compact">
-                  <label class="fr-label" for="presetTitle">Titre prédéfini</label>
-                  <select class="fr-select" id="presetTitle">
-                    <option value="">Sélectionner un titre</option>
-                    <option>Planche photographique</option>
-                    <option>Planche photographique des constatations</option>
-                    <option>Planche photographique des lieux</option>
-                    <option>Planche photographique des scellés</option>
-                    <option>Planche photographique complémentaire</option>
-                  </select>
-                </div>
-
-                <div class="fr-input-group studio-input-compact">
-                  <label class="fr-label" for="customTitle">Titre personnalisé</label>
-                  <input class="fr-input" id="customTitle" type="text" placeholder="Ex. Planche photographique - Vol par effraction">
-                </div>
-
-                <div class="fr-input-group studio-input-compact">
-                  <label class="fr-label" for="caseTypeField">Cadre d'enquête</label>
-                  <select class="fr-select" id="caseTypeField">
-                    <option value="">Sélectionner un cadre d'enquête</option>
-                    <option>Enquête préliminaire</option>
-                    <option>Enquête de flagrance</option>
-                    <option>Commission rogatoire</option>
-                    <option>Découverte de cadavre</option>
-                    <option>Découverte de personne grièvement blessée</option>
-                    <option>Disparition de personne</option>
-                    <option>Recherche d'une personne en fuite</option>
-                  </select>
-                </div>
-
-                <div class="fr-input-group studio-input-compact">
-                  <label class="fr-label" for="unitField">Service / unité</label>
-                  <input class="fr-input" id="unitField" type="text" placeholder="Ex. Brigade territoriale de ...">
-                </div>
-
-                <div class="fr-input-group studio-input-compact">
-                  <label class="fr-label" for="referenceField">Références de la procédure</label>
-                  <input class="fr-input" id="referenceField" type="text" placeholder="Ex. PV n° / Natinf / dossier">
-                </div>
-
-                <div class="fr-grid-row fr-grid-row--gutters">
-                  <div class="fr-col-12 fr-col-md-6">
-                    <div class="fr-input-group studio-input-compact">
-                      <label class="fr-label" for="dateField">Date</label>
-                      <input class="fr-input" id="dateField" type="date">
-                    </div>
-                  </div>
-                  <div class="fr-col-12 fr-col-md-6">
-                    <div class="fr-input-group studio-input-compact">
-                      <label class="fr-label" for="placeField">Lieu</label>
-                      <input class="fr-input" id="placeField" type="text" placeholder="Ex. 12 rue..., commune">
-                    </div>
-                  </div>
-                </div>
-
-                <div class="fr-input-group studio-input-compact">
-                  <label class="fr-label" for="authorField">Infraction</label>
-                  <input class="fr-input" id="authorField" type="text" placeholder="Nom, grade, qualité">
-                </div>
-
-                <div class="fr-input-group studio-input-compact">
-                  <label class="fr-label" for="summaryField">Observations / contexte</label>
-                  <textarea class="fr-input fr-textarea fr-textarea--sm" id="summaryField" placeholder="Résumé libre, contexte des faits, précisions utiles..."></textarea>
-                </div>
-              </section>
-
-              <section class="fr-mb-4w">
-                <h2 class="fr-h6">3. Carte / vue aérienne</h2>
-                <div class="fr-input-group studio-input-compact">
-                  <label class="fr-label" for="mapInput">Importer une image de carte ou une vue satellite</label>
-                  <input class="fr-upload" id="mapInput" type="file" accept="image/*">
-                </div>
-                <div class="fr-alert fr-alert--info fr-alert--sm fr-mb-2w">
-                  <p>Clique sur la carte pour positionner le repère rouge.</p>
-                </div>
-                <div id="mapCanvas" class="map-canvas" hidden>
-                  <img id="mapImage" alt="Carte importée">
-                  <span id="mapPin" class="map-pin" hidden aria-hidden="true">
-                    <svg viewBox="0 0 24 24" class="map-pin__svg">
-                      <path d="M12 22s7-6.2 7-12a7 7 0 1 0-14 0c0 5.8 7 12 7 12z"></path>
-                      <circle cx="12" cy="10" r="3.2"></circle>
-                    </svg>
-                  </span>
-                </div>
-              </section>
-
-              <!-- VUE EXPORT : 4 -->
-              <section id="view-export" class="studio-view">
-                <aside class="studio-panel" id="export">
-                  <div class="studio-panel__head">
-                    <h1 class="fr-h4 fr-mb-1v">Export</h1>
-                    <p class="fr-text--sm fr-mb-0">Génère la planche au format PDF ou WEB.</p>
-                  </div>
-
-                  <div class="studio-panel__body">
-                    <section>
-                      <h2 class="fr-h6">4. Export</h2>
-
-                      <div class="fr-select-group studio-input-compact">
-                        <label class="fr-label" for="exportFormat">Format de sortie</label>
-                        <select class="fr-select" id="exportFormat">
-                          <option value="pdf">PDF</option>
-                          <option value="web">WEB (HTML autonome)</option>
-                          <option value="odt">ODT (bientôt)</option>
-                        </select>
-                      </div>
-
-                      <div class="fr-btns-group fr-btns-group--icon-left">
-                        <button type="button" class="fr-btn fr-icon-file-download-line" id="generateBtn">
-                          Générer la planche
-                        </button>
-                      </div>
-
-                      <p class="fr-text--xs fr-mb-0">
-                        Le PDF s’appuie sur la boîte d’impression du navigateur. L’export WEB télécharge une version autonome de la planche.
-                      </p>
-                    </section>
-                  </div>
-                </aside>
-              </section>
-
-            </div>
-          </aside>
+          <p class="fr-text--xs fr-mt-1w fr-mb-0" id="photoCount">0 photographie importée.</p>
         </section>
       </div>
+    </aside>
+  </section>
+
+  <!-- VUE PAGE DE PRÉSENTATION : 2 + 3 -->
+  <section id="view-presentation" class="studio-view">
+    <aside class="studio-panel" id="page-presentation">
+      <div class="studio-panel__head">
+        <h1 class="fr-h4 fr-mb-1v">Page de présentation</h1>
+        <p class="fr-text--sm fr-mb-0">Renseigne les champs qui alimentent la première page du document.</p>
+      </div>
+
+      <div class="studio-panel__body">
+        <section class="fr-mb-4w">
+          <h2 class="fr-h6">2. Page de présentation</h2>
+
+          <div class="fr-input-group studio-input-compact">
+            <label class="fr-label" for="presetTitle">Titre prédéfini</label>
+            <select class="fr-select" id="presetTitle">
+              <option value="">Sélectionner un titre</option>
+              <option>Planche photographique</option>
+              <option>Planche photographique des constatations</option>
+              <option>Planche photographique des lieux</option>
+              <option>Planche photographique des scellés</option>
+              <option>Planche photographique complémentaire</option>
+            </select>
+          </div>
+
+          <div class="fr-input-group studio-input-compact">
+            <label class="fr-label" for="customTitle">Titre personnalisé</label>
+            <input class="fr-input" id="customTitle" type="text" placeholder="Ex. Planche photographique - Vol par effraction">
+          </div>
+
+          <div class="fr-input-group studio-input-compact">
+            <label class="fr-label" for="caseTypeField">Cadre d'enquête</label>
+            <select class="fr-select" id="caseTypeField">
+              <option value="">Sélectionner un cadre d'enquête</option>
+              <option>Enquête préliminaire</option>
+              <option>Enquête de flagrance</option>
+              <option>Commission rogatoire</option>
+              <option>Découverte de cadavre</option>
+              <option>Découverte de personne grièvement blessée</option>
+              <option>Disparition de personne</option>
+              <option>Recherche d'une personne en fuite</option>
+            </select>
+          </div>
+
+          <div class="fr-input-group studio-input-compact">
+            <label class="fr-label" for="unitField">Service / unité</label>
+            <input class="fr-input" id="unitField" type="text" placeholder="Ex. Brigade territoriale de ...">
+          </div>
+
+          <div class="fr-input-group studio-input-compact">
+            <label class="fr-label" for="referenceField">Références de la procédure</label>
+            <input class="fr-input" id="referenceField" type="text" placeholder="Ex. PV n° / Natinf / dossier">
+          </div>
+
+          <div class="fr-grid-row fr-grid-row--gutters">
+            <div class="fr-col-12 fr-col-md-6">
+              <div class="fr-input-group studio-input-compact">
+                <label class="fr-label" for="dateField">Date</label>
+                <input class="fr-input" id="dateField" type="date">
+              </div>
+            </div>
+            <div class="fr-col-12 fr-col-md-6">
+              <div class="fr-input-group studio-input-compact">
+                <label class="fr-label" for="placeField">Lieu</label>
+                <input class="fr-input" id="placeField" type="text" placeholder="Ex. 12 rue..., commune">
+              </div>
+            </div>
+          </div>
+
+          <div class="fr-input-group studio-input-compact">
+            <label class="fr-label" for="authorField">Infraction</label>
+            <input class="fr-input" id="authorField" type="text" placeholder="Nom, grade, qualité">
+          </div>
+
+          <div class="fr-input-group studio-input-compact">
+            <label class="fr-label" for="summaryField">Observations / contexte</label>
+            <textarea class="fr-input fr-textarea fr-textarea--sm" id="summaryField" placeholder="Résumé libre, contexte des faits, précisions utiles..."></textarea>
+          </div>
+        </section>
+
+        <section class="fr-mb-4w">
+          <h2 class="fr-h6">3. Carte / vue aérienne</h2>
+          <div class="fr-input-group studio-input-compact">
+            <label class="fr-label" for="mapInput">Importer une image de carte ou une vue satellite</label>
+            <input class="fr-upload" id="mapInput" type="file" accept="image/*">
+          </div>
+          <div class="fr-alert fr-alert--info fr-alert--sm fr-mb-2w">
+            <p>Clique sur la carte pour positionner le repère rouge.</p>
+          </div>
+          <div id="mapCanvas" class="map-canvas" hidden>
+            <img id="mapImage" alt="Carte importée">
+            <span id="mapPin" class="map-pin" hidden aria-hidden="true">
+              <svg viewBox="0 0 24 24" class="map-pin__svg">
+                <path d="M12 22s7-6.2 7-12a7 7 0 1 0-14 0c0 5.8 7 12 7 12z"></path>
+                <circle cx="12" cy="10" r="3.2"></circle>
+              </svg>
+            </span>
+          </div>
+        </section>
+      </div>
+    </aside>
+  </section>
+
+  <!-- VUE EXPORT : 4 -->
+  <section id="view-export" class="studio-view">
+    <aside class="studio-panel" id="export">
+      <div class="studio-panel__head">
+        <h1 class="fr-h4 fr-mb-1v">Export</h1>
+        <p class="fr-text--sm fr-mb-0">Génère la planche au format PDF ou WEB.</p>
+      </div>
+
+      <div class="studio-panel__body">
+        <section>
+          <h2 class="fr-h6">4. Export</h2>
+
+          <div class="fr-select-group studio-input-compact">
+            <label class="fr-label" for="exportFormat">Format de sortie</label>
+            <select class="fr-select" id="exportFormat">
+              <option value="pdf">PDF</option>
+              <option value="web">WEB (HTML autonome)</option>
+              <option value="odt">ODT (bientôt)</option>
+            </select>
+          </div>
+
+          <div class="fr-btns-group fr-btns-group--icon-left">
+            <button type="button" class="fr-btn fr-icon-file-download-line" id="generateBtn">
+              Générer la planche
+            </button>
+          </div>
+
+          <p class="fr-text--xs fr-mb-0">
+            Le PDF s’appuie sur la boîte d’impression du navigateur. L’export WEB télécharge une version autonome de la planche.
+          </p>
+        </section>
+      </div>
+    </aside>
+  </section>
+</div>
 
       <!-- COLONNE DROITE (preview unique, pas d'IDs dupliqués) -->
       <section class="studio-preview-panel">
