@@ -560,6 +560,12 @@
   }
 }
 
+@media print{
+  #studioStepper{
+    display:none !important;
+  }
+}
+
 .studio-editor-canvas-wrap{
   border: 1px solid var(--border-default-grey);
   background: #f2f2f2;
@@ -729,7 +735,27 @@
 
     <div class="studio-shell">
       <!-- COLONNE GAUCHE (vue) -->
-<div>
+      <div>
+
+        <!-- ✅ Indicateur d'étapes (dans la colonne gauche) -->
+        <div class="fr-stepper fr-mb-3w" id="studioStepper">
+          <h2 class="fr-stepper__title">
+            <span id="studioStepperLabel">Conception</span>
+            <span class="fr-stepper__state" id="studioStepperState">Étape 1 sur 3</span>
+          </h2>
+
+          <div
+            class="fr-stepper__steps"
+            id="studioStepperSteps"
+            data-fr-current-step="1"
+            data-fr-steps="3"
+          ></div>
+
+          <p class="fr-stepper__details" id="studioStepperDetails">
+            <span class="fr-text--bold">Étape suivante&nbsp;:</span> Page de présentation
+          </p>
+        </div>
+        
   <!-- VUE CONCEPTION : 1 -->
   <section id="view-conception" class="studio-view is-active">
     <aside class="studio-panel" id="conception">
@@ -1140,6 +1166,11 @@
       mapCanvas: document.getElementById('mapCanvas'),
       mapImage: document.getElementById('mapImage'),
       mapPin: document.getElementById('mapPin'),
+
+      stepperLabel: document.getElementById('studioStepperLabel'),
+      stepperState: document.getElementById('studioStepperState'),
+      stepperSteps: document.getElementById('studioStepperSteps'),
+      stepperDetails: document.getElementById('studioStepperDetails'),
 
       exportFormat: document.getElementById('exportFormat'),
       generateBtn: document.getElementById('generateBtn'),
@@ -2263,6 +2294,40 @@ els.resetBtn?.addEventListener('click', resetAll);
 
     els.generateBtn.addEventListener('click', handleGenerate);
 
+    function updateStepperFromHash() {
+      const hash = (location.hash || "#conception").toLowerCase();
+
+      let step = 1;
+      let label = "Conception";
+      let next = "Page de présentation";
+
+      if (hash === "#page-presentation") {
+        step = 2;
+        label = "Page de présentation";
+        next = "Exporter";
+      } else if (hash === "#export") {
+        step = 3;
+        label = "Exporter";
+        next = "";
+      }
+
+      if (els.stepperLabel) els.stepperLabel.textContent = label;
+      if (els.stepperState) els.stepperState.textContent = `Étape ${step} sur 3`;
+
+      if (els.stepperSteps) {
+        els.stepperSteps.setAttribute("data-fr-steps", "3");
+        els.stepperSteps.setAttribute("data-fr-current-step", String(step));
+      }
+
+      if (els.stepperDetails) {
+        if (step < 3) {
+          els.stepperDetails.innerHTML = `<span class="fr-text--bold">Étape suivante&nbsp;:</span> ${next}`;
+        } else {
+          els.stepperDetails.innerHTML = `<span class="fr-text--bold">Dernière étape</span>`;
+        }
+      }
+    }
+
     /* Navigation mono-fichier */
     function setViewFromHash(){
       const hash = (location.hash || "#conception").toLowerCase();
@@ -2279,6 +2344,8 @@ els.resetBtn?.addEventListener('click', resetAll);
       vConception.classList.toggle("is-active", showConception);
       vPresentation.classList.toggle("is-active", showPresentation);
       vExport.classList.toggle("is-active", showExport);
+
+      updateStepperFromHash();
 
       // ✅ preview (cover only / photos only / full final)
       renderDocumentPreview();
