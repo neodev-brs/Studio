@@ -734,8 +734,8 @@
   <section id="view-conception" class="studio-view is-active">
     <aside class="studio-panel" id="conception">
       <div class="studio-panel__head">
-        <h1 class="fr-h4 fr-mb-1v">Paramétrage de la planche</h1>
-        <p class="fr-text--sm fr-mb-0">Import des photographies et génération du document final.</p>
+        <h1 class="fr-h4 fr-mb-1v">Conseption de la planche</h1>
+        <p class="fr-text--sm fr-mb-0">Import des clichés photographiques.</p>
       </div>
 
       <div class="studio-panel__body">
@@ -744,7 +744,7 @@
 
           <div class="fr-upload-group fr-mt-2w">
             <label class="fr-label" for="photoInput">
-              Sélectionnez une ou plusieurs photographies
+              Sélectionnez un ou plusieurs clichés sur votre appareil
               <span class="fr-hint-text">Formats image (JPG, PNG, etc.).</span>
             </label>
             <input class="fr-upload" type="file" id="photoInput" accept="image/*" multiple />
@@ -1792,7 +1792,7 @@
   });
 
   if (els.photoCount) {
-    els.photoCount.textContent = `${state.photos.length} photographie${state.photos.length > 1 ? 's importée' : ' importée'}.`;
+    els.photoCount.textContent = `${state.photos.length} photographie${state.photos.length > 1 ? 's importées' : ' importée'}.`;
   }
 }
 
