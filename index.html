@@ -744,8 +744,8 @@
 
           <div class="fr-upload-group fr-mt-2w">
             <label class="fr-label" for="photoInput">
-              Sélectionnez un ou plusieurs clichés sur votre appareil
-              <span class="fr-hint-text">Formats image (JPG, PNG, etc.).</span>
+              Sélectionnez un ou plusieurs fichiers sur votre appareil
+              <span class="fr-hint-text">Formats image (JPG, PNG...).</span>
             </label>
             <input class="fr-upload" type="file" id="photoInput" accept="image/*" multiple />
           </div>
@@ -767,12 +767,12 @@
     <aside class="studio-panel" id="page-presentation">
       <div class="studio-panel__head">
         <h1 class="fr-h4 fr-mb-1v">Page de présentation</h1>
-        <p class="fr-text--sm fr-mb-0">Renseigne les champs qui alimentent la première page du document.</p>
+        <p class="fr-text--sm fr-mb-0">Renseignez les champs qui alimentent la première page du document.</p>
       </div>
 
       <div class="studio-panel__body">
         <section class="fr-mb-4w">
-          <h2 class="fr-h6">2. Page de présentation</h2>
+          <h2 class="fr-h6">Page de présentation</h2>
 
           <div class="fr-input-group studio-input-compact">
             <label class="fr-label" for="presetTitle">Titre prédéfini</label>
@@ -783,6 +783,8 @@
               <option>Planche photographique des lieux</option>
               <option>Planche photographique des scellés</option>
               <option>Planche photographique complémentaire</option>
+              <option>État des lieux</option>
+              <option>Plan de situation</option>
             </select>
           </div>
 
@@ -807,18 +809,18 @@
 
           <div class="fr-input-group studio-input-compact">
             <label class="fr-label" for="unitField">Service / unité</label>
-            <input class="fr-input" id="unitField" type="text" placeholder="Ex. Brigade territoriale de ...">
+            <input class="fr-input" id="unitField" type="text" placeholder="Ex. Communauté de brigades de ...">
           </div>
 
           <div class="fr-input-group studio-input-compact">
-            <label class="fr-label" for="referenceField">Références de la procédure</label>
-            <input class="fr-input" id="referenceField" type="text" placeholder="Ex. PV n° / Natinf / dossier">
+            <label class="fr-label" for="referenceField">Références de la procédure (UNA)</label>
+            <input class="fr-input" id="referenceField" type="text" placeholder="Ex. 12345/00123/2026">
           </div>
 
           <div class="fr-grid-row fr-grid-row--gutters">
             <div class="fr-col-12 fr-col-md-6">
               <div class="fr-input-group studio-input-compact">
-                <label class="fr-label" for="dateField">Date</label>
+                <label class="fr-label" for="dateField">Date de la procédure</label>
                 <input class="fr-input" id="dateField" type="date">
               </div>
             </div>
@@ -832,23 +834,23 @@
 
           <div class="fr-input-group studio-input-compact">
             <label class="fr-label" for="authorField">Infraction</label>
-            <input class="fr-input" id="authorField" type="text" placeholder="Nom, grade, qualité">
+            <input class="fr-input" id="authorField" type="text" placeholder="NATINF 7154, Vol par effraction...">
           </div>
 
           <div class="fr-input-group studio-input-compact">
-            <label class="fr-label" for="summaryField">Observations / contexte</label>
-            <textarea class="fr-input fr-textarea fr-textarea--sm" id="summaryField" placeholder="Résumé libre, contexte des faits, précisions utiles..."></textarea>
+            <label class="fr-label" for="summaryField">Observations (facultatif)</label>
+            <textarea class="fr-input fr-textarea fr-textarea--sm" id="summaryField" placeholder="Résumé libre, contexte ou précisions utiles..."></textarea>
           </div>
         </section>
 
         <section class="fr-mb-4w">
-          <h2 class="fr-h6">3. Carte / vue aérienne</h2>
+          <h2 class="fr-h6">Carte et vue aérienne</h2>
           <div class="fr-input-group studio-input-compact">
             <label class="fr-label" for="mapInput">Importer une image de carte ou une vue satellite</label>
             <input class="fr-upload" id="mapInput" type="file" accept="image/*">
           </div>
           <div class="fr-alert fr-alert--info fr-alert--sm fr-mb-2w">
-            <p>Clique sur la carte pour positionner le repère rouge.</p>
+            <p>Cliquez sur la carte pour positionner un repère rouge.</p>
           </div>
           <div id="mapCanvas" class="map-canvas" hidden>
             <img id="mapImage" alt="Carte importée">
