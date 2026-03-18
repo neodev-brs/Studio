@@ -1917,9 +1917,9 @@
       const docSection = document.getElementById("documentPreviewSection");
       if (docSection) docSection.style.display = isConceptionView ? "none" : "";
 
-      // ✅ Toggle numérotation : caché seulement sur page présentation
+      // ✅ Toggle numérotation : visible uniquement en conception
       if (els.numberingToggleWrap) {
-        els.numberingToggleWrap.style.display = isPresentationView ? "none" : "";
+        els.numberingToggleWrap.style.display = isConceptionView ? "" : "none";
       }
 
       // ✅ Conception : pas de document généré (page trop longue)
