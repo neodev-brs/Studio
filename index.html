@@ -635,6 +635,17 @@
   padding-bottom: .75rem;    /* réduit le bas */
 }
 
+/* ✅ Stepper : largeur "normale" (alignée sur la colonne gauche) */
+#studioStepper{
+  max-width: 460px;   /* même largeur que ta colonne gauche */
+  margin-right: auto; /* reste aligné à gauche */
+}
+
+/* En layout 1 colonne (mobile), on laisse prendre toute la largeur */
+@media (max-width: 1180px){
+  #studioStepper{ max-width: none; }
+}
+
   </style>
 </head>
 
