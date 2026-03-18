@@ -910,7 +910,7 @@
               <p class="fr-text--sm fr-mb-0">Grille des photographies et rendu du document final avec deux photographies par page en quinconce.</p>
             </div>
             <div class="fr-col-auto">
-              <span class="studio-badge-soft">
+              <span class="studio-badge-soft" id="pageCounterWrap">
                 <span class="fr-icon-eye-line" aria-hidden="true"></span>
                 <span id="pageCounter">1 page</span>
               </span>
@@ -938,7 +938,7 @@
             </div>
           </section>
 
-          <section>
+          <section id="documentPreviewSection">
             <h3 class="fr-h6">Document généré</h3>
             <div id="previewPages" class="studio-preview-wrap"></div>
           </section>
@@ -1125,6 +1125,7 @@
       previewPages: document.getElementById('previewPages'),
       photoCount: document.getElementById('photoCount'),
       pageCounter: document.getElementById('pageCounter'),
+      pageCounterWrap: document.getElementById('pageCounterWrap'),
 
       presetTitle: document.getElementById('presetTitle'),
       customTitle: document.getElementById('customTitle'),
@@ -1905,30 +1906,40 @@
       const hash = (location.hash || "#conception").toLowerCase();
       const isPresentationView = (hash === "#page-presentation");
       const isExportView = (hash === "#export");
-      const form = getFormData();
+      const isConceptionView = (!isPresentationView && !isExportView);
+      
+      if (els.pageCounterWrap) els.pageCounterWrap.style.display = isConceptionView ? "none" : "";
 
-      if (isExportView) {
-        // ✅ Export = version finale (garde + photos)
-        els.previewPages.innerHTML = buildFullDocumentHtml();
-      } else if (isPresentationView) {
-        // ✅ Page de présentation = uniquement la garde
-        els.previewPages.innerHTML = buildCoverPageHtml(form);
-      } else {
-        // ✅ Conception = uniquement les pages photos
-        els.previewPages.innerHTML = buildPhotoPagesHtml();
-      }
-
-      const totalPages = els.previewPages.querySelectorAll('.sheet-page').length;
-      els.pageCounter.textContent = `${totalPages} page${totalPages > 1 ? 's' : ''}`;
-
-      // ✅ Grille "Photographies importées" : visible seulement en conception
+      // ✅ Sections UI
       const photosSection = document.getElementById("photosPreviewSection");
-      if (photosSection) photosSection.style.display = (!isPresentationView && !isExportView) ? "" : "none";
+      if (photosSection) photosSection.style.display = isConceptionView ? "" : "none";
 
-      // ✅ Toggle numérotation : caché en page présentation (comme tu as déjà)
+      const docSection = document.getElementById("documentPreviewSection");
+      if (docSection) docSection.style.display = isConceptionView ? "none" : "";
+
+      // ✅ Toggle numérotation : caché seulement sur page présentation
       if (els.numberingToggleWrap) {
         els.numberingToggleWrap.style.display = isPresentationView ? "none" : "";
       }
+
+      // ✅ Conception : pas de document généré (page trop longue)
+      if (isConceptionView) {
+        els.pageCounter.textContent = "—";
+        // optionnel : on vide quand même le DOM du doc
+        // els.previewPages.innerHTML = "";
+        return;
+      }
+
+      const form = getFormData();
+
+      if (isExportView) {
+        els.previewPages.innerHTML = buildFullDocumentHtml(); // garde + photos
+      } else {
+        els.previewPages.innerHTML = buildCoverPageHtml(form); // garde only
+      }
+
+      const totalPages = els.previewPages.querySelectorAll(".sheet-page").length;
+      els.pageCounter.textContent = `${totalPages} page${totalPages > 1 ? "s" : ""}`;
     }
 
     function renderAll() {
@@ -2348,6 +2359,6 @@ els.resetBtn?.addEventListener('click', resetAll);
   STUDIO 2026 - MDC HUGO BRES--MALANCHERE
 </footer>
 
-<!-- Merci d'avoir jeté un oeil au code et n'oubliez pas de voter pour le projet aux ADI \_/^<>^\_/ -->
+<!-- Merci d'avoir jeté un oeil au code \_/^<>^\_/ -->
 </body>
 </html>
