@@ -635,17 +635,6 @@
   padding-bottom: .75rem;    /* réduit le bas */
 }
 
-/* ✅ Stepper dans l'en-tête de la box (compact) */
-.studio-panel__head .fr-stepper{
-  margin-bottom: .75rem;
-}
-.studio-panel__head .fr-stepper__title{
-  margin-bottom: .25rem;
-}
-.studio-panel__head .fr-stepper__details{
-  margin-top: .5rem;
-}
-
   </style>
 </head>
 
@@ -743,6 +732,23 @@
 </header>
 
   <main class="fr-container fr-py-3w studio-main">
+
+    <!-- ✅ Indicateur d'étapes (1 seule fois dans le DOM) -->
+    <div class="fr-stepper fr-mb-2w" id="studioStepper" hidden>
+      <h2 class="fr-stepper__title">
+        <span id="studioStepperLabel">Conception</span>
+        <span class="fr-stepper__state" id="studioStepperState">Étape 1 sur 3</span>
+      </h2>
+
+      <div class="fr-stepper__steps"
+          id="studioStepperSteps"
+          data-fr-current-step="1"
+          data-fr-steps="3"></div>
+
+      <p class="fr-stepper__details" id="studioStepperDetails">
+        <span class="fr-text--bold">Étape suivante&nbsp;:</span> Page de présentation
+      </p>
+    </div>
 
     <div class="studio-shell">
       <!-- COLONNE GAUCHE (vue) -->
@@ -1122,23 +1128,6 @@
     </div>
   </div>
 </dialog>
-
-<!-- ✅ Indicateur d'étapes (1 seule fois dans le DOM) -->
-<div class="fr-stepper fr-mb-2w" id="studioStepper" hidden>
-  <h2 class="fr-stepper__title">
-    <span id="studioStepperLabel">Conception</span>
-    <span class="fr-stepper__state" id="studioStepperState">Étape 1 sur 3</span>
-  </h2>
-
-  <div class="fr-stepper__steps"
-       id="studioStepperSteps"
-       data-fr-current-step="1"
-       data-fr-steps="3"></div>
-
-  <p class="fr-stepper__details" id="studioStepperDetails">
-    <span class="fr-text--bold">Étape suivante&nbsp;:</span> Page de présentation
-  </p>
-</div>
 
   <!-- DSFR JS -->
   <script type="module" src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.13.1/dist/dsfr/dsfr.module.min.js"></script>
@@ -2303,25 +2292,6 @@ els.resetBtn?.addEventListener('click', resetAll);
 
     els.generateBtn.addEventListener('click', handleGenerate);
 
-    function mountStepperInActivePanelHead() {
-      const stepper = document.getElementById("studioStepper");
-      if (!stepper) return;
-
-      const hash = (location.hash || "#conception").toLowerCase();
-
-      const head =
-        hash === "#page-presentation"
-          ? document.querySelector("#view-presentation .studio-panel__head")
-          : hash === "#export"
-            ? document.querySelector("#view-export .studio-panel__head")
-            : document.querySelector("#view-conception .studio-panel__head");
-
-      if (!head) return;
-
-      stepper.hidden = false;
-      head.prepend(stepper); // ✅ le stepper passe au-dessus du H1
-    }
-
     function updateStepperFromHash() {
       const hash = (location.hash || "#conception").toLowerCase();
 
@@ -2373,7 +2343,6 @@ els.resetBtn?.addEventListener('click', resetAll);
       vPresentation.classList.toggle("is-active", showPresentation);
       vExport.classList.toggle("is-active", showExport);
 
-      mountStepperInActivePanelHead();
       updateStepperFromHash();
       renderDocumentPreview();
 
