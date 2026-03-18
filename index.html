@@ -908,8 +908,10 @@
           <div class="fr-grid-row fr-grid-row--middle fr-grid-row--gutters">
             <div class="fr-col">
               <p class="fr-badge fr-badge--green-tilleul-verveine fr-badge--no-icon fr-mb-1w">Prévisualisation</p>
-              <h2 class="fr-h4 fr-mb-1v">Aperçu du rendu</h2>
-              <p class="fr-text--sm fr-mb-0">Grille des clichés et mise en page (ordre, éditeur, nom et description). Attrapez et glissez pour changer l'ordre sur la grille.</p>
+              <h2 class="fr-h4 fr-mb-1v">Aperçu en temps réel</h2>
+              <p class="fr-text--sm fr-mb-0" id="previewHintText">
+                Grille des clichés et mise en page (ordre, éditeur, nom et description). Attrapez et glissez pour changer l'ordre sur la grille.
+              </p>
             </div>
             <div class="fr-col-auto">
               <span class="studio-badge-soft" id="pageCounterWrap">
@@ -1120,6 +1122,7 @@
       dropzone: document.getElementById('dropzone'),
       numberingToggle: document.getElementById('numberingToggle'),
       numberingToggleWrap: document.getElementById('numberingToggleWrap'),
+      previewHintText: document.getElementById('previewHintText'),
 
       photoZone: document.getElementById('photoZone'),
       photoGrid: document.getElementById('photoGrid'),
@@ -1909,6 +1912,20 @@
       const isPresentationView = (hash === "#page-presentation");
       const isExportView = (hash === "#export");
       const isConceptionView = (!isPresentationView && !isExportView);
+
+      // ✅ Texte d'aide différent selon la page
+      if (els.previewHintText) {
+        if (isConceptionView) {
+          els.previewHintText.textContent =
+            "Grille des clichés et mise en page (ordre, éditeur, nom et description). Attrapez et glissez pour changer l'ordre sur la grille.";
+        } else if (isPresentationView) {
+          els.previewHintText.textContent =
+            "Prévisualisation des renseignements de la page de présentation.";
+        } else if (isExportView) {
+          els.previewHintText.textContent =
+            "Prévisualisation du rendu final de la planche photographique.";
+        }
+      }
       
       if (els.pageCounterWrap) els.pageCounterWrap.style.display = isConceptionView ? "none" : "";
 
