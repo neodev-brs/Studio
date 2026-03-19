@@ -766,6 +766,12 @@ body.studio-video-mode #view-video .studio-panel__body{
   padding: 1.5rem;
 }
 
+body.studio-video-mode .studio-video-stage{
+  max-width: 980px;
+  margin: 0;     /* ✅ plus centré */
+  width: 100%;
+}
+
 /* Cadre d’import DSFR centré */
 .studio-video-frame{
   border: 2px dashed var(--border-default-grey);
@@ -800,13 +806,6 @@ body.studio-video-mode #view-video .studio-panel__body{
 /* =========================
    MODE VIDÉO : import à gauche + dropzone centrée comme Conception
    ========================= */
-
-/* Conteneur centré (largeur “app”, pas plein écran) */
-body.studio-video-mode .studio-video-stage{
-  max-width: 980px;
-  margin: 0 auto;
-  width: 100%;
-}
 
 /* Dropzone vidéo : même style que #dropzone (Conception) + centré */
 #videoDropzone{
