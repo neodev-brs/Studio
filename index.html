@@ -942,9 +942,18 @@ body.studio-video-mode .studio-video-player > video{
           <div class="fr-header__tools-links">
             <ul class="fr-btns-group">
               <li>
-                <button type="button" class="fr-btn fr-btn--tertiary fr-icon-camera-line" id="modeToggleBtn">
+                <button
+                  type="button"
+                  class="fr-btn fr-btn--tertiary fr-icon-camera-line"
+                  id="modeToggleBtn"
+                  aria-describedby="tooltip-mode-toggle"
+                >
                   Mode photo
                 </button>
+
+                <span class="fr-tooltip fr-placement" id="tooltip-mode-toggle" role="tooltip">
+                  Basculer entre les deux modes
+                </span>
               </li>
 
               <li>
