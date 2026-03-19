@@ -767,8 +767,8 @@ body.studio-video-mode #view-video .studio-panel__body{
 }
 
 body.studio-video-mode .studio-video-stage{
-  max-width: 980px;      /* ✅ limite pour que la vidéo ne soit pas immense */
-  margin: 0 auto;        /* ✅ centré */
+  max-width: 980px;
+  margin: 0;     /* ✅ plus centré */
   width: 100%;
 }
 
@@ -845,14 +845,17 @@ body.studio-video-mode .studio-video-import-left{
   text-align: center;
 }
 
-/* ✅ Input fichier centré dans la zone pointillée */
+/* ✅ Centre le champ fichier (Parcourir + texte) dans la zone */
 #videoDropzone .studio-video-file-center{
   display: flex;
   justify-content: center;
 }
 
+/* ✅ Empêche l’input de prendre toute la largeur (sinon il se colle à gauche) */
 #videoDropzone .studio-video-file-center .fr-upload{
-  width: min(520px, 100%);
+  width: auto;
+  max-width: 100%;
+  display: block;
 }
 
   </style>
