@@ -634,6 +634,73 @@
   margin-top: .5rem; /* ajuste à .25rem / .75rem si besoin */
 }
 
+.studio-nav-split__list{
+  display:flex;
+  align-items:center;
+  width:100%;
+  gap:0;
+}
+
+.studio-nav-split__right{
+  margin-left:auto;
+  border-left:1px solid var(--border-default-grey);
+  padding-left:.75rem;
+}
+
+.studio-video-thumb-grid{
+  display:grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.studio-video-thumb{
+  background: var(--background-default-grey);
+  border:1px solid var(--border-default-grey);
+  border-radius:0;
+  overflow:hidden;
+}
+
+.studio-video-thumb img{
+  width:100%;
+  aspect-ratio:16 / 9;
+  object-fit:cover;
+  display:block;
+  background:#111;
+}
+
+.studio-video-thumb__body{
+  padding:.75rem;
+}
+
+.studio-video-thumb__meta{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:.5rem;
+}
+
+@media (max-width: 900px){
+  .studio-video-thumb-grid{
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px){
+  .studio-nav-split__list{
+    display:block;
+  }
+
+  .studio-nav-split__right{
+    margin-left:0;
+    border-left:0;
+    padding-left:0;
+  }
+
+  .studio-video-thumb-grid{
+    grid-template-columns: 1fr;
+  }
+}
+
   </style>
 </head>
 
@@ -719,11 +786,15 @@
       <!-- (facultatif mais DSFR aime bien l’avoir) -->
       <div class="fr-header__menu-links"></div>
 
-      <nav class="fr-nav" role="navigation" aria-label="Menu principal">
-        <ul class="fr-nav__list">
+      <nav class="fr-nav studio-nav-split" role="navigation" aria-label="Menu principal">
+        <ul class="fr-nav__list studio-nav-split__list">
           <li class="fr-nav__item"><a class="fr-nav__link" href="#conception">Conception</a></li>
           <li class="fr-nav__item"><a class="fr-nav__link" href="#page-presentation">Page de présentation</a></li>
           <li class="fr-nav__item"><a class="fr-nav__link" href="#export">Exporter</a></li>
+
+          <li class="fr-nav__item studio-nav-split__right">
+            <a class="fr-nav__link" href="#mode-video">Mode vidéo</a>
+          </li>
         </ul>
       </nav>
     </div>
@@ -736,6 +807,98 @@
       <!-- COLONNE GAUCHE (vue) -->
 <div>
   <!-- VUE CONCEPTION : 1 -->
+   <section id="view-video" class="studio-view">
+      <aside class="studio-panel">
+        <div class="studio-panel__head">
+          <h1 class="fr-h4 fr-mb-1v">Mode vidéo</h1>
+          <p class="fr-text--sm fr-mb-0">Générez des captures d’écran à partir d’un fichier vidéo puis envoyez-les vers la grille photo.</p>
+        </div>
+
+        <div class="studio-panel__body">
+          <section class="fr-mb-4w">
+            <h2 class="fr-h6">Import de la vidéo</h2>
+
+            <div class="fr-upload-group fr-mt-2w">
+              <label class="fr-label" for="videoInput">
+                Sélectionnez un fichier vidéo sur votre appareil
+                <span class="fr-hint-text">Formats vidéo usuels (MP4, WebM...).</span>
+              </label>
+              <input class="fr-upload" type="file" id="videoInput" accept="video/*" />
+            </div>
+
+            <p class="fr-text--xs fr-mt-1w fr-mb-0" id="videoStatusText">Aucune vidéo importée.</p>
+          </section>
+
+          <section id="videoWorkspace" hidden>
+            <div class="fr-mb-3w">
+              <video id="videoPreview" controls style="width:100%;background:#000;display:block;"></video>
+            </div>
+
+            <section class="fr-mb-4w">
+              <h2 class="fr-h6">Mode de capture</h2>
+
+              <div class="fr-fieldset" role="group" aria-labelledby="video-capture-mode-legend">
+                <legend class="fr-fieldset__legend fr-fieldset__legend--regular" id="video-capture-mode-legend">
+                  Choisissez le mode
+                </legend>
+
+                <div class="fr-fieldset__element">
+                  <div class="fr-radio-group">
+                    <input type="radio" id="captureModeAuto" name="captureMode" value="auto" checked>
+                    <label class="fr-label" for="captureModeAuto">Automatique</label>
+                  </div>
+                </div>
+
+                <div class="fr-fieldset__element">
+                  <div class="fr-radio-group">
+                    <input type="radio" id="captureModeManual" name="captureMode" value="manual">
+                    <label class="fr-label" for="captureModeManual">Manuel</label>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section id="videoAutoPanel">
+              <div class="fr-input-group studio-input-compact">
+                <label class="fr-label" for="autoCaptureCount">Nombre de captures automatiques</label>
+                <input class="fr-input" id="autoCaptureCount" type="number" min="2" max="24" value="6">
+              </div>
+
+              <div class="fr-btns-group fr-btns-group--inline-md fr-mt-2w">
+                <button type="button" class="fr-btn fr-icon-camera-line" id="generateAutoCapturesBtn">
+                  Générer les captures
+                </button>
+              </div>
+
+              <p class="fr-text--xs fr-mt-1w fr-mb-0">
+                Les captures seront ajoutées directement à la grille photo existante.
+              </p>
+            </section>
+
+            <section id="videoManualPanel" style="display:none;">
+              <div class="fr-btns-group fr-btns-group--inline-md fr-mt-2w">
+                <button type="button" class="fr-btn fr-icon-camera-line" id="captureCurrentFrameBtn">
+                  Capturer l’instant courant
+                </button>
+
+                <button type="button" class="fr-btn fr-btn--secondary" id="sendManualCapturesBtn">
+                  Envoyer les captures vers la grille photo
+                </button>
+              </div>
+
+              <p class="fr-text--xs fr-mt-1w">
+                Déplacez-vous sur la timeline puis capturez les instants utiles.
+              </p>
+
+              <p class="fr-text--xs fr-mb-2w" id="manualCaptureCount">0 capture sélectionnée.</p>
+
+              <div id="manualCaptureGrid" class="studio-video-thumb-grid"></div>
+            </section>
+          </section>
+        </div>
+      </aside>
+    </section>
+
   <section id="view-conception" class="studio-view is-active">
     <aside class="studio-panel" id="conception">
       <div class="studio-panel__head">
@@ -1119,7 +1282,21 @@
   <script nomodule src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.13.1/dist/dsfr/dsfr.nomodule.min.js"></script>
 
   <script>
-    const state = { photos: [], mapDataUrl: '', mapObjectUrl: '', pin: null, numbering: true };
+    const state = {
+      photos: [],
+      mapDataUrl: '',
+      mapObjectUrl: '',
+      pin: null,
+      numbering: true,
+
+      video: {
+        file: null,
+        objectUrl: '',
+        duration: 0,
+        captureMode: 'auto', // auto | manual
+        manualCaptures: []
+      }
+    };
 
     const els = {
       photoInput: document.getElementById('photoInput'),
@@ -1154,7 +1331,25 @@
       exportFormat: document.getElementById('exportFormat'),
       generateBtn: document.getElementById('generateBtn'),
       photoCardTemplate: document.getElementById('photoCardTemplate'),
-      resetBtn: document.getElementById('resetBtn')
+      resetBtn: document.getElementById('resetBtn'),
+
+      videoInput: document.getElementById('videoInput'),
+      videoStatusText: document.getElementById('videoStatusText'),
+      videoWorkspace: document.getElementById('videoWorkspace'),
+      videoPreview: document.getElementById('videoPreview'),
+
+      captureModeAuto: document.getElementById('captureModeAuto'),
+      captureModeManual: document.getElementById('captureModeManual'),
+      videoAutoPanel: document.getElementById('videoAutoPanel'),
+      videoManualPanel: document.getElementById('videoManualPanel'),
+
+      autoCaptureCount: document.getElementById('autoCaptureCount'),
+      generateAutoCapturesBtn: document.getElementById('generateAutoCapturesBtn'),
+      captureCurrentFrameBtn: document.getElementById('captureCurrentFrameBtn'),
+      sendManualCapturesBtn: document.getElementById('sendManualCapturesBtn'),
+      manualCaptureCount: document.getElementById('manualCaptureCount'),
+      manualCaptureGrid: document.getElementById('manualCaptureGrid'),
+
     };
 
         // ======== Photo Editor (canvas) ========
@@ -1727,6 +1922,247 @@
     descTextarea.value = photo.description || '';
     meta.textContent = `${index + 1} · ${photo.sizeLabel}`;
 
+    function formatDuration(seconds) {
+      const total = Math.max(0, Math.floor(Number(seconds) || 0));
+      const h = Math.floor(total / 3600);
+      const m = Math.floor((total % 3600) / 60);
+      const s = total % 60;
+
+      if (h > 0) {
+        return `${h} h ${String(m).padStart(2, '0')} min ${String(s).padStart(2, '0')} s`;
+      }
+      return `${m} min ${String(s).padStart(2, '0')} s`;
+    }
+
+    function suggestAutoCaptureCount(duration) {
+      if (!duration || duration <= 0) return 6;
+      if (duration <= 30) return 4;
+      if (duration <= 60) return 6;
+      if (duration <= 120) return 8;
+      if (duration <= 300) return 10;
+      if (duration <= 600) return 12;
+      return 16;
+    }
+
+    function setVideoCaptureMode(mode) {
+      state.video.captureMode = mode === 'manual' ? 'manual' : 'auto';
+
+      if (els.videoAutoPanel) {
+        els.videoAutoPanel.style.display = state.video.captureMode === 'auto' ? '' : 'none';
+      }
+
+      if (els.videoManualPanel) {
+        els.videoManualPanel.style.display = state.video.captureMode === 'manual' ? '' : 'none';
+      }
+    }
+
+    function loadVideoFile(file) {
+      if (!file) return;
+
+      if (state.video.objectUrl) {
+        URL.revokeObjectURL(state.video.objectUrl);
+      }
+
+      state.video.file = file;
+      state.video.objectUrl = URL.createObjectURL(file);
+      state.video.duration = 0;
+      state.video.manualCaptures = [];
+
+      if (els.videoPreview) {
+        els.videoPreview.src = state.video.objectUrl;
+      }
+
+      if (els.videoWorkspace) {
+        els.videoWorkspace.hidden = false;
+      }
+
+      if (els.videoPreview) {
+        els.videoPreview.onloadedmetadata = () => {
+          state.video.duration = els.videoPreview.duration || 0;
+
+          if (els.autoCaptureCount) {
+            els.autoCaptureCount.value = suggestAutoCaptureCount(state.video.duration);
+          }
+
+          if (els.videoStatusText) {
+            els.videoStatusText.textContent = `Vidéo importée : ${file.name} · durée ${formatDuration(state.video.duration)}`;
+          }
+
+          updateManualCaptureCount();
+          renderManualCaptureGrid();
+        };
+      }
+    }
+
+    function updateManualCaptureCount() {
+      const count = state.video.manualCaptures.length;
+      if (!els.manualCaptureCount) return;
+
+      els.manualCaptureCount.textContent =
+        `${count} capture${count > 1 ? 's sélectionnées' : ' sélectionnée'}.`;
+    }
+
+    function renderManualCaptureGrid() {
+      if (!els.manualCaptureGrid) return;
+      els.manualCaptureGrid.innerHTML = '';
+
+      state.video.manualCaptures.forEach((capture) => {
+        const card = document.createElement('article');
+        card.className = 'studio-video-thumb';
+
+        card.innerHTML = `
+          <img src="${capture.thumbUrl}" alt="Capture vidéo">
+          <div class="studio-video-thumb__body">
+            <div class="studio-video-thumb__meta">
+              <span class="fr-text--xs">${formatDuration(capture.time)}</span>
+              <button type="button" class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-delete-bin-line">
+                Retirer
+              </button>
+            </div>
+          </div>
+        `;
+
+        const removeBtn = card.querySelector('button');
+        removeBtn?.addEventListener('click', () => {
+          if (capture.objectUrl) URL.revokeObjectURL(capture.objectUrl);
+          if (capture.thumbUrl) URL.revokeObjectURL(capture.thumbUrl);
+
+          state.video.manualCaptures = state.video.manualCaptures.filter(c => c.id !== capture.id);
+          updateManualCaptureCount();
+          renderManualCaptureGrid();
+        });
+
+        els.manualCaptureGrid.appendChild(card);
+      });
+    }
+
+    async function captureFrameAt(timeInSeconds) {
+      const video = els.videoPreview;
+      if (!video || !video.videoWidth || !video.videoHeight) return null;
+
+      return new Promise((resolve) => {
+        const onSeeked = async () => {
+          try {
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+
+            const ctx = canvas.getContext('2d', { alpha: false });
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.92));
+            if (!blob) return resolve(null);
+
+            const thumbCanvas = document.createElement('canvas');
+            const ratio = Math.min(800 / canvas.width, 800 / canvas.height, 1);
+            thumbCanvas.width = Math.round(canvas.width * ratio);
+            thumbCanvas.height = Math.round(canvas.height * ratio);
+
+            const thumbCtx = thumbCanvas.getContext('2d', { alpha: false });
+            thumbCtx.drawImage(canvas, 0, 0, thumbCanvas.width, thumbCanvas.height);
+
+            const thumbBlob = await new Promise(res => thumbCanvas.toBlob(res, 'image/jpeg', 0.82));
+            if (!thumbBlob) return resolve(null);
+
+            resolve({
+              id: crypto.randomUUID(),
+              time: timeInSeconds,
+              blob,
+              thumbBlob,
+              objectUrl: URL.createObjectURL(blob),
+              thumbUrl: URL.createObjectURL(thumbBlob)
+            });
+          } finally {
+            video.removeEventListener('seeked', onSeeked);
+          }
+        };
+
+        video.addEventListener('seeked', onSeeked, { once: true });
+        video.currentTime = Math.max(0, Math.min(timeInSeconds, video.duration || timeInSeconds));
+      });
+    }
+
+    async function pushCaptureToPhotos(capture) {
+      if (!capture?.blob || !capture?.thumbBlob) return;
+
+      state.photos.push({
+        id: crypto.randomUUID(),
+        title: `Cliché N° ${state.photos.length + 1}`,
+        description: '',
+        fileName: `capture-${state.photos.length + 1}.jpg`,
+        sizeLabel: `${Math.max(1, Math.round(capture.blob.size / 1024))} Ko`,
+        file: null,
+        objectUrl: URL.createObjectURL(capture.blob),
+        thumbUrl: URL.createObjectURL(capture.thumbBlob)
+      });
+    }
+
+    async function generateAutoCaptures() {
+      if (!state.video.duration) return;
+
+      let count = Number(els.autoCaptureCount?.value || 6);
+      if (!Number.isFinite(count)) count = 6;
+      count = Math.max(2, Math.min(24, count));
+
+      const times = [];
+      const step = state.video.duration / (count + 1);
+
+      for (let i = 1; i <= count; i++) {
+        times.push(Number((step * i).toFixed(2)));
+      }
+
+      els.generateAutoCapturesBtn.disabled = true;
+      els.generateAutoCapturesBtn.textContent = 'Génération en cours...';
+
+      try {
+        for (const time of times) {
+          const capture = await captureFrameAt(time);
+          if (capture) {
+            await pushCaptureToPhotos(capture);
+
+            if (capture.objectUrl) URL.revokeObjectURL(capture.objectUrl);
+            if (capture.thumbUrl) URL.revokeObjectURL(capture.thumbUrl);
+          }
+        }
+
+        applyNumbering();
+        renderAll();
+        location.hash = '#conception';
+      } finally {
+        els.generateAutoCapturesBtn.disabled = false;
+        els.generateAutoCapturesBtn.textContent = 'Générer les captures';
+      }
+    }
+
+    async function captureCurrentManualFrame() {
+      const currentTime = els.videoPreview?.currentTime || 0;
+      const capture = await captureFrameAt(currentTime);
+      if (!capture) return;
+
+      state.video.manualCaptures.push(capture);
+      updateManualCaptureCount();
+      renderManualCaptureGrid();
+    }
+
+    async function sendManualCapturesToPhotos() {
+      if (!state.video.manualCaptures.length) return;
+
+      for (const capture of state.video.manualCaptures) {
+        await pushCaptureToPhotos(capture);
+
+        if (capture.objectUrl) URL.revokeObjectURL(capture.objectUrl);
+        if (capture.thumbUrl) URL.revokeObjectURL(capture.thumbUrl);
+      }
+
+      state.video.manualCaptures = [];
+      updateManualCaptureCount();
+      renderManualCaptureGrid();
+
+      applyNumbering();
+      renderAll();
+      location.hash = '#conception';
+    }
+
     // Events
     titleInput.addEventListener('input', (e) => {
       if (state.numbering) return;
@@ -1914,32 +2350,36 @@
 
     function renderDocumentPreview() {
       const hash = (location.hash || "#conception").toLowerCase();
+      const isVideoView = (hash === "#mode-video");
       const isPresentationView = (hash === "#page-presentation");
       const isExportView = (hash === "#export");
-      const isConceptionView = (!isPresentationView && !isExportView);
+      const isConceptionView = (!isVideoView && !isPresentationView && !isExportView);
 
       // ✅ Texte d'aide différent selon la page
       if (els.previewHintText) {
-        if (isConceptionView) {
-          els.previewHintText.textContent =
-            "Grille des clichés et mise en page (ordre, éditeur, nom et description). Attrapez et glissez pour changer l'ordre sur la grille.";
-        } else if (isPresentationView) {
-          els.previewHintText.textContent =
-            "Prévisualisation des renseignements de la page de présentation.";
-        } else if (isExportView) {
-          els.previewHintText.textContent =
-            "Prévisualisation du rendu final de la planche photographique.";
-        }
-      }
+  if (isConceptionView) {
+    els.previewHintText.textContent =
+      "Grille des clichés et mise en page (ordre, éditeur, nom et description). Attrapez et glissez pour changer l'ordre sur la grille.";
+  } else if (isVideoView) {
+    els.previewHintText.textContent =
+      "Les captures issues du mode vidéo viendront s’ajouter à la grille photo.";
+  } else if (isPresentationView) {
+    els.previewHintText.textContent =
+      "Prévisualisation des renseignements de la page de présentation.";
+  } else if (isExportView) {
+    els.previewHintText.textContent =
+      "Prévisualisation du rendu final de la planche photographique.";
+  }
+}
       
-      if (els.pageCounterWrap) els.pageCounterWrap.style.display = isConceptionView ? "none" : "";
+      if (els.pageCounterWrap) els.pageCounterWrap.style.display = (isConceptionView || isVideoView) ? "none" : "";
 
       // ✅ Sections UI
       const photosSection = document.getElementById("photosPreviewSection");
-      if (photosSection) photosSection.style.display = isConceptionView ? "" : "none";
+      if (photosSection) photosSection.style.display = (isConceptionView || isVideoView) ? "" : "none";
 
       const docSection = document.getElementById("documentPreviewSection");
-      if (docSection) docSection.style.display = isConceptionView ? "none" : "";
+      if (docSection) docSection.style.display = (isConceptionView || isVideoView) ? "none" : "";
 
       // ✅ Toggle numérotation : visible uniquement en conception
       if (els.numberingToggleWrap) {
@@ -1947,10 +2387,8 @@
       }
 
       // ✅ Conception : pas de document généré (page trop longue)
-      if (isConceptionView) {
+      if (isConceptionView || isVideoView) {
         els.pageCounter.textContent = "—";
-        // optionnel : on vide quand même le DOM du doc
-        // els.previewPages.innerHTML = "";
         return;
       }
 
@@ -2206,6 +2644,33 @@ ${buildFullDocumentHtml()}
   if (els.mapCanvas) els.mapCanvas.hidden = true;
   if (els.mapPin) els.mapPin.hidden = true;
 
+    if (state.video.objectUrl) {
+    URL.revokeObjectURL(state.video.objectUrl);
+  }
+
+  state.video.manualCaptures.forEach(capture => {
+    if (capture.objectUrl) URL.revokeObjectURL(capture.objectUrl);
+    if (capture.thumbUrl) URL.revokeObjectURL(capture.thumbUrl);
+  });
+
+  state.video = {
+    file: null,
+    objectUrl: '',
+    duration: 0,
+    captureMode: 'auto',
+    manualCaptures: []
+  };
+
+  if (els.videoInput) els.videoInput.value = '';
+  if (els.videoPreview) els.videoPreview.src = '';
+  if (els.videoWorkspace) els.videoWorkspace.hidden = true;
+  if (els.videoStatusText) els.videoStatusText.textContent = 'Aucune vidéo importée.';
+  if (els.captureModeAuto) els.captureModeAuto.checked = true;
+
+  setVideoCaptureMode('auto');
+  updateManualCaptureCount();
+  renderManualCaptureGrid();
+
   // 5) Re-render
   renderAll();
 }
@@ -2291,20 +2756,23 @@ els.resetBtn?.addEventListener('click', resetAll);
     function setViewFromHash(){
       const hash = (location.hash || "#conception").toLowerCase();
 
+      const vVideo = document.getElementById("view-video");
       const vConception = document.getElementById("view-conception");
       const vPresentation = document.getElementById("view-presentation");
       const vExport = document.getElementById("view-export");
-      if (!vConception || !vPresentation || !vExport) return;
 
+      if (!vVideo || !vConception || !vPresentation || !vExport) return;
+
+      const showVideo = (hash === "#mode-video");
       const showPresentation = (hash === "#page-presentation");
       const showExport = (hash === "#export");
-      const showConception = !showPresentation && !showExport;
+      const showConception = !showVideo && !showPresentation && !showExport;
 
+      vVideo.classList.toggle("is-active", showVideo);
       vConception.classList.toggle("is-active", showConception);
       vPresentation.classList.toggle("is-active", showPresentation);
       vExport.classList.toggle("is-active", showExport);
 
-      // ✅ preview (cover only / photos only / full final)
       renderDocumentPreview();
 
       window.scrollTo({ top: 0, behavior: "instant" });
