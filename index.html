@@ -726,6 +726,17 @@
   }
 }
 
+/* =========================
+   MODE VIDÉO : on masque la barre menu DSFR
+   ========================= */
+body.studio-video-mode #fr-btn-menu{
+  display: none !important; /* cache le bouton "Menu" (hamburger) */
+}
+
+body.studio-video-mode #fr-header-menu-modal{
+  display: none !important; /* cache la barre/zone de menu */
+}
+
   </style>
 </head>
 
@@ -1933,6 +1944,20 @@
       location.hash = isVideo ? "#conception" : "#mode-video";
     }
 
+    function closeHeaderMenuIfOpen() {
+      const btn = document.getElementById('fr-btn-menu');
+      const menu = document.getElementById('fr-header-menu-modal');
+
+      const isOpen =
+        (btn && btn.getAttribute('data-fr-opened') === 'true') ||
+        (menu && menu.getAttribute('data-fr-opened') === 'true');
+
+      if (!isOpen) return;
+
+      const closeBtn = menu?.querySelector('.fr-btn--close[aria-controls="fr-header-menu-modal"]');
+      if (closeBtn) closeBtn.click();
+    }
+
     function formatDuration(seconds) {
       const total = Math.max(0, Math.floor(Number(seconds) || 0));
       const h = Math.floor(total / 3600);
@@ -2879,6 +2904,12 @@ els.resetBtn?.addEventListener('click', resetAll);
       vConception.classList.toggle("is-active", showConception);
       vPresentation.classList.toggle("is-active", showPresentation);
       vExport.classList.toggle("is-active", showExport);
+
+      document.body.classList.toggle("studio-video-mode", showVideo);
+
+      if (showVideo) {
+        closeHeaderMenuIfOpen();
+      }
 
       renderDocumentPreview();
       updateModeToggleButton();
