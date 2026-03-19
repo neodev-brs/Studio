@@ -737,6 +737,24 @@ body.studio-video-mode #fr-header-menu-modal{
   display: none !important; /* cache la barre/zone de menu */
 }
 
+/* =========================
+   MODE VIDÉO : pas de colonne de droite, plein écran
+   ========================= */
+body.studio-video-mode .studio-preview-panel{
+  display: none !important; /* ✅ on enlève la colonne de droite */
+}
+
+body.studio-video-mode .studio-shell{
+  grid-template-columns: 1fr !important; /* ✅ le mode vidéo prend toute la largeur */
+  gap: 0 !important;                    /* optionnel : plus d'espace vide */
+}
+
+/* Optionnel mais conseillé : on enlève la limite de largeur "fr-container" pour le mode vidéo */
+body.studio-video-mode main.studio-main.fr-container{
+  max-width: none !important;
+  width: 100% !important;
+}
+
   </style>
 </head>
 
