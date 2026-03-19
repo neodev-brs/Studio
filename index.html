@@ -1879,49 +1879,6 @@
 
     const renderDocumentPreviewDebounced = debounce(renderDocumentPreview, 200);
 
-    function renderPhotoGrid() {
-  els.photoGrid.innerHTML = '';
-
-  const has = state.photos.length > 0;
-  els.photoGridEmpty.hidden = has;
-  els.photoZone.classList.toggle('is-empty', !has);
-
-  state.photos.forEach((photo, index) => {
-    const node = els.photoCardTemplate.content.firstElementChild.cloneNode(true);
-
-    const img = node.querySelector('img');
-    const titleInput = node.querySelector('input');
-    const descTextarea = node.querySelector('textarea');
-    const meta = node.querySelector('.photo-meta');
-    const editBtn = node.querySelector('.edit-photo-btn');
-    const removeBtn = node.querySelector('.remove-photo-btn');
-
-    // ✅ Empêche le drag de casser le double-clic / la sélection dans les champs
-    [titleInput, descTextarea].forEach(el => {
-      el.addEventListener('mousedown', (e) => {
-        e.stopPropagation();
-        node.draggable = false;
-      });
-      el.addEventListener('focus', () => {
-        node.draggable = false;
-      });
-      el.addEventListener('blur', () => {
-        node.draggable = true;
-      });
-      el.addEventListener('dragstart', (e) => {
-        e.preventDefault();
-      });
-    });
-
-    img.src = photo.thumbUrl || photo.objectUrl;
-    img.alt = photo.title || '';
-
-    // Valeurs
-    titleInput.value = state.numbering ? `Cliché N° ${index + 1}` : (photo.title || '');
-    titleInput.disabled = state.numbering;
-    descTextarea.value = photo.description || '';
-    meta.textContent = `${index + 1} · ${photo.sizeLabel}`;
-
     function formatDuration(seconds) {
       const total = Math.max(0, Math.floor(Number(seconds) || 0));
       const h = Math.floor(total / 3600);
@@ -1959,9 +1916,16 @@
     function loadVideoFile(file) {
       if (!file) return;
 
+      // Nettoie l’ancienne vidéo
       if (state.video.objectUrl) {
         URL.revokeObjectURL(state.video.objectUrl);
       }
+
+      // Nettoie les captures manuelles existantes (URLs)
+      state.video.manualCaptures.forEach(capture => {
+        if (capture.objectUrl) URL.revokeObjectURL(capture.objectUrl);
+        if (capture.thumbUrl) URL.revokeObjectURL(capture.thumbUrl);
+      });
 
       state.video.file = file;
       state.video.objectUrl = URL.createObjectURL(file);
@@ -1976,12 +1940,16 @@
         els.videoWorkspace.hidden = false;
       }
 
+      if (els.videoStatusText) {
+        els.videoStatusText.textContent = `Vidéo importée : ${file.name} · chargement...`;
+      }
+
       if (els.videoPreview) {
         els.videoPreview.onloadedmetadata = () => {
           state.video.duration = els.videoPreview.duration || 0;
 
           if (els.autoCaptureCount) {
-            els.autoCaptureCount.value = suggestAutoCaptureCount(state.video.duration);
+            els.autoCaptureCount.value = String(suggestAutoCaptureCount(state.video.duration));
           }
 
           if (els.videoStatusText) {
@@ -1998,8 +1966,7 @@
       const count = state.video.manualCaptures.length;
       if (!els.manualCaptureCount) return;
 
-      els.manualCaptureCount.textContent =
-        `${count} capture${count > 1 ? 's sélectionnées' : ' sélectionnée'}.`;
+      els.manualCaptureCount.textContent = `${count} capture${count > 1 ? 's sélectionnées' : ' sélectionnée'}.`;
     }
 
     function renderManualCaptureGrid() {
@@ -2038,52 +2005,72 @@
 
     async function captureFrameAt(timeInSeconds) {
       const video = els.videoPreview;
-      if (!video || !video.videoWidth || !video.videoHeight) return null;
+      if (!video) return null;
+      if (!video.videoWidth || !video.videoHeight) return null;
 
-      return new Promise((resolve) => {
+      const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+      const target = clamp(Number(timeInSeconds) || 0, 0, video.duration || Number(timeInSeconds) || 0);
+
+      // On évite les soucis pendant la lecture
+      try { video.pause(); } catch (e) {}
+
+      const doCapture = async () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+
+        const ctx = canvas.getContext('2d', { alpha: false });
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.92));
+        if (!blob) return null;
+
+        const thumbCanvas = document.createElement('canvas');
+        const ratio = Math.min(800 / canvas.width, 800 / canvas.height, 1);
+        thumbCanvas.width = Math.round(canvas.width * ratio);
+        thumbCanvas.height = Math.round(canvas.height * ratio);
+
+        const thumbCtx = thumbCanvas.getContext('2d', { alpha: false });
+        thumbCtx.drawImage(canvas, 0, 0, thumbCanvas.width, thumbCanvas.height);
+
+        const thumbBlob = await new Promise(res => thumbCanvas.toBlob(res, 'image/jpeg', 0.82));
+        if (!thumbBlob) return null;
+
+        return {
+          id: crypto.randomUUID(),
+          time: target,
+          blob,
+          thumbBlob,
+          objectUrl: URL.createObjectURL(blob),
+          thumbUrl: URL.createObjectURL(thumbBlob)
+        };
+      };
+
+      // ✅ Si on est déjà “au bon endroit”, on capture sans attendre seeked
+      if (Math.abs((video.currentTime || 0) - target) < 0.05) {
+        await new Promise(res => requestAnimationFrame(() => res()));
+        return await doCapture();
+      }
+
+      // Sinon on seek et on capture au 'seeked'
+      return await new Promise((resolve) => {
         const onSeeked = async () => {
           try {
-            const canvas = document.createElement('canvas');
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-
-            const ctx = canvas.getContext('2d', { alpha: false });
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-            const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.92));
-            if (!blob) return resolve(null);
-
-            const thumbCanvas = document.createElement('canvas');
-            const ratio = Math.min(800 / canvas.width, 800 / canvas.height, 1);
-            thumbCanvas.width = Math.round(canvas.width * ratio);
-            thumbCanvas.height = Math.round(canvas.height * ratio);
-
-            const thumbCtx = thumbCanvas.getContext('2d', { alpha: false });
-            thumbCtx.drawImage(canvas, 0, 0, thumbCanvas.width, thumbCanvas.height);
-
-            const thumbBlob = await new Promise(res => thumbCanvas.toBlob(res, 'image/jpeg', 0.82));
-            if (!thumbBlob) return resolve(null);
-
-            resolve({
-              id: crypto.randomUUID(),
-              time: timeInSeconds,
-              blob,
-              thumbBlob,
-              objectUrl: URL.createObjectURL(blob),
-              thumbUrl: URL.createObjectURL(thumbBlob)
-            });
+            const result = await doCapture();
+            resolve(result);
           } finally {
             video.removeEventListener('seeked', onSeeked);
           }
         };
 
         video.addEventListener('seeked', onSeeked, { once: true });
-        video.currentTime = Math.max(0, Math.min(timeInSeconds, video.duration || timeInSeconds));
+        video.currentTime = target;
       });
     }
 
     async function pushCaptureToPhotos(capture) {
-      if (!capture?.blob || !capture?.thumbBlob) return;
+      if (!capture) return;
+      if (!capture.blob || !capture.thumbBlob) return;
 
       state.photos.push({
         id: crypto.randomUUID(),
@@ -2111,8 +2098,10 @@
         times.push(Number((step * i).toFixed(2)));
       }
 
-      els.generateAutoCapturesBtn.disabled = true;
-      els.generateAutoCapturesBtn.textContent = 'Génération en cours...';
+      if (els.generateAutoCapturesBtn) {
+        els.generateAutoCapturesBtn.disabled = true;
+        els.generateAutoCapturesBtn.textContent = 'Génération en cours...';
+      }
 
       try {
         for (const time of times) {
@@ -2129,8 +2118,10 @@
         renderAll();
         location.hash = '#conception';
       } finally {
-        els.generateAutoCapturesBtn.disabled = false;
-        els.generateAutoCapturesBtn.textContent = 'Générer les captures';
+        if (els.generateAutoCapturesBtn) {
+          els.generateAutoCapturesBtn.disabled = false;
+          els.generateAutoCapturesBtn.textContent = 'Générer les captures';
+        }
       }
     }
 
@@ -2163,84 +2154,127 @@
       location.hash = '#conception';
     }
 
-    // Events
-    titleInput.addEventListener('input', (e) => {
-      if (state.numbering) return;
-      photo.title = e.target.value;
-      renderDocumentPreviewDebounced();
-    });
+    function renderPhotoGrid() {
+      els.photoGrid.innerHTML = '';
 
-    descTextarea.addEventListener('input', (e) => {
-      if (e.target.value.length > 150) {
-        e.target.value = e.target.value.slice(0, 150);
-      }
-      photo.description = e.target.value;
-      renderDocumentPreviewDebounced();
-    });
+      const has = state.photos.length > 0;
+      els.photoGridEmpty.hidden = has;
+      els.photoZone.classList.toggle('is-empty', !has);
 
-    editBtn?.addEventListener('click', () => editorOpen(photo.id));
-    removeBtn.addEventListener('click', () => removePhoto(photo.id));
+      state.photos.forEach((photo, index) => {
+        const node = els.photoCardTemplate.content.firstElementChild.cloneNode(true);
 
-    /* Drag & drop */
-    node.setAttribute('draggable', 'true');
-    node.dataset.photoId = photo.id;
+        const img = node.querySelector('img');
+        const titleInput = node.querySelector('input');
+        const descTextarea = node.querySelector('textarea');
+        const meta = node.querySelector('.photo-meta');
+        const editBtn = node.querySelector('.edit-photo-btn');
+        const removeBtn = node.querySelector('.remove-photo-btn');
 
-    node.addEventListener('dragstart', (e) => {
-      if (e.target.closest('input, textarea, select, button')) {
-        e.preventDefault();
-        return;
-      }
+        // ✅ Empêche le drag de casser le double-clic / la sélection dans les champs
+        [titleInput, descTextarea].forEach(el => {
+          el.addEventListener('mousedown', (e) => {
+            e.stopPropagation();
+            node.draggable = false;
+          });
+          el.addEventListener('focus', () => {
+            node.draggable = false;
+          });
+          el.addEventListener('blur', () => {
+            node.draggable = true;
+          });
+          el.addEventListener('dragstart', (e) => {
+            e.preventDefault();
+          });
+        });
 
-      node.classList.add('is-dragging');
-      e.dataTransfer.effectAllowed = 'move';
-      e.dataTransfer.setData('text/plain', photo.id);
-    });
+        img.src = photo.thumbUrl || photo.objectUrl;
+        img.alt = photo.title || '';
 
-    node.addEventListener('dragend', () => {
-      node.classList.remove('is-dragging');
-      els.photoGrid.querySelectorAll('.is-drop-target').forEach(el => {
-        el.classList.remove('is-drop-target');
+        // Valeurs
+        titleInput.value = state.numbering ? `Cliché N° ${index + 1}` : (photo.title || '');
+        titleInput.disabled = state.numbering;
+        descTextarea.value = photo.description || '';
+        meta.textContent = `${index + 1} · ${photo.sizeLabel}`;
+
+        // Events
+        titleInput.addEventListener('input', (e) => {
+          if (state.numbering) return;
+          photo.title = e.target.value;
+          renderDocumentPreviewDebounced();
+        });
+
+        descTextarea.addEventListener('input', (e) => {
+          if (e.target.value.length > 150) {
+            e.target.value = e.target.value.slice(0, 150);
+          }
+          photo.description = e.target.value;
+          renderDocumentPreviewDebounced();
+        });
+
+        editBtn?.addEventListener('click', () => editorOpen(photo.id));
+        removeBtn.addEventListener('click', () => removePhoto(photo.id));
+
+        /* Drag & drop */
+        node.setAttribute('draggable', 'true');
+        node.dataset.photoId = photo.id;
+
+        node.addEventListener('dragstart', (e) => {
+          if (e.target.closest('input, textarea, select, button')) {
+            e.preventDefault();
+            return;
+          }
+
+          node.classList.add('is-dragging');
+          e.dataTransfer.effectAllowed = 'move';
+          e.dataTransfer.setData('text/plain', photo.id);
+        });
+
+        node.addEventListener('dragend', () => {
+          node.classList.remove('is-dragging');
+          els.photoGrid.querySelectorAll('.is-drop-target').forEach(el => {
+            el.classList.remove('is-drop-target');
+          });
+        });
+
+        node.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = 'move';
+          node.classList.add('is-drop-target');
+        });
+
+        node.addEventListener('dragleave', () => {
+          node.classList.remove('is-drop-target');
+        });
+
+        node.addEventListener('drop', (e) => {
+          e.preventDefault();
+          node.classList.remove('is-drop-target');
+
+          const draggedId = e.dataTransfer.getData('text/plain');
+          const targetId = photo.id;
+
+          if (!draggedId || draggedId === targetId) return;
+
+          const fromIndex = state.photos.findIndex(p => p.id === draggedId);
+          const toIndex = state.photos.findIndex(p => p.id === targetId);
+
+          if (fromIndex === -1 || toIndex === -1) return;
+
+          const [movedPhoto] = state.photos.splice(fromIndex, 1);
+          state.photos.splice(toIndex, 0, movedPhoto);
+
+          applyNumbering();
+          renderAll();
+        });
+
+        els.photoGrid.appendChild(node);
       });
-    });
 
-    node.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      e.dataTransfer.dropEffect = 'move';
-      node.classList.add('is-drop-target');
-    });
-
-    node.addEventListener('dragleave', () => {
-      node.classList.remove('is-drop-target');
-    });
-
-    node.addEventListener('drop', (e) => {
-      e.preventDefault();
-      node.classList.remove('is-drop-target');
-
-      const draggedId = e.dataTransfer.getData('text/plain');
-      const targetId = photo.id;
-
-      if (!draggedId || draggedId === targetId) return;
-
-      const fromIndex = state.photos.findIndex(p => p.id === draggedId);
-      const toIndex = state.photos.findIndex(p => p.id === targetId);
-
-      if (fromIndex === -1 || toIndex === -1) return;
-
-      const [movedPhoto] = state.photos.splice(fromIndex, 1);
-      state.photos.splice(toIndex, 0, movedPhoto);
-
-      applyNumbering();
-      renderAll();
-    });
-
-    els.photoGrid.appendChild(node);
-  });
-
-  if (els.photoCount) {
-    els.photoCount.textContent = `${state.photos.length} photographie${state.photos.length > 1 ? 's importées' : ' importée'}.`;
-  }
-}
+      if (els.photoCount) {
+        els.photoCount.textContent = `${state.photos.length} photographie${state.photos.length > 1 ? 's importées' : ' importée'}.`;
+      }
+    }
 
     function buildCoverPageHtml(form) {
       const mapHtml = state.mapDataUrl
@@ -2752,6 +2786,24 @@ els.resetBtn?.addEventListener('click', resetAll);
 
     els.generateBtn.addEventListener('click', handleGenerate);
 
+    els.videoInput?.addEventListener('change', (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      loadVideoFile(file);
+    });
+
+    els.captureModeAuto?.addEventListener('change', () => {
+      if (els.captureModeAuto.checked) setVideoCaptureMode('auto');
+    });
+
+    els.captureModeManual?.addEventListener('change', () => {
+      if (els.captureModeManual.checked) setVideoCaptureMode('manual');
+    });
+
+    els.generateAutoCapturesBtn?.addEventListener('click', generateAutoCaptures);
+    els.captureCurrentFrameBtn?.addEventListener('click', captureCurrentManualFrame);
+    els.sendManualCapturesBtn?.addEventListener('click', sendManualCapturesToPhotos);
+
     /* Navigation mono-fichier */
     function setViewFromHash(){
       const hash = (location.hash || "#conception").toLowerCase();
@@ -2779,8 +2831,12 @@ els.resetBtn?.addEventListener('click', resetAll);
     }
 
     window.addEventListener("hashchange", setViewFromHash);
-    setViewFromHash();
 
+    setVideoCaptureMode('auto');
+    updateManualCaptureCount();
+    renderManualCaptureGrid();
+
+    setViewFromHash();
     renderAll();
   </script>
 
