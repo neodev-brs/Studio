@@ -783,6 +783,12 @@
           <div class="fr-header__tools-links">
             <ul class="fr-btns-group">
               <li>
+                <button type="button" class="fr-btn fr-btn--tertiary fr-icon-camera-line" id="modeToggleBtn">
+                  Mode photo
+                </button>
+              </li>
+
+              <li>
                 <button type="button" class="fr-btn fr-btn--tertiary fr-icon-refresh-line" id="resetBtn">
                   Réinitialiser
                 </button>
@@ -816,10 +822,6 @@
           <li class="fr-nav__item"><a class="fr-nav__link" href="#conception">Conception</a></li>
           <li class="fr-nav__item"><a class="fr-nav__link" href="#page-presentation">Page de présentation</a></li>
           <li class="fr-nav__item"><a class="fr-nav__link" href="#export">Exporter</a></li>
-
-          <li class="fr-nav__item studio-nav-split__right">
-            <a class="fr-nav__link" href="#mode-video">Mode vidéo</a>
-          </li>
         </ul>
       </nav>
     </div>
@@ -1367,6 +1369,7 @@
       captureModeManual: document.getElementById('captureModeManual'),
       videoAutoPanel: document.getElementById('videoAutoPanel'),
       videoManualPanel: document.getElementById('videoManualPanel'),
+      modeToggleBtn: document.getElementById('modeToggleBtn'),
 
       autoCaptureCount: document.getElementById('autoCaptureCount'),
       generateAutoCapturesBtn: document.getElementById('generateAutoCapturesBtn'),
@@ -1903,6 +1906,32 @@
     }
 
     const renderDocumentPreviewDebounced = debounce(renderDocumentPreview, 200);
+
+    function isVideoViewHash() {
+      return (location.hash || "#conception").toLowerCase() === "#mode-video";
+    }
+
+    function updateModeToggleButton() {
+      const btn = els.modeToggleBtn;
+      if (!btn) return;
+
+      const isVideo = isVideoViewHash();
+
+      btn.classList.remove("fr-icon-camera-line", "fr-icon-film-line");
+
+      if (isVideo) {
+        btn.classList.add("fr-icon-film-line");
+        btn.textContent = "Mode vidéo";
+      } else {
+        btn.classList.add("fr-icon-camera-line");
+        btn.textContent = "Mode photo";
+      }
+    }
+
+    function togglePhotoVideoMode() {
+      const isVideo = isVideoViewHash();
+      location.hash = isVideo ? "#conception" : "#mode-video";
+    }
 
     function formatDuration(seconds) {
       const total = Math.max(0, Math.floor(Number(seconds) || 0));
@@ -2828,6 +2857,7 @@ els.resetBtn?.addEventListener('click', resetAll);
     els.generateAutoCapturesBtn?.addEventListener('click', generateAutoCaptures);
     els.captureCurrentFrameBtn?.addEventListener('click', captureCurrentManualFrame);
     els.sendManualCapturesBtn?.addEventListener('click', sendManualCapturesToPhotos);
+    els.modeToggleBtn?.addEventListener("click", togglePhotoVideoMode);
 
     /* Navigation mono-fichier */
     function setViewFromHash(){
@@ -2851,6 +2881,7 @@ els.resetBtn?.addEventListener('click', resetAll);
       vExport.classList.toggle("is-active", showExport);
 
       renderDocumentPreview();
+      updateModeToggleButton();
 
       window.scrollTo({ top: 0, behavior: "instant" });
     }
@@ -2860,6 +2891,7 @@ els.resetBtn?.addEventListener('click', resetAll);
     setVideoCaptureMode('auto');
     updateManualCaptureCount();
     renderManualCaptureGrid();
+    updateModeToggleButton();
 
     setViewFromHash();
     renderAll();
