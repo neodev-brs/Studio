@@ -766,12 +766,6 @@ body.studio-video-mode #view-video .studio-panel__body{
   padding: 1.5rem;
 }
 
-body.studio-video-mode .studio-video-stage{
-  max-width: 980px;
-  margin: 0;     /* ✅ plus centré */
-  width: 100%;
-}
-
 /* Cadre d’import DSFR centré */
 .studio-video-frame{
   border: 2px dashed var(--border-default-grey);
@@ -856,6 +850,42 @@ body.studio-video-mode .studio-video-import-left{
   width: auto;
   max-width: 100%;
   display: block;
+}
+
+/* ✅ VIDEO import : 2 colonnes -> texte à gauche / dropzone centrée */
+body.studio-video-mode #videoImportSection{
+  display: grid;
+  grid-template-columns: minmax(280px, 460px) minmax(0, 1fr);
+  gap: 2rem;
+  align-items: start;
+}
+
+/* bloc gauche (titre + texte) bien plaqué à gauche */
+body.studio-video-mode #videoImportSection .studio-video-import-left{
+  margin: 0;
+}
+
+/* dropzone dans la colonne droite, centrée */
+body.studio-video-mode #videoDropzone{
+  margin: 0 !important;           /* IMPORTANT : enlève ton margin auto existant */
+  justify-self: center;
+  width: min(560px, 100%);
+}
+
+/* statut en dessous, aligné à gauche sur toute la largeur */
+body.studio-video-mode #videoStatusText{
+  grid-column: 1 / -1;
+}
+
+/* Mobile : on repasse en 1 colonne */
+@media (max-width: 900px){
+  body.studio-video-mode #videoImportSection{
+    grid-template-columns: 1fr;
+  }
+  body.studio-video-mode #videoDropzone{
+    justify-self: stretch;
+    width: 100%;
+  }
 }
 
   </style>
