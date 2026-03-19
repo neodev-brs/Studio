@@ -749,10 +749,58 @@ body.studio-video-mode .studio-shell{
   gap: 0 !important;                    /* optionnel : plus d'espace vide */
 }
 
-/* Optionnel mais conseillé : on enlève la limite de largeur "fr-container" pour le mode vidéo */
-body.studio-video-mode main.studio-main.fr-container{
-  max-width: none !important;
-  width: 100% !important;
+/* =========================
+   MODE VIDÉO : pas de colonne droite + contenu centré, largeur "app"
+   ========================= */
+body.studio-video-mode .studio-preview-panel{
+  display: none !important; /* on enlève la colonne de droite */
+}
+
+body.studio-video-mode .studio-shell{
+  grid-template-columns: 1fr !important; /* une seule colonne */
+  gap: 1rem !important;
+}
+
+/* Le contenu du mode vidéo reste "dans la largeur app" et centré */
+body.studio-video-mode #view-video .studio-panel__body{
+  padding: 1.5rem;
+}
+
+body.studio-video-mode .studio-video-stage{
+  max-width: 980px;      /* ✅ limite pour que la vidéo ne soit pas immense */
+  margin: 0 auto;        /* ✅ centré */
+  width: 100%;
+}
+
+/* Cadre d’import DSFR centré */
+.studio-video-frame{
+  border: 2px dashed var(--border-default-grey);
+  background: var(--background-default-grey);
+  border-radius: 0;
+  padding: 2rem 1.5rem;
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+}
+
+.studio-video-frame .fr-upload-group{
+  width: min(520px, 100%);
+  margin: 0 auto;
+}
+
+/* Player pas trop grand, confortable pour la timeline */
+.studio-video-player{
+  border: 1px solid var(--border-default-grey);
+  background: #000;
+}
+
+#videoPreview{
+  width: 100%;
+  display: block;
+  background: #000;
+  max-height: 420px; /* ✅ pas trop haut */
 }
 
   </style>
@@ -869,88 +917,96 @@ body.studio-video-mode main.studio-main.fr-container{
           <h1 class="fr-h4 fr-mb-1v">Mode vidéo</h1>
           <p class="fr-text--sm fr-mb-0">Générez des captures d’écran à partir d’un fichier vidéo puis envoyez-les vers la grille photo.</p>
         </div>
-
         <div class="studio-panel__body">
-          <section class="fr-mb-4w">
-            <h2 class="fr-h6">Import de la vidéo</h2>
+          <div class="studio-video-stage">
 
-            <div class="fr-upload-group fr-mt-2w">
-              <label class="fr-label" for="videoInput">
-                Sélectionnez un fichier vidéo sur votre appareil
-                <span class="fr-hint-text">Formats vidéo usuels (MP4, WebM...).</span>
-              </label>
-              <input class="fr-upload" type="file" id="videoInput" accept="video/*" />
-            </div>
+            <!-- ✅ Cadre d'import (visible au départ) -->
+            <section id="videoImportFrame" class="studio-video-frame fr-mb-4w">
+              <h2 class="fr-h6 fr-mb-2w">Import de la vidéo</h2>
 
-            <p class="fr-text--xs fr-mt-1w fr-mb-0" id="videoStatusText">Aucune vidéo importée.</p>
-          </section>
-
-          <section id="videoWorkspace" hidden>
-            <div class="fr-mb-3w">
-              <video id="videoPreview" controls style="width:100%;background:#000;display:block;"></video>
-            </div>
-
-            <section class="fr-mb-4w">
-              <h2 class="fr-h6">Mode de capture</h2>
-
-              <div class="fr-fieldset" role="group" aria-labelledby="video-capture-mode-legend">
-                <legend class="fr-fieldset__legend fr-fieldset__legend--regular" id="video-capture-mode-legend">
-                  Choisissez le mode
-                </legend>
-
-                <div class="fr-fieldset__element">
-                  <div class="fr-radio-group">
-                    <input type="radio" id="captureModeAuto" name="captureMode" value="auto" checked>
-                    <label class="fr-label" for="captureModeAuto">Automatique</label>
-                  </div>
-                </div>
-
-                <div class="fr-fieldset__element">
-                  <div class="fr-radio-group">
-                    <input type="radio" id="captureModeManual" name="captureMode" value="manual">
-                    <label class="fr-label" for="captureModeManual">Manuel</label>
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            <section id="videoAutoPanel">
-              <div class="fr-input-group studio-input-compact">
-                <label class="fr-label" for="autoCaptureCount">Nombre de captures automatiques</label>
-                <input class="fr-input" id="autoCaptureCount" type="number" min="2" max="24" value="6">
+              <div class="fr-upload-group">
+                <label class="fr-label" for="videoInput">
+                  Sélectionnez un fichier vidéo sur votre appareil
+                  <span class="fr-hint-text">Formats vidéo usuels (MP4, WebM...).</span>
+                </label>
+                <input class="fr-upload" type="file" id="videoInput" accept="video/*" />
               </div>
 
-              <div class="fr-btns-group fr-btns-group--inline-md fr-mt-2w">
-                <button type="button" class="fr-btn fr-icon-camera-line" id="generateAutoCapturesBtn">
-                  Générer les captures
-                </button>
-              </div>
-
-              <p class="fr-text--xs fr-mt-1w fr-mb-0">
-                Les captures seront ajoutées directement à la grille photo existante.
+              <p class="fr-text--xs fr-mt-2w fr-mb-0" id="videoStatusText">Aucune vidéo importée.</p>
+              <p class="fr-hint-text fr-mt-1w fr-mb-0">
+                La vidéo importée remplacera ce cadre et affichera le lecteur.
               </p>
             </section>
 
-            <section id="videoManualPanel" style="display:none;">
-              <div class="fr-btns-group fr-btns-group--inline-md fr-mt-2w">
-                <button type="button" class="fr-btn fr-icon-camera-line" id="captureCurrentFrameBtn">
-                  Capturer l’instant courant
-                </button>
-
-                <button type="button" class="fr-btn fr-btn--secondary" id="sendManualCapturesBtn">
-                  Envoyer les captures vers la grille photo
-                </button>
+            <!-- ✅ Workspace (player + modes) : remplace le cadre après import -->
+            <section id="videoWorkspace" hidden>
+              <div class="studio-video-player fr-mb-3w">
+                <video id="videoPreview" controls></video>
               </div>
 
-              <p class="fr-text--xs fr-mt-1w">
-                Déplacez-vous sur la timeline puis capturez les instants utiles.
-              </p>
+              <section class="fr-mb-4w">
+                <h2 class="fr-h6">Mode de capture</h2>
 
-              <p class="fr-text--xs fr-mb-2w" id="manualCaptureCount">0 capture sélectionnée.</p>
+                <div class="fr-fieldset" role="group" aria-labelledby="video-capture-mode-legend">
+                  <legend class="fr-fieldset__legend fr-fieldset__legend--regular" id="video-capture-mode-legend">
+                    Choisissez le mode
+                  </legend>
 
-              <div id="manualCaptureGrid" class="studio-video-thumb-grid"></div>
+                  <div class="fr-fieldset__element">
+                    <div class="fr-radio-group">
+                      <input type="radio" id="captureModeAuto" name="captureMode" value="auto" checked>
+                      <label class="fr-label" for="captureModeAuto">Automatique</label>
+                    </div>
+                  </div>
+
+                  <div class="fr-fieldset__element">
+                    <div class="fr-radio-group">
+                      <input type="radio" id="captureModeManual" name="captureMode" value="manual">
+                      <label class="fr-label" for="captureModeManual">Manuel</label>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <section id="videoAutoPanel">
+                <div class="fr-input-group studio-input-compact">
+                  <label class="fr-label" for="autoCaptureCount">Nombre de captures automatiques</label>
+                  <input class="fr-input" id="autoCaptureCount" type="number" min="2" max="24" value="6">
+                </div>
+
+                <div class="fr-btns-group fr-btns-group--inline-md fr-mt-2w">
+                  <button type="button" class="fr-btn fr-icon-camera-line" id="generateAutoCapturesBtn">
+                    Générer les captures
+                  </button>
+                </div>
+
+                <p class="fr-text--xs fr-mt-1w fr-mb-0">
+                  Les captures seront ajoutées directement à la grille photo existante.
+                </p>
+              </section>
+
+              <section id="videoManualPanel" style="display:none;">
+                <div class="fr-btns-group fr-btns-group--inline-md fr-mt-2w">
+                  <button type="button" class="fr-btn fr-icon-camera-line" id="captureCurrentFrameBtn">
+                    Capturer l’instant courant
+                  </button>
+
+                  <button type="button" class="fr-btn fr-btn--secondary" id="sendManualCapturesBtn">
+                    Envoyer les captures vers la grille photo
+                  </button>
+                </div>
+
+                <p class="fr-text--xs fr-mt-1w">
+                  Déplacez-vous sur la timeline puis capturez les instants utiles.
+                </p>
+
+                <p class="fr-text--xs fr-mb-2w" id="manualCaptureCount">0 capture sélectionnée.</p>
+
+                <div id="manualCaptureGrid" class="studio-video-thumb-grid"></div>
+              </section>
             </section>
-          </section>
+
+          </div>
         </div>
       </aside>
     </section>
@@ -1393,6 +1449,7 @@ body.studio-video-mode main.studio-main.fr-container{
       videoStatusText: document.getElementById('videoStatusText'),
       videoWorkspace: document.getElementById('videoWorkspace'),
       videoPreview: document.getElementById('videoPreview'),
+      videoImportFrame: document.getElementById('videoImportFrame'),
 
       captureModeAuto: document.getElementById('captureModeAuto'),
       captureModeManual: document.getElementById('captureModeManual'),
@@ -1946,13 +2003,18 @@ body.studio-video-mode main.studio-main.fr-container{
 
       const isVideo = isVideoViewHash();
 
-      btn.classList.remove("fr-icon-camera-line", "fr-icon-film-line");
+      // ✅ Retire proprement toute icône DSFR sur ce bouton
+      Array.from(btn.classList).forEach((cls) => {
+        if (cls.startsWith("fr-icon-") && cls.endsWith("-line")) {
+          btn.classList.remove(cls);
+        }
+      });
 
       if (isVideo) {
-        btn.classList.add("fr-icon-clapperboard-line");
+        btn.classList.add("fr-icon-clapperboard-line"); // ✅ icône vidéo DSFR
         btn.textContent = "Mode vidéo";
       } else {
-        btn.classList.add("fr-icon-camera-line");
+        btn.classList.add("fr-icon-camera-line"); // ✅ icône photo DSFR
         btn.textContent = "Mode photo";
       }
     }
@@ -2031,6 +2093,10 @@ body.studio-video-mode main.studio-main.fr-container{
 
       if (els.videoPreview) {
         els.videoPreview.src = state.video.objectUrl;
+      }
+
+      if (els.videoImportFrame) {
+        els.videoImportFrame.hidden = true;
       }
 
       if (els.videoWorkspace) {
@@ -2797,6 +2863,8 @@ ${buildFullDocumentHtml()}
   if (els.videoWorkspace) els.videoWorkspace.hidden = true;
   if (els.videoStatusText) els.videoStatusText.textContent = 'Aucune vidéo importée.';
   if (els.captureModeAuto) els.captureModeAuto.checked = true;
+  if (els.videoImportFrame) els.videoImportFrame.hidden = false;
+  if (els.videoWorkspace) els.videoWorkspace.hidden = true;
 
   setVideoCaptureMode('auto');
   updateManualCaptureCount();
