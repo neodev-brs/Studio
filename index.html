@@ -796,13 +796,6 @@ body.studio-video-mode .studio-video-stage{
   background: #000;
 }
 
-#videoPreview{
-  width: 100%;
-  display: block;
-  background: #000;
-  max-height: 420px; /* ✅ pas trop haut */
-}
-
 /* =========================
    MODE VIDÉO : import à gauche + dropzone centrée comme Conception
    ========================= */
@@ -851,40 +844,24 @@ body.studio-video-mode .studio-video-import-left{
   display: block;
 }
 
-/* ✅ VIDEO import : 2 colonnes -> texte à gauche / dropzone centrée */
-body.studio-video-mode #videoImportSection{
-  display: grid;
-  grid-template-columns: minmax(280px, 460px) minmax(0, 1fr);
-  gap: 2rem;
-  align-items: start;
+/* ✅ Player strict 16:9 (1920×1080) */
+body.studio-video-mode .studio-video-player{
+  aspect-ratio: 16 / 9;      /* <- le point clé */
+  width: 100%;
+  max-width: 980px;          /* garde ta largeur “app” (ajuste si tu veux) */
+  margin: 0 auto;
+  background: #000;
+  border: 1px solid var(--border-default-grey);
+  overflow: hidden;
 }
 
-/* bloc gauche (titre + texte) bien plaqué à gauche */
-body.studio-video-mode #videoImportSection .studio-video-import-left{
-  margin: 0;
-}
-
-/* dropzone dans la colonne droite, centrée */
-body.studio-video-mode #videoDropzone{
-  margin: 0 !important;           /* IMPORTANT : enlève ton margin auto existant */
-  justify-self: center;
-  width: min(560px, 100%);
-}
-
-/* statut en dessous, aligné à gauche sur toute la largeur */
-body.studio-video-mode #videoStatusText{
-  grid-column: 1 / -1;
-}
-
-/* Mobile : on repasse en 1 colonne */
-@media (max-width: 900px){
-  body.studio-video-mode #videoImportSection{
-    grid-template-columns: 1fr;
-  }
-  body.studio-video-mode #videoDropzone{
-    justify-self: stretch;
-    width: 100%;
-  }
+/* le <video> remplit exactement le cadre 16:9 */
+body.studio-video-mode .studio-video-player > video{
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;       /* pas de crop */
+  background: #000;
 }
 
   </style>
