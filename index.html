@@ -845,13 +845,14 @@ body.studio-video-mode .studio-video-import-left{
   text-align: center;
 }
 
-/* ✅ Dropzone vidéo : bouton Parcourir + nom fichier centrés */
-.studio-video-drop-actions{
+/* ✅ Input fichier centré dans la zone pointillée */
+#videoDropzone .studio-video-file-center{
   display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
-  text-align: center;
+}
+
+#videoDropzone .studio-video-file-center .fr-upload{
+  width: min(520px, 100%);
 }
 
   </style>
@@ -976,12 +977,11 @@ body.studio-video-mode .studio-video-import-left{
             <div class="studio-video-import-left">
               <h2 class="fr-h6">Import de la vidéo</h2>
 
-              <div class="fr-upload-group fr-mt-2w">
+              <div class="fr-upload-group">
                 <label class="fr-label" for="videoInput">
                   Sélectionnez un fichier vidéo sur votre appareil
                   <span class="fr-hint-text">Formats vidéo usuels (MP4, WebM...).</span>
                 </label>
-                <input class="fr-upload" type="file" id="videoInput" accept="video/*" />
               </div>
             </div>
 
@@ -990,17 +990,11 @@ body.studio-video-mode .studio-video-import-left{
                 <strong>Glisser-déposer</strong> les fichiers ici
               </div>
 
-              <div class="studio-video-drop-actions fr-mt-2w">
-                <button type="button" class="fr-btn fr-btn--secondary fr-btn--sm" id="videoBrowseBtn">
-                  Parcourir
-                </button>
-
-                <div class="fr-hint-text fr-mt-1v" id="videoFileLabel">
-                  Aucun fichier sélectionné.
-                </div>
+              <div class="studio-video-file-center fr-mt-2w">
+                <input class="fr-upload" type="file" id="videoInput" accept="video/*" />
               </div>
 
-              <div class="fr-hint-text fr-mt-2w">
+              <div class="fr-hint-text fr-mt-1v">
                 Astuce : vous pouvez aussi déposer des fichiers directement depuis votre bureau.
               </div>
             </div>
@@ -1535,8 +1529,6 @@ body.studio-video-mode .studio-video-import-left{
       manualCaptureGrid: document.getElementById('manualCaptureGrid'),
       videoImportSection: document.getElementById('videoImportSection'),
       videoDropzone: document.getElementById('videoDropzone'),
-      videoBrowseBtn: document.getElementById('videoBrowseBtn'),
-      videoFileLabel: document.getElementById('videoFileLabel'),
 
     };
 
@@ -1581,12 +1573,6 @@ body.studio-video-mode .studio-video-import-left{
     function syncRangeOutput(inputEl, outputEl){
       if (!inputEl || !outputEl) return;
       outputEl.textContent = String(Number(inputEl.value || 0));
-    }
-
-    function setVideoFileLabel(name){
-      if (!els.videoFileLabel) return;
-      const txt = (name || "").trim();
-      els.videoFileLabel.textContent = txt ? txt : "Aucun fichier sélectionné.";
     }
 
     function syncAllEditorOutputs(){
@@ -2154,7 +2140,6 @@ body.studio-video-mode .studio-video-import-left{
 
     function loadVideoFile(file) {
       if (!file) return;
-      setVideoFileLabel(file.name);
 
       // Nettoie l’ancienne vidéo
       if (state.video.objectUrl) {
@@ -2951,8 +2936,7 @@ ${buildFullDocumentHtml()}
   if (els.videoWorkspace) els.videoWorkspace.hidden = true;
   if (els.videoImportSection) els.videoImportSection.hidden = false;
   if (els.videoWorkspace) els.videoWorkspace.hidden = true;
-  
-  setVideoFileLabel("");
+
   setVideoCaptureMode('auto');
   updateManualCaptureCount();
   renderManualCaptureGrid();
@@ -3043,10 +3027,6 @@ els.resetBtn?.addEventListener('click', resetAll);
       if (!file) return;
       loadVideoFile(file);
     });
-
-    els.videoBrowseBtn?.addEventListener('click', () => {
-    els.videoInput?.click();
-  });
 
     ["dragenter","dragover"].forEach(evt =>
       els.videoDropzone?.addEventListener(evt, (e) => {
