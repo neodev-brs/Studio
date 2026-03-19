@@ -864,6 +864,26 @@ body.studio-video-mode .studio-video-player > video{
   background: #000;
 }
 
+/* ✅ Centrage “réel” du champ fichier dans la dropzone DSFR */
+#videoDropzone .studio-video-file-center{
+  display: flex;
+  justify-content: center;
+}
+
+/* DSFR met souvent width:100% sur .fr-upload -> on force un width “contenu” */
+#videoDropzone #videoInput.fr-upload{
+  width: fit-content !important;   /* ✅ le champ se réduit à son contenu */
+  max-width: 100% !important;
+  display: inline-block !important;
+}
+
+/* (optionnel) si ton navigateur ignore fit-content sur input file */
+@supports not (width: fit-content){
+  #videoDropzone #videoInput.fr-upload{
+    width: auto !important;
+  }
+}
+
   </style>
 </head>
 
