@@ -634,33 +634,42 @@
   margin-top: .5rem; /* ajuste à .25rem / .75rem si besoin */
 }
 
-.studio-nav-split__list{
-  display:flex;
-  align-items:center;
-  width:100%;
-  gap:0;
+/* =========================
+   MENU : "Mode vidéo" tout à droite (sans séparateur)
+   ========================= */
+
+/* Le nav doit occuper toute la largeur */
+.fr-header__menu .studio-nav-split{
+  width: 100% !important;
 }
 
-.studio-nav-split__right{
-  margin-left: auto;
-  border-left: 0;
-  padding-left: 0;
-}
+/* Le UL doit être en flex et prendre 100% de la largeur */
+.fr-header__menu .studio-nav-split__list{
+  display: flex !important;
+  width: 100% !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  flex-wrap: nowrap !important;
 
-.studio-nav-split__right .fr-nav__link{
-  padding-right: 0 !important;   /* ✅ le "o" colle au bord droit */
+  /* évite tout padding/marge qui empêche l’alignement à droite */
+  padding-right: 0 !important;
   margin-right: 0 !important;
-  text-align: right;
-  justify-content: flex-end;
 }
 
-.studio-nav-split__list{
-  width: 100%;
-  padding-right: 0 !important;   /* ✅ évite un padding résiduel du ul */
+/* Le LI "Mode vidéo" pousse tout à droite */
+.fr-header__menu .studio-nav-split__right{
+  margin-left: auto !important;
+
+  /* ✅ plus de barre verticale */
+  border-left: 0 !important;
+  padding-left: 0 !important;
 }
 
-.fr-header__menu .fr-nav{
-  width: 100%;
+/* Le lien "Mode vidéo" colle son texte à droite (le "o" au bord) */
+.fr-header__menu .studio-nav-split__right .fr-nav__link{
+  padding-right: 0 !important;
+  margin-right: 0 !important;
+  text-align: right !important;
 }
 
 .studio-video-thumb-grid{
@@ -702,24 +711,18 @@
 }
 
 @media (max-width: 560px){
-  .studio-nav-split__list{
-    display:block;
+  .fr-header__menu .studio-nav-split__list{
+    display: block !important;
+    width: 100% !important;
   }
 
-  .studio-nav-split__right{
-    margin-left: 0;
-    border-left: 0;
-    padding-left: 0;
+  .fr-header__menu .studio-nav-split__right{
+    margin-left: 0 !important;
   }
 
-  .studio-nav-split__right .fr-nav__link{
-    padding-right: 0 !important;
-    text-align: left;            /* en mobile ça revient comme les autres */
-    justify-content: flex-start;
-  }
-
-  .studio-video-thumb-grid{
-    grid-template-columns: 1fr;
+  .fr-header__menu .studio-nav-split__right .fr-nav__link{
+    text-align: left !important;
+    padding-right: var(--text-spacing) !important;
   }
 }
 
