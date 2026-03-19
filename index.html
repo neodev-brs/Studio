@@ -826,6 +826,25 @@ body.studio-video-mode .studio-video-stage{
   text-align: center;
 }
 
+/* ✅ Mode vidéo : bloc Import (titre + input) même largeur que la colonne Conception */
+body.studio-video-mode .studio-video-import-left{
+  width: min(100%, 460px);   /* ✅ comme ta colonne gauche (max 460px) */
+  margin-left: 0;            /* ✅ collé à gauche */
+  margin-right: auto;
+}
+
+/* ✅ On garde le dropzone centré (déjà présent chez toi, je te le remets propre) */
+#videoDropzone{
+  border: 2px dashed var(--border-default-grey);
+  border-radius: 8px;
+  background: var(--background-default-grey);
+  overflow: hidden;
+  max-width: 560px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
   </style>
 </head>
 
@@ -944,26 +963,28 @@ body.studio-video-mode .studio-video-stage{
           <div class="studio-video-stage">
 
             <!-- ✅ Import (à gauche) + dropzone (centrée) -->
-            <section id="videoImportSection" class="fr-mb-4w">
-              <h2 class="fr-h6 fr-mb-2w">Import de la vidéo</h2>
+           <section id="videoImportSection" class="fr-mb-4w">
+            <div class="studio-video-import-left">
+              <h2 class="fr-h6">Import de la vidéo</h2>
 
-              <div class="fr-upload-group">
+              <div class="fr-upload-group fr-mt-2w">
                 <label class="fr-label" for="videoInput">
                   Sélectionnez un fichier vidéo sur votre appareil
                   <span class="fr-hint-text">Formats vidéo usuels (MP4, WebM...).</span>
                 </label>
                 <input class="fr-upload" type="file" id="videoInput" accept="video/*" />
               </div>
+            </div>
 
-              <div id="videoDropzone" class="fr-mt-2w fr-p-2w">
-                <strong>Glisser-déposer</strong> les fichiers ici
-                <div class="fr-hint-text fr-mt-1v">
-                  Astuce : vous pouvez aussi déposer des fichiers directement depuis votre bureau.
-                </div>
+            <div id="videoDropzone" class="fr-mt-2w fr-p-2w">
+              <strong>Glisser-déposer</strong> les fichiers ici
+              <div class="fr-hint-text fr-mt-1v">
+                Astuce : vous pouvez aussi déposer des fichiers directement depuis votre bureau.
               </div>
+            </div>
 
-              <p class="fr-text--xs fr-mt-1w fr-mb-0" id="videoStatusText">Aucune vidéo importée.</p>
-            </section>
+            <p class="fr-text--xs fr-mt-1w fr-mb-0" id="videoStatusText">Aucune vidéo importée.</p>
+          </section>
 
             <!-- ✅ Workspace : le player remplace l’import dès qu’une vidéo est chargée -->
             <section id="videoWorkspace" hidden>
