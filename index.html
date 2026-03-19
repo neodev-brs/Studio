@@ -803,6 +803,29 @@ body.studio-video-mode .studio-video-stage{
   max-height: 420px; /* ✅ pas trop haut */
 }
 
+/* =========================
+   MODE VIDÉO : import à gauche + dropzone centrée comme Conception
+   ========================= */
+
+/* Conteneur centré (largeur “app”, pas plein écran) */
+body.studio-video-mode .studio-video-stage{
+  max-width: 980px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Dropzone vidéo : même style que #dropzone (Conception) + centré */
+#videoDropzone{
+  border: 2px dashed var(--border-default-grey);
+  border-radius: 8px;          /* ✅ arrondis comme Conception */
+  background: var(--background-default-grey);
+  overflow: hidden;            /* ✅ comme Conception */
+  max-width: 560px;            /* ✅ zone centrée, pas énorme */
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
   </style>
 </head>
 
@@ -920,8 +943,8 @@ body.studio-video-mode .studio-video-stage{
         <div class="studio-panel__body">
           <div class="studio-video-stage">
 
-            <!-- ✅ Cadre d'import (visible au départ) -->
-            <section id="videoImportFrame" class="studio-video-frame fr-mb-4w">
+            <!-- ✅ Import (à gauche) + dropzone (centrée) -->
+            <section id="videoImportSection" class="fr-mb-4w">
               <h2 class="fr-h6 fr-mb-2w">Import de la vidéo</h2>
 
               <div class="fr-upload-group">
@@ -932,13 +955,17 @@ body.studio-video-mode .studio-video-stage{
                 <input class="fr-upload" type="file" id="videoInput" accept="video/*" />
               </div>
 
-              <p class="fr-text--xs fr-mt-2w fr-mb-0" id="videoStatusText">Aucune vidéo importée.</p>
-              <p class="fr-hint-text fr-mt-1w fr-mb-0">
-                La vidéo importée remplacera ce cadre et affichera le lecteur.
-              </p>
+              <div id="videoDropzone" class="fr-mt-2w fr-p-2w">
+                <strong>Glisser-déposer</strong> les fichiers ici
+                <div class="fr-hint-text fr-mt-1v">
+                  Astuce : vous pouvez aussi déposer des fichiers directement depuis votre bureau.
+                </div>
+              </div>
+
+              <p class="fr-text--xs fr-mt-1w fr-mb-0" id="videoStatusText">Aucune vidéo importée.</p>
             </section>
 
-            <!-- ✅ Workspace (player + modes) : remplace le cadre après import -->
+            <!-- ✅ Workspace : le player remplace l’import dès qu’une vidéo est chargée -->
             <section id="videoWorkspace" hidden>
               <div class="studio-video-player fr-mb-3w">
                 <video id="videoPreview" controls></video>
@@ -1463,6 +1490,8 @@ body.studio-video-mode .studio-video-stage{
       sendManualCapturesBtn: document.getElementById('sendManualCapturesBtn'),
       manualCaptureCount: document.getElementById('manualCaptureCount'),
       manualCaptureGrid: document.getElementById('manualCaptureGrid'),
+      videoImportSection: document.getElementById('videoImportSection'),
+      videoDropzone: document.getElementById('videoDropzone'),
 
     };
 
@@ -2098,6 +2127,9 @@ body.studio-video-mode .studio-video-stage{
       if (els.videoImportFrame) {
         els.videoImportFrame.hidden = true;
       }
+
+      if (els.videoImportSection) els.videoImportSection.hidden = true;
+      if (els.videoWorkspace) els.videoWorkspace.hidden = false;
 
       if (els.videoWorkspace) {
         els.videoWorkspace.hidden = false;
@@ -2865,6 +2897,8 @@ ${buildFullDocumentHtml()}
   if (els.captureModeAuto) els.captureModeAuto.checked = true;
   if (els.videoImportFrame) els.videoImportFrame.hidden = false;
   if (els.videoWorkspace) els.videoWorkspace.hidden = true;
+  if (els.videoImportSection) els.videoImportSection.hidden = false;
+  if (els.videoWorkspace) els.videoWorkspace.hidden = true;
 
   setVideoCaptureMode('auto');
   updateManualCaptureCount();
@@ -2955,6 +2989,26 @@ els.resetBtn?.addEventListener('click', resetAll);
       const file = e.target.files?.[0];
       if (!file) return;
       loadVideoFile(file);
+    });
+
+    ["dragenter","dragover"].forEach(evt =>
+      els.videoDropzone?.addEventListener(evt, (e) => {
+        e.preventDefault(); e.stopPropagation();
+        els.videoDropzone.style.borderColor = "var(--border-action-high-blue-france)";
+      })
+    );
+
+    ["dragleave","drop"].forEach(evt =>
+      els.videoDropzone?.addEventListener(evt, (e) => {
+        e.preventDefault(); e.stopPropagation();
+        els.videoDropzone.style.borderColor = "var(--border-default-grey)";
+      })
+    );
+
+    els.videoDropzone?.addEventListener("drop", (e) => {
+      const files = [...(e.dataTransfer.files || [])].filter(f => (f.type || "").startsWith("video/"));
+      const file = files[0];
+      if (file) loadVideoFile(file);
     });
 
     els.captureModeAuto?.addEventListener('change', () => {
