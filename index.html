@@ -768,7 +768,8 @@ body.studio-video-mode #view-video .studio-panel__body{
 
 body.studio-video-mode .studio-video-stage{
   max-width: 980px;
-  margin: 0;     /* ✅ plus centré */
+  margin-left: auto;
+  margin-right: auto; /* ✅ centre le conteneur entier */
   width: 100%;
 }
 
@@ -1037,29 +1038,17 @@ body.studio-video-mode .studio-video-player > video{
                 <video id="videoPreview" controls></video>
               </div>
 
-              <section class="fr-mb-4w">
-                <h2 class="fr-h6">Mode de capture</h2>
+             <section class="fr-mb-4w">
+              <h2 class="fr-h6">Mode de capture</h2>
 
-                <div class="fr-fieldset" role="group" aria-labelledby="video-capture-mode-legend">
-                  <legend class="fr-fieldset__legend fr-fieldset__legend--regular" id="video-capture-mode-legend">
-                    Choisissez le mode
-                  </legend>
-
-                  <div class="fr-fieldset__element">
-                    <div class="fr-radio-group">
-                      <input type="radio" id="captureModeAuto" name="captureMode" value="auto" checked>
-                      <label class="fr-label" for="captureModeAuto">Automatique</label>
-                    </div>
-                  </div>
-
-                  <div class="fr-fieldset__element">
-                    <div class="fr-radio-group">
-                      <input type="radio" id="captureModeManual" name="captureMode" value="manual">
-                      <label class="fr-label" for="captureModeManual">Manuel</label>
-                    </div>
-                  </div>
-                </div>
-              </section>
+              <div class="fr-toggle fr-toggle--label-left fr-toggle--sm">
+                <!-- ✅ coché = automatique -->
+                <input type="checkbox" class="fr-toggle__input" id="captureModeToggle" checked>
+                <label class="fr-toggle__label" for="captureModeToggle" id="captureModeToggleLabel">
+                  Mode automatique
+                </label>
+              </div>
+            </section>
 
               <section id="videoAutoPanel">
                 <div class="fr-input-group studio-input-compact">
@@ -1068,8 +1057,8 @@ body.studio-video-mode .studio-video-player > video{
                 </div>
 
                 <div class="fr-btns-group fr-btns-group--inline-md fr-mt-2w">
-                  <button type="button" class="fr-btn fr-icon-camera-line" id="generateAutoCapturesBtn">
-                    Générer les captures
+                  <button type="button" class="fr-btn fr-btn--secondary" id="generateAutoCapturesBtn">
+                    Lancer la capture automatique
                   </button>
                 </div>
 
@@ -1559,6 +1548,9 @@ body.studio-video-mode .studio-video-player > video{
       videoImportSection: document.getElementById('videoImportSection'),
       videoDropzone: document.getElementById('videoDropzone'),
 
+      captureModeToggle: document.getElementById('captureModeToggle'),
+      captureModeToggleLabel: document.getElementById('captureModeToggleLabel'),
+
     };
 
         // ======== Photo Editor (canvas) ========
@@ -1965,6 +1957,7 @@ body.studio-video-mode .studio-video-player > video{
     editor.toolReset?.addEventListener('click', editorReset);
     editor.btnCancel?.addEventListener('click', editorClose);
     editor.btnApply?.addEventListener('click', editorApply);
+    els.captureModeToggle?.addEventListener('change', syncCaptureModeToggleUI);
 
     function escapeHtml(value) {
       return String(value ?? '')
@@ -2165,6 +2158,16 @@ body.studio-video-mode .studio-video-player > video{
       if (els.videoManualPanel) {
         els.videoManualPanel.style.display = state.video.captureMode === 'manual' ? '' : 'none';
       }
+    }
+
+    function syncCaptureModeToggleUI(){
+      const isAuto = !!els.captureModeToggle?.checked; // ✅ coché = auto
+
+      if (els.captureModeToggleLabel) {
+        els.captureModeToggleLabel.textContent = isAuto ? "Mode automatique" : "Mode manuel";
+      }
+
+      setVideoCaptureMode(isAuto ? "auto" : "manual");
     }
 
     function loadVideoFile(file) {
@@ -2960,13 +2963,14 @@ ${buildFullDocumentHtml()}
   if (els.videoPreview) els.videoPreview.src = '';
   if (els.videoWorkspace) els.videoWorkspace.hidden = true;
   if (els.videoStatusText) els.videoStatusText.textContent = 'Aucune vidéo importée.';
-  if (els.captureModeAuto) els.captureModeAuto.checked = true;
+  if (els.captureModeToggle) els.captureModeToggle.checked = true;
   if (els.videoImportFrame) els.videoImportFrame.hidden = false;
   if (els.videoWorkspace) els.videoWorkspace.hidden = true;
   if (els.videoImportSection) els.videoImportSection.hidden = false;
   if (els.videoWorkspace) els.videoWorkspace.hidden = true;
 
   setVideoCaptureMode('auto');
+  syncCaptureModeToggleUI();
   updateManualCaptureCount();
   renderManualCaptureGrid();
 
