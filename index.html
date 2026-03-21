@@ -1260,9 +1260,9 @@ body.studio-video-mode .studio-video-player > video{
 
           <div class="fr-select-group studio-input-compact" id="pdfCompressionGroup" hidden>
             <label class="fr-label" for="exportCompression">
-              Compression du PDF
+              Compression du fichier
               <span class="fr-hint-text">
-                Réduit le poids du PDF. Plus la compression est forte, plus la netteté peut baisser.
+                Réduit le poids du fichier en compressant les images. Plus la compression est forte, plus la netteté des images peut baisser.
               </span>
             </label>
             <select class="fr-select" id="exportCompression">
@@ -3277,6 +3277,9 @@ ${buildFullDocumentHtml(photoSrcOverrides)}
       <manifest:file-entry manifest:full-path="meta.xml" manifest:media-type="text/xml"/>
       <manifest:file-entry manifest:full-path="settings.xml" manifest:media-type="text/xml"/>
 
+      <manifest:file-entry manifest:full-path="META-INF/" manifest:media-type=""/>
+      <manifest:file-entry manifest:full-path="Pictures/" manifest:media-type=""/>
+
       ${pictureEntries.map(p => `
         <manifest:file-entry manifest:full-path="${escapeHtml(p.path)}" manifest:media-type="${escapeHtml(p.mime)}"/>
       `).join('')}
@@ -3307,6 +3310,7 @@ ${buildFullDocumentHtml(photoSrcOverrides)}
         // images
         const pictures = [];
         const picturePathById = {};
+        let mapPath = '';
 
         // map (si existe)
         if (state.mapDataUrl) {
