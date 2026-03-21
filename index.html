@@ -2916,12 +2916,12 @@ ${buildFullDocumentHtml(photoSrcOverrides)}
     function getCompressionSettings(level){
       switch(level){
         case 'low':
-          return { maxSize: 2600, quality: 0.90 };
+          return { maxSize: 1800, quality: 0.78 };
         case 'high':
-          return { maxSize: 1400, quality: 0.60 };
+          return { maxSize: 1100, quality: 0.45 };
         case 'medium':
         default:
-          return { maxSize: 2000, quality: 0.75 };
+          return { maxSize: 1400, quality: 0.60 };
       }
     }
 
@@ -2939,6 +2939,8 @@ ${buildFullDocumentHtml(photoSrcOverrides)}
       canvas.height = h;
 
       const ctx = canvas.getContext('2d', { alpha: false });
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
       ctx.drawImage(bitmap, 0, 0, w, h);
       bitmap.close();
 
