@@ -1260,9 +1260,9 @@ body.studio-video-mode .studio-video-player > video{
 
           <div class="fr-select-group studio-input-compact" id="pdfCompressionGroup" hidden>
             <label class="fr-label" for="exportCompression">
-              Compression PDF
+              Compression du PDF
               <span class="fr-hint-text">
-                Réduit le poids du PDF. Plus la compression est forte, plus la netteté (et les petits textes dans l’image) peut baisser.
+                Réduit le poids du PDF. Plus la compression est forte, plus la netteté peut baisser.
               </span>
             </label>
             <select class="fr-select" id="exportCompression">
@@ -2979,7 +2979,7 @@ ${buildFullDocumentHtml(photoSrcOverrides)}
       if (format === 'pdf') return await exportPdf();
       alert('L’export ODT est prévu dans la structure de l’application, mais il n’est pas encore activé dans cette première version HTML autonome.');
     }
-    
+
     function resetAll() {
       state.photos.forEach(photo => {
         if (photo.objectUrl) URL.revokeObjectURL(photo.objectUrl);
@@ -3189,6 +3189,11 @@ els.resetBtn?.addEventListener('click', resetAll);
       vConception.classList.toggle("is-active", showConception);
       vPresentation.classList.toggle("is-active", showPresentation);
       vExport.classList.toggle("is-active", showExport);
+
+      if (showExport) {
+        if (els.exportCompression) els.exportCompression.value = "medium";
+        updatePdfCompressionVisibility(); // affiche/masque selon PDF
+      }
 
       document.body.classList.toggle("studio-video-mode", showVideo);
 
