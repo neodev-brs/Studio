@@ -2915,15 +2915,40 @@ ${buildFullDocumentHtml(photoSrcOverrides)}
 
     function getCompressionSettings(level){
       switch(level){
-        case 'low':
+        case 'low':      // faible = qualité haute
           return { maxSize: 1800, quality: 0.78 };
-        case 'high':
-          return { maxSize: 1100, quality: 0.45 };
-        case 'medium':
+
+        case 'high':     // forte = extrême (type iLovePDF)
+          return { maxSize: 1000, quality: 0.40 };
+
+        case 'medium':   // recommandée (défaut)
         default:
           return { maxSize: 1400, quality: 0.60 };
       }
     }
+
+    async function compressImageUrlToBlob(url, settings){
+  const res = await fetch(url);
+  const blob = await res.blob();
+  const bitmap = await createImageBitmap(blob);
+
+  const ratio = Math.min(settings.maxSize / bitmap.width, settings.maxSize / bitmap.height, 1);
+  const w = Math.max(1, Math.round(bitmap.width * ratio));
+  const h = Math.max(1, Math.round(bitmap.height * ratio));
+
+  const canvas = document.createElement('canvas');
+  canvas.width = w;
+  canvas.height = h;
+
+  const ctx = canvas.getContext('2d', { alpha: false });
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(bitmap, 0, 0, w, h);
+  bitmap.close();
+
+  const outBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', settings.quality));
+  return outBlob || blob; // fallback sécurité
+}
 
     async function compressImageUrlToDataUrl(url, settings){
       const res = await fetch(url);
@@ -2952,14 +2977,32 @@ ${buildFullDocumentHtml(photoSrcOverrides)}
       downloadFile(`${slugify(getFinalTitle())}.html`, html, 'text/html;charset=utf-8');
     }
 
-    async function exportPdf() {
-      const level = els.exportCompression?.value || 'medium';
-      const settings = getCompressionSettings(level);
+   async function exportPdf() {
+    const level = els.exportCompression?.value || 'medium';
+    const settings = getCompressionSettings(level);
 
-      // si pas de photos, pas besoin de compresser
-      const overrides = {};
-      for (const p of state.photos) {
-        overrides[p.id] = await compressImageUrlToDataUrl(p.objectUrl, settings);
+    // UI
+    const prevTxt = els.generateBtn?.textContent || '';
+    if (els.generateBtn) {
+      els.generateBtn.disabled = true;
+      els.generateBtn.textContent = 'Préparation du PDF...';
+    }
+
+    // On crée des blob URLs temporaires pour le HTML imprimé
+    const tempUrls = [];
+    const overrides = {};
+
+    try {
+      for (let i = 0; i < state.photos.length; i++) {
+        const p = state.photos[i];
+
+        // petit feedback
+        if (els.generateBtn) els.generateBtn.textContent = `Compression (${i+1}/${state.photos.length})...`;
+
+        const compressedBlob = await compressImageUrlToBlob(p.objectUrl, settings);
+        const u = URL.createObjectURL(compressedBlob);
+        tempUrls.push(u);
+        overrides[p.id] = u;
       }
 
       const popup = window.open('', '_blank');
@@ -2969,11 +3012,33 @@ ${buildFullDocumentHtml(photoSrcOverrides)}
       }
 
       popup.document.open();
-      popup.document.write(buildStandaloneHtml(overrides));
+      popup.document.write(buildStandaloneHtml(overrides)); // ✅ HTML avec images compressées
       popup.document.close();
       popup.focus();
-      popup.onload = () => popup.print();
+
+      // Nettoyage après impression
+      const cleanup = () => {
+        tempUrls.forEach(u => URL.revokeObjectURL(u));
+        try { popup.close(); } catch (e) {}
+      };
+
+      popup.onafterprint = cleanup;
+
+      popup.onload = () => {
+        popup.print();
+
+        // fallback si onafterprint ne déclenche pas
+        setTimeout(() => {
+          cleanup();
+        }, 5000);
+      };
+    } finally {
+      if (els.generateBtn) {
+        els.generateBtn.disabled = false;
+        els.generateBtn.textContent = prevTxt || 'Télécharger la planche';
+      }
     }
+  }
 
     async function handleGenerate() {
       const format = els.exportFormat.value;
