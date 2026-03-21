@@ -1258,6 +1258,20 @@ body.studio-video-mode .studio-video-player > video{
             </select>
           </div>
 
+          <div class="fr-select-group studio-input-compact" id="pdfCompressionGroup" hidden>
+            <label class="fr-label" for="exportCompression">
+              Compression PDF
+              <span class="fr-hint-text">
+                Réduit le poids du PDF. Plus la compression est forte, plus la netteté (et les petits textes dans l’image) peut baisser.
+              </span>
+            </label>
+            <select class="fr-select" id="exportCompression">
+              <option value="low">Faible (meilleure qualité)</option>
+              <option value="medium" selected>Moyenne (recommandée)</option>
+              <option value="high">Forte (plus léger)</option>
+            </select>
+          </div>
+
           <div class="fr-btns-group fr-btns-group--icon-left">
             <button type="button" class="fr-btn fr-icon-file-download-line" id="generateBtn">
               Télécharger la planche
@@ -1533,6 +1547,8 @@ body.studio-video-mode .studio-video-player > video{
 
       exportFormat: document.getElementById('exportFormat'),
       generateBtn: document.getElementById('generateBtn'),
+      pdfCompressionGroup: document.getElementById('pdfCompressionGroup'),
+      exportCompression: document.getElementById('exportCompression'),
       photoCardTemplate: document.getElementById('photoCardTemplate'),
       resetBtn: document.getElementById('resetBtn'),
 
@@ -2614,7 +2630,7 @@ body.studio-video-mode .studio-video-player > video{
         </article>`;
     }
 
-    function buildPhotoPagesHtml() {
+    function buildPhotoPagesHtml(photoSrcOverrides = null) {
       if (!state.photos.length) {
         return `
           <article class="sheet-page">
@@ -2638,7 +2654,7 @@ body.studio-video-mode .studio-video-player > video{
 
           return `
             <section class="sheet-photo-slot ${alignment} ${hasDesc ? 'has-desc' : 'no-desc'}">
-              <img src="${photo.objectUrl}" alt="${escapeHtml(photo.title || '')}">
+              <img src="${(photoSrcOverrides && photoSrcOverrides[photo.id]) ? photoSrcOverrides[photo.id] : photo.objectUrl}" alt="${escapeHtml(photo.title || '')}">
               <div class="sheet-photo-slot__caption">${
                 escapeHtml(state.numbering ? `Cliché N° ${pageIndex * 2 + idx + 1}` : (photo.title || ''))
               }</div>
@@ -2650,9 +2666,9 @@ body.studio-video-mode .studio-video-player > video{
       }).join('');
     }
 
-    function buildFullDocumentHtml() {
+    function buildFullDocumentHtml(photoSrcOverrides = null) {
       const form = getFormData();
-      return buildCoverPageHtml(form) + buildPhotoPagesHtml();
+      return buildCoverPageHtml(form) + buildPhotoPagesHtml(photoSrcOverrides);
     }
 
     function renderDocumentPreview() {
@@ -2716,6 +2732,11 @@ body.studio-video-mode .studio-video-player > video{
       renderDocumentPreview();
     }
 
+    function updatePdfCompressionVisibility(){
+      const isPdf = (els.exportFormat?.value === 'pdf');
+      if (els.pdfCompressionGroup) els.pdfCompressionGroup.hidden = !isPdf;
+    }
+
     function setPinFromEvent(event) {
       if (!state.mapDataUrl) return;
       const rect = els.mapImage.getBoundingClientRect();
@@ -2728,7 +2749,7 @@ body.studio-video-mode .studio-video-player > video{
       renderDocumentPreview();
     }
 
-    function buildStandaloneHtml() {
+    function buildStandaloneHtml(photoSrcOverrides = null) {
       return `<!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -2866,7 +2887,7 @@ body{margin:0;padding:24px;background:#efefef;font-family:Marianne,Arial,sans-se
 </style>
 </head>
 <body>
-${buildFullDocumentHtml()}
+${buildFullDocumentHtml(photoSrcOverrides)}
 </body>
 </html>`;
     }
@@ -2892,31 +2913,73 @@ ${buildFullDocumentHtml()}
         .replace(/^-+|-+$/g, '') || 'planche-photographique';
     }
 
+    function getCompressionSettings(level){
+      switch(level){
+        case 'low':
+          return { maxSize: 2600, quality: 0.90 };
+        case 'high':
+          return { maxSize: 1400, quality: 0.60 };
+        case 'medium':
+        default:
+          return { maxSize: 2000, quality: 0.75 };
+      }
+    }
+
+    async function compressImageUrlToDataUrl(url, settings){
+      const res = await fetch(url);
+      const blob = await res.blob();
+      const bitmap = await createImageBitmap(blob);
+
+      const ratio = Math.min(settings.maxSize / bitmap.width, settings.maxSize / bitmap.height, 1);
+      const w = Math.max(1, Math.round(bitmap.width * ratio));
+      const h = Math.max(1, Math.round(bitmap.height * ratio));
+
+      const canvas = document.createElement('canvas');
+      canvas.width = w;
+      canvas.height = h;
+
+      const ctx = canvas.getContext('2d', { alpha: false });
+      ctx.drawImage(bitmap, 0, 0, w, h);
+      bitmap.close();
+
+      return canvas.toDataURL('image/jpeg', settings.quality);
+    }
+
     function exportWeb() {
       const html = buildStandaloneHtml();
       downloadFile(`${slugify(getFinalTitle())}.html`, html, 'text/html;charset=utf-8');
     }
 
-    function exportPdf() {
+    async function exportPdf() {
+      const level = els.exportCompression?.value || 'medium';
+      const settings = getCompressionSettings(level);
+
+      // si pas de photos, pas besoin de compresser
+      const overrides = {};
+      for (const p of state.photos) {
+        overrides[p.id] = await compressImageUrlToDataUrl(p.objectUrl, settings);
+      }
+
       const popup = window.open('', '_blank');
       if (!popup) {
         alert('Le navigateur a bloqué l’ouverture de la fenêtre d’impression. Autorise les popups pour utiliser l’export PDF.');
         return;
       }
+
       popup.document.open();
-      popup.document.write(buildStandaloneHtml());
+      popup.document.write(buildStandaloneHtml(overrides));
       popup.document.close();
       popup.focus();
       popup.onload = () => popup.print();
     }
 
-    function handleGenerate() {
+    async function handleGenerate() {
       const format = els.exportFormat.value;
       if (format === 'web') return exportWeb();
-      if (format === 'pdf') return exportPdf();
+      if (format === 'pdf') return await exportPdf();
       alert('L’export ODT est prévu dans la structure de l’application, mais il n’est pas encore activé dans cette première version HTML autonome.');
     }
-
+    
     function resetAll() {
       state.photos.forEach(photo => {
         if (photo.objectUrl) URL.revokeObjectURL(photo.objectUrl);
@@ -3063,6 +3126,9 @@ els.resetBtn?.addEventListener('click', resetAll);
     });
 
     els.generateBtn.addEventListener('click', handleGenerate);
+
+    els.exportFormat?.addEventListener('change', updatePdfCompressionVisibility);
+    updatePdfCompressionVisibility(); // au chargement
 
     els.videoInput?.addEventListener('change', (e) => {
       const file = e.target.files?.[0];
