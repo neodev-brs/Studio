@@ -1254,7 +1254,7 @@ body.studio-video-mode .studio-video-player > video{
             <select class="fr-select" id="exportFormat">
               <option value="pdf">PDF</option>
               <option value="web">WEB (HTML autonome)</option>
-              <option value="odt">ODT (bientôt)</option>
+              <option value="odt">ODT</option>
             </select>
           </div>
 
@@ -1497,6 +1497,7 @@ body.studio-video-mode .studio-video-player > video{
   <!-- DSFR JS -->
   <script type="module" src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.13.1/dist/dsfr/dsfr.module.min.js"></script>
   <script nomodule src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.13.1/dist/dsfr/dsfr.nomodule.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 
   <script>
     const state = {
@@ -2733,8 +2734,9 @@ body.studio-video-mode .studio-video-player > video{
     }
 
     function updatePdfCompressionVisibility(){
-      const isPdf = (els.exportFormat?.value === 'pdf');
-      if (els.pdfCompressionGroup) els.pdfCompressionGroup.hidden = !isPdf;
+      const fmt = (els.exportFormat?.value || '');
+      const show = (fmt === 'pdf' || fmt === 'odt');   // ✅ PDF + ODT
+      if (els.pdfCompressionGroup) els.pdfCompressionGroup.hidden = !show;
     }
 
     function setPinFromEvent(event) {
@@ -2913,6 +2915,54 @@ ${buildFullDocumentHtml(photoSrcOverrides)}
         .replace(/^-+|-+$/g, '') || 'planche-photographique';
     }
 
+    function getOdtCompressPreset(level){
+      // “façon LibreOffice” : résolution (DPI) + qualité JPEG
+      // (LibreOffice propose typiquement 300/220/150/96 + qualité)
+      switch(level){
+        case 'low':     // faible = meilleure qualité (≈ 300 dpi)
+          return { dpi: 300, quality: 0.85 };
+        case 'high':    // forte = plus léger (≈ 150 dpi)
+          return { dpi: 150, quality: 0.65 };
+        case 'medium':  // recommandée (≈ 220 dpi)
+        default:
+          return { dpi: 220, quality: 0.75 };
+      }
+    }
+
+    function cmToInch(cm){ return (Number(cm) || 0) / 2.54; }
+
+    // Compresse “comme LO” : cible DPI par rapport à la taille d’affichage du cadre
+    async function compressBlobForOdtLikeLibreOffice(blob, frameCmW, frameCmH, preset){
+      const bitmap = await createImageBitmap(blob);
+
+      const targetW = Math.round(cmToInch(frameCmW) * preset.dpi);
+      const targetH = Math.round(cmToInch(frameCmH) * preset.dpi);
+
+      // On garde le ratio et on ne grossit jamais une image
+      const ratio = Math.min(targetW / bitmap.width, targetH / bitmap.height, 1);
+
+      const w = Math.max(1, Math.round(bitmap.width * ratio));
+      const h = Math.max(1, Math.round(bitmap.height * ratio));
+
+      const canvas = document.createElement('canvas');
+      canvas.width = w;
+      canvas.height = h;
+
+      const ctx = canvas.getContext('2d', { alpha: false });
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+
+      // fond blanc (comme LO quand il convertit en JPG)
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, w, h);
+
+      ctx.drawImage(bitmap, 0, 0, w, h);
+      bitmap.close();
+
+      const out = await new Promise(res => canvas.toBlob(res, 'image/jpeg', preset.quality));
+      return out || blob;
+    }
+
     function getCompressionSettings(level){
       switch(level){
         case 'low':      // faible = qualité haute
@@ -2975,6 +3025,346 @@ ${buildFullDocumentHtml(photoSrcOverrides)}
     function exportWeb() {
       const html = buildStandaloneHtml();
       downloadFile(`${slugify(getFinalTitle())}.html`, html, 'text/html;charset=utf-8');
+    }
+
+    function mimeToExt(mime){
+  switch((mime || '').toLowerCase()){
+    case 'image/png': return 'png';
+    case 'image/webp': return 'webp';
+    case 'image/jpeg':
+    case 'image/jpg':
+    default: return 'jpg';
+  }
+}
+
+    function downloadBlob(filename, blob){
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function odtXmlHeader(){
+      return `<?xml version="1.0" encoding="UTF-8"?>`;
+    }
+
+    function buildOdtStylesXml(){
+      return `${odtXmlHeader()}
+    <office:document-styles
+    xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0"
+    xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0"
+    xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0"
+    xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0"
+    office:version="1.2">
+      <office:styles>
+        <style:default-style style:family="paragraph">
+          <style:text-properties fo:font-family="Liberation Sans" fo:font-size="11pt"/>
+          <style:paragraph-properties fo:margin-bottom="0.2cm"/>
+        </style:default-style>
+      </office:styles>
+
+      <office:automatic-styles>
+        <style:page-layout style:name="pl1">
+          <style:page-layout-properties
+            fo:page-width="21cm" fo:page-height="29.7cm"
+            fo:margin-top="1.5cm" fo:margin-bottom="1.5cm"
+            fo:margin-left="1.5cm" fo:margin-right="1.5cm"/>
+        </style:page-layout>
+      </office:automatic-styles>
+
+      <office:master-styles>
+        <style:master-page style:name="Standard" style:page-layout-name="pl1"/>
+      </office:master-styles>
+    </office:document-styles>`;
+    }
+
+    function buildOdtMetaXml(title){
+      const now = new Date().toISOString();
+      return `${odtXmlHeader()}
+    <office:document-meta
+    xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0"
+    xmlns:dc="http://purl.org/dc/elements/1.1/"
+    xmlns:meta="urn:oasis:names:tc:opendocument:xmlns:meta:1.0"
+    office:version="1.2">
+      <office:meta>
+        <meta:generator>Studio - Générateur de planches photographiques</meta:generator>
+        <dc:title>${escapeHtml(title)}</dc:title>
+        <meta:creation-date>${now}</meta:creation-date>
+      </office:meta>
+    </office:document-meta>`;
+    }
+
+    function buildOdtSettingsXml(){
+      return `${odtXmlHeader()}
+    <office:document-settings
+    xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0"
+    office:version="1.2">
+      <office:settings/>
+    </office:document-settings>`;
+    }
+
+    function buildOdtContentXml({ form, photos, picturePathById, mapPath }) {
+      const title = escapeHtml(form.title || 'Planche photographique');
+
+      const coverLines = [
+        ['Cadre d\'enquête', form.caseType || '—'],
+        ['Unité ou service', form.unit || '—'],
+        ['Références de la procédure', form.reference || '—'],
+        ['Date', form.date || '—'],
+        ['Lieu', form.place || '—'],
+        ['Infraction', form.author || '—'],
+      ];
+
+      const coverXml = `
+        <text:p text:style-name="T_TITLE">${title}</text:p>
+        <text:p text:style-name="T_SUB">GENDARMERIE NATIONALE</text:p>
+
+        ${coverLines.map(([k,v]) => `
+          <text:p text:style-name="T_META"><text:span text:style-name="T_META_LBL">${escapeHtml(k)} : </text:span>${escapeHtml(v)}</text:p>
+        `).join('')}
+
+        ${form.summary ? `
+          <text:p text:style-name="T_H2">Observations</text:p>
+          <text:p text:style-name="T_BODY">${escapeHtml(form.summary)}</text:p>
+        ` : ''}
+
+        ${mapPath ? `
+          <text:p text:style-name="T_H2">Localisation</text:p>
+          <text:p text:style-name="IMG_L">
+            <draw:frame draw:style-name="frMap" draw:name="Map" text:anchor-type="paragraph" svg:width="16cm" svg:height="9cm">
+              <draw:image xlink:href="${escapeHtml(mapPath)}" xlink:type="simple" xlink:show="embed" xlink:actuate="onLoad"/>
+            </draw:frame>
+          </text:p>
+        ` : '' }
+      `;
+
+      // pages photos : 2 par page
+      const chunks = [];
+      for (let i = 0; i < photos.length; i += 2) chunks.push(photos.slice(i, i + 2));
+
+      const pagesXml = chunks.map((chunk, pageIndex) => {
+        const slots = chunk.map((photo, idx) => {
+          const alignment =
+            idx === 0
+              ? (pageIndex % 2 === 0 ? 'left' : 'right')
+              : (pageIndex % 2 === 0 ? 'right' : 'left');
+
+          const imgStyle = alignment === 'left' ? 'IMG_L' : 'IMG_R';
+          const imgPath = picturePathById[photo.id];
+          const caption = state.numbering
+            ? `Cliché N° ${pageIndex * 2 + idx + 1}`
+            : (photo.title || '');
+
+          const desc = (photo.description || '').trim();
+
+          return `
+            <text:p text:style-name="${imgStyle}">
+              <draw:frame draw:style-name="frPhoto" draw:name="${escapeHtml(caption || 'Photo')}" text:anchor-type="paragraph" svg:width="14cm" svg:height="9cm">
+                <draw:image xlink:href="${escapeHtml(imgPath)}" xlink:type="simple" xlink:show="embed" xlink:actuate="onLoad"/>
+              </draw:frame>
+            </text:p>
+
+            <text:p text:style-name="T_CAP">${escapeHtml(caption)}</text:p>
+            ${desc ? `<text:p text:style-name="T_DESC">${escapeHtml(desc)}</text:p>` : ``}
+
+            <text:p text:style-name="T_GAP"/>
+          `;
+        }).join('');
+
+        // page break avant chaque page photo
+        return `
+          <text:p text:style-name="PB"/>
+          ${slots}
+        `;
+      }).join('');
+
+      return `${odtXmlHeader()}
+    <office:document-content
+    xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0"
+    xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0"
+    xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0"
+    xmlns:draw="urn:oasis:names:tc:opendocument:xmlns:drawing:1.0"
+    xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlns:svg="urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0"
+    office:version="1.2">
+
+      <office:automatic-styles>
+        <style:style style:name="PB" style:family="paragraph">
+          <style:paragraph-properties fo:break-before="page"/>
+        </style:style>
+
+        <style:style style:name="T_TITLE" style:family="paragraph">
+          <style:text-properties fo:font-size="18pt" fo:font-weight="bold"/>
+          <style:paragraph-properties fo:text-align="center" fo:margin-bottom="0.4cm"/>
+        </style:style>
+
+        <style:style style:name="T_SUB" style:family="paragraph">
+          <style:text-properties fo:font-size="11pt" fo:font-weight="bold"/>
+          <style:paragraph-properties fo:text-align="center" fo:margin-bottom="0.6cm"/>
+        </style:style>
+
+        <style:style style:name="T_META" style:family="paragraph">
+          <style:paragraph-properties fo:margin-bottom="0.15cm"/>
+        </style:style>
+
+        <style:style style:name="T_META_LBL" style:family="text">
+          <style:text-properties fo:font-weight="bold"/>
+        </style:style>
+
+        <style:style style:name="T_H2" style:family="paragraph">
+          <style:text-properties fo:font-size="12pt" fo:font-weight="bold"/>
+          <style:paragraph-properties fo:margin-top="0.6cm" fo:margin-bottom="0.2cm"/>
+        </style:style>
+
+        <style:style style:name="T_BODY" style:family="paragraph">
+          <style:paragraph-properties fo:margin-bottom="0.2cm"/>
+        </style:style>
+
+        <style:style style:name="IMG_L" style:family="paragraph">
+          <style:paragraph-properties fo:text-align="left"/>
+        </style:style>
+
+        <style:style style:name="IMG_R" style:family="paragraph">
+          <style:paragraph-properties fo:text-align="right"/>
+        </style:style>
+
+        <style:style style:name="T_CAP" style:family="paragraph">
+          <style:text-properties fo:font-weight="bold"/>
+          <style:paragraph-properties fo:text-align="center" fo:margin-top="0.15cm" fo:margin-bottom="0cm"/>
+        </style:style>
+
+        <style:style style:name="T_DESC" style:family="paragraph">
+          <style:paragraph-properties fo:text-align="center" fo:margin-top="0.1cm" fo:margin-bottom="0cm"/>
+        </style:style>
+
+        <style:style style:name="T_GAP" style:family="paragraph">
+          <style:paragraph-properties fo:margin-top="0.6cm"/>
+        </style:style>
+
+        <style:style style:name="frPhoto" style:family="graphic">
+          <style:graphic-properties draw:fill="none"/>
+        </style:style>
+
+        <style:style style:name="frMap" style:family="graphic">
+          <style:graphic-properties draw:fill="none"/>
+        </style:style>
+      </office:automatic-styles>
+
+      <office:body>
+        <office:text>
+          ${coverXml}
+          ${pagesXml}
+        </office:text>
+      </office:body>
+    </office:document-content>`;
+    }
+
+    function buildOdtManifestXml(pictureEntries){
+      // pictureEntries = [{ path:"Pictures/xxx.jpg", mime:"image/jpeg" }, ...]
+      return `${odtXmlHeader()}
+    <manifest:manifest
+    xmlns:manifest="urn:oasis:names:tc:opendocument:xmlns:manifest:1.0"
+    manifest:version="1.2">
+
+      <manifest:file-entry manifest:full-path="/" manifest:media-type="application/vnd.oasis.opendocument.text"/>
+      <manifest:file-entry manifest:full-path="content.xml" manifest:media-type="text/xml"/>
+      <manifest:file-entry manifest:full-path="styles.xml" manifest:media-type="text/xml"/>
+      <manifest:file-entry manifest:full-path="meta.xml" manifest:media-type="text/xml"/>
+      <manifest:file-entry manifest:full-path="settings.xml" manifest:media-type="text/xml"/>
+
+      ${pictureEntries.map(p => `
+        <manifest:file-entry manifest:full-path="${escapeHtml(p.path)}" manifest:media-type="${escapeHtml(p.mime)}"/>
+      `).join('')}
+
+    </manifest:manifest>`;
+    }
+
+    async function exportOdt(){
+      if (!window.JSZip) {
+        alert("JSZip n’est pas chargé. Vérifie la ligne <script src=...jszip...>.");
+        return;
+      }
+
+      const prevTxt = els.generateBtn?.textContent || '';
+      if (els.generateBtn) {
+        els.generateBtn.disabled = true;
+        els.generateBtn.textContent = 'Génération ODT...';
+      }
+
+      try {
+        const zip = new JSZip();
+
+        // ODT: mimetype doit être le 1er fichier + non compressé
+        zip.file("mimetype", "application/vnd.oasis.opendocument.text", { compression: "STORE" });
+
+        const form = getFormData();
+
+        // images
+        const pictures = [];
+        const picturePathById = {};
+
+        // map (si existe)
+        if (state.mapDataUrl) {
+          const preset = getOdtCompressPreset(els.exportCompression?.value || 'medium');
+
+          const MAP_FRAME_W = 16;
+          const MAP_FRAME_H = 9;
+
+          const mapSrc = await (await fetch(state.mapDataUrl)).blob();
+          const mapJpg = await compressBlobForOdtLikeLibreOffice(mapSrc, MAP_FRAME_W, MAP_FRAME_H, preset);
+
+          mapPath = `Pictures/map.jpg`;
+          zip.file(mapPath, mapJpg);
+          pictures.push({ path: mapPath, mime: 'image/jpeg' });
+        }
+
+          const preset = getOdtCompressPreset(els.exportCompression?.value || 'medium');
+
+          // tes cadres ODT : photos 14×9 cm (comme ton content.xml), carte 16×9 cm
+          const PHOTO_FRAME_W = 14;
+          const PHOTO_FRAME_H = 9;
+
+          for (let i = 0; i < state.photos.length; i++){
+            const p = state.photos[i];
+
+            if (els.generateBtn) els.generateBtn.textContent = `ODT (${i+1}/${state.photos.length})...`;
+
+            const srcBlob = await (await fetch(p.objectUrl)).blob();
+
+            // ✅ compression “LibreOffice”
+            const jpgBlob = await compressBlobForOdtLikeLibreOffice(srcBlob, PHOTO_FRAME_W, PHOTO_FRAME_H, preset);
+
+            // ✅ on stocke toujours en .jpg dans l’ODT (plus léger / compatible)
+            const name = `photo-${String(i+1).padStart(3,'0')}.jpg`;
+            const path = `Pictures/${name}`;
+
+            zip.file(path, jpgBlob);
+            pictures.push({ path, mime: 'image/jpeg' });
+            picturePathById[p.id] = path;
+          }
+
+        // XML
+        zip.file("content.xml", buildOdtContentXml({ form, photos: state.photos, picturePathById, mapPath }));
+        zip.file("styles.xml", buildOdtStylesXml());
+        zip.file("meta.xml", buildOdtMetaXml(form.title || 'Planche photographique'));
+        zip.file("settings.xml", buildOdtSettingsXml());
+
+        const manifest = buildOdtManifestXml(pictures);
+        zip.folder("META-INF").file("manifest.xml", manifest);
+
+        const odtBlob = await zip.generateAsync({ type: "blob", compression: "DEFLATE", compressionOptions: { level: 9 } });
+        downloadBlob(`${slugify(getFinalTitle())}.odt`, odtBlob);
+      } finally {
+        if (els.generateBtn) {
+          els.generateBtn.disabled = false;
+          els.generateBtn.textContent = prevTxt || 'Télécharger la planche';
+        }
+      }
     }
 
    async function exportPdf() {
@@ -3044,7 +3434,8 @@ ${buildFullDocumentHtml(photoSrcOverrides)}
       const format = els.exportFormat.value;
       if (format === 'web') return exportWeb();
       if (format === 'pdf') return await exportPdf();
-      alert('L’export ODT est prévu dans la structure de l’application, mais il n’est pas encore activé dans cette première version HTML autonome.');
+      if (format === 'odt') return await exportOdt();
+      alert('Format inconnu.');
     }
 
     function resetAll() {
