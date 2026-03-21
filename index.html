@@ -1294,7 +1294,6 @@ body.studio-video-mode .studio-video-player > video{
             <select class="fr-select" id="exportFormat">
               <option value="pdf">PDF</option>
               <option value="web">WEB (HTML autonome)</option>
-              <option value="odt">ODT (bientôt)</option>
             </select>
           </div>
 
@@ -3086,7 +3085,7 @@ ${buildFullDocumentHtml(photoSrcOverrides)}
       const format = els.exportFormat.value;
       if (format === 'web') return exportWeb();
       if (format === 'pdf') return await exportPdf();
-      alert('L’export ODT est prévu dans la structure de l’application, mais il n’est pas encore activé dans cette première version HTML autonome.');
+      alert('Format inconnu.');
     }
 
     function resetAll() {
