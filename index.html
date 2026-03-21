@@ -797,6 +797,24 @@ body.studio-video-mode .studio-video-stage{
   background: #000;
 }
 
+/* ✅ Panel en colonne + footer collé en bas */
+.studio-panel{
+  display: flex;
+  flex-direction: column;
+}
+
+.studio-panel__body{
+  flex: 1;
+}
+
+.studio-panel__footer{
+  padding: 1rem;
+  border-top: 1px solid var(--border-default-grey);
+  background: var(--background-default-grey);
+  display: flex;
+  justify-content: flex-end; /* ✅ bas droite */
+}
+
 /* =========================
    MODE VIDÉO : import à gauche + dropzone centrée comme Conception
    ========================= */
@@ -885,18 +903,6 @@ body.studio-video-mode .studio-video-player > video{
   }
 }
 
-.studio-mode-toggle{
-  display: inline-flex;
-  align-items: center;
-  gap: .5rem;
-}
-
-#modeNewBadge{
-  margin: 0;              /* évite la marge du <p> */
-  line-height: 1;         /* badge plus “compact” */
-  white-space: nowrap;    /* “Nouveau” ne passe pas à la ligne */
-}
-
   </style>
 </head>
 
@@ -954,24 +960,14 @@ body.studio-video-mode .studio-video-player > video{
           <div class="fr-header__tools-links">
             <ul class="fr-btns-group">
               <li>
-                <div class="studio-mode-toggle">
-                  <button
-                    type="button"
-                    class="fr-btn fr-btn--tertiary fr-icon-camera-line"
-                    id="modeToggleBtn"
-                    aria-describedby="tooltip-mode-toggle"
-                  >
-                    Mode photo
-                  </button>
-
-                  <p
-                    class="fr-badge fr-badge--sm fr-badge--green-tilleul-verveine fr-badge--no-icon"
-                    id="modeNewBadge"
-                    aria-hidden="true"
-                  >
-                    Nouveau
-                  </p>
-                </div>
+                <button
+                  type="button"
+                  class="fr-btn fr-btn--tertiary fr-icon-camera-line"
+                  id="modeToggleBtn"
+                  aria-describedby="tooltip-mode-toggle"
+                >
+                  Mode photo
+                </button>
 
                 <span class="fr-tooltip fr-placement" id="tooltip-mode-toggle" role="tooltip">
                   Basculer entre les deux modes
@@ -1152,6 +1148,17 @@ body.studio-video-mode .studio-video-player > video{
           <p class="fr-text--xs fr-mt-1w fr-mb-0" id="photoCount">0 photographie importée.</p>
         </section>
       </div>
+
+      <div class="studio-panel__footer">
+      <button
+        type="button"
+        class="fr-btn fr-icon-arrow-right-line fr-btn--icon-right"
+        id="nextFromConception"
+      >
+        Suivant
+      </button>
+    </div>
+
     </aside>
   </section>
 
@@ -1256,6 +1263,17 @@ body.studio-video-mode .studio-video-player > video{
           </div>
         </section>
       </div>
+
+      <div class="studio-panel__footer">
+      <button
+        type="button"
+        class="fr-btn fr-icon-arrow-right-line fr-btn--icon-right"
+        id="nextFromPresentation"
+      >
+        Suivant
+      </button>
+    </div>
+
     </aside>
   </section>
 
@@ -1276,6 +1294,7 @@ body.studio-video-mode .studio-video-player > video{
             <select class="fr-select" id="exportFormat">
               <option value="pdf">PDF</option>
               <option value="web">WEB (HTML autonome)</option>
+              <option value="odt">ODT (bientôt)</option>
             </select>
           </div>
 
@@ -1543,6 +1562,8 @@ body.studio-video-mode .studio-video-player > video{
       numberingToggle: document.getElementById('numberingToggle'),
       numberingToggleWrap: document.getElementById('numberingToggleWrap'),
       previewHintText: document.getElementById('previewHintText'),
+      nextFromConception: document.getElementById('nextFromConception'),
+      nextFromPresentation: document.getElementById('nextFromPresentation'),
 
       photoZone: document.getElementById('photoZone'),
       photoGrid: document.getElementById('photoGrid'),
@@ -1584,7 +1605,6 @@ body.studio-video-mode .studio-video-player > video{
       videoAutoPanel: document.getElementById('videoAutoPanel'),
       videoManualPanel: document.getElementById('videoManualPanel'),
       modeToggleBtn: document.getElementById('modeToggleBtn'),
-      modeNewBadge: document.getElementById('modeNewBadge'),
 
       autoCaptureCount: document.getElementById('autoCaptureCount'),
       generateAutoCapturesBtn: document.getElementById('generateAutoCapturesBtn'),
@@ -2155,7 +2175,6 @@ body.studio-video-mode .studio-video-player > video{
     }
 
     function togglePhotoVideoMode() {
-      markModeToggleSeen();
       const isVideo = isVideoViewHash();
       location.hash = isVideo ? "#conception" : "#mode-video";
     }
@@ -2194,17 +2213,6 @@ body.studio-video-mode .studio-video-player > video{
       if (duration <= 300) return 10;
       if (duration <= 600) return 12;
       return 16;
-    }
-
-    function syncModeNewBadge(){
-      let seen = false;
-      try { seen = localStorage.getItem('studio_seen_mode_toggle') === '1'; } catch(e){}
-      if (els.modeNewBadge) els.modeNewBadge.hidden = seen;
-    }
-
-    function markModeToggleSeen(){
-      try { localStorage.setItem('studio_seen_mode_toggle', '1'); } catch(e){}
-      if (els.modeNewBadge) els.modeNewBadge.hidden = true;
     }
 
     function setVideoCaptureMode(mode) {
@@ -3265,6 +3273,14 @@ els.resetBtn?.addEventListener('click', resetAll);
       if (els.captureModeManual.checked) setVideoCaptureMode('manual');
     });
 
+    els.nextFromConception?.addEventListener('click', () => {
+      location.hash = '#page-presentation';
+    });
+
+    els.nextFromPresentation?.addEventListener('click', () => {
+      location.hash = '#export';
+    });
+
     els.generateAutoCapturesBtn?.addEventListener('click', generateAutoCaptures);
     els.captureCurrentFrameBtn?.addEventListener('click', captureCurrentManualFrame);
     els.sendManualCapturesBtn?.addEventListener('click', sendManualCapturesToPhotos);
@@ -3314,7 +3330,6 @@ els.resetBtn?.addEventListener('click', resetAll);
     updateManualCaptureCount();
     renderManualCaptureGrid();
     updateModeToggleButton();
-    syncModeNewBadge();
 
     setViewFromHash();
     renderAll();
