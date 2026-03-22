@@ -1,4 +1,4 @@
-<!-- Vous pouvez explorer le code de Studio sur cette page. Mais si vous etes arrivés jusqu'ici, vous le savez déjà ! ^^-->
+<!-- Vous pouvez explorer le code de Studio sur cette page. Mais si vous êtes arrivés jusqu'ici, vous le savez déjà ! ^^-->
 <!DOCTYPE html>
 <html lang="fr" data-fr-scheme="system">
 <head>
@@ -2606,13 +2606,15 @@ body.studio-video-mode .studio-video-player > video{
       }
     }
 
-    function buildCoverPageHtml(form) {
-      const mapHtml = state.mapDataUrl
+    function buildCoverPageHtml(form, mapSrcOverride = null) {
+      const mapSrc = mapSrcOverride || state.mapDataUrl;
+
+      const mapHtml = mapSrc
         ? `
           <div class="sheet-map-block">
             <h3 style="margin:0 0 .75rem 0;font-size:1.1rem;">Localisation</h3>
             <div class="sheet-map-preview">
-              <img src="${state.mapDataUrl}" alt="Carte localisant les faits">
+              <img src="${mapSrc}" alt="Carte localisant les faits">
               ${state.pin ? `
               <span class="sheet-map-pin" style="left:${state.pin.x}%;top:${state.pin.y}%;" aria-hidden="true">
                 <svg viewBox="0 0 24 24" class="sheet-map-pin__svg">
@@ -2707,9 +2709,9 @@ body.studio-video-mode .studio-video-player > video{
       }).join('');
     }
 
-    function buildFullDocumentHtml(photoSrcOverrides = null) {
+    function buildFullDocumentHtml(photoSrcOverrides = null, mapSrcOverride = null) {
       const form = getFormData();
-      return buildCoverPageHtml(form) + buildPhotoPagesHtml(photoSrcOverrides);
+      return buildCoverPageHtml(form, mapSrcOverride) + buildPhotoPagesHtml(photoSrcOverrides);
     }
 
     function renderDocumentPreview() {
@@ -2790,7 +2792,7 @@ body.studio-video-mode .studio-video-player > video{
       renderDocumentPreview();
     }
 
-    function buildStandaloneHtml(photoSrcOverrides = null) {
+    function buildStandaloneHtml(photoSrcOverrides = null, mapSrcOverride = null) {
       return `<!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -2928,7 +2930,7 @@ body{margin:0;padding:24px;background:#efefef;font-family:Marianne,Arial,sans-se
 </style>
 </head>
 <body>
-${buildFullDocumentHtml(photoSrcOverrides)}
+${buildFullDocumentHtml(photoSrcOverrides, mapSrcOverride)}
 </body>
 </html>`;
     }
@@ -3013,9 +3015,39 @@ ${buildFullDocumentHtml(photoSrcOverrides)}
       return canvas.toDataURL('image/jpeg', settings.quality);
     }
 
-    function exportWeb() {
-      const html = buildStandaloneHtml();
-      downloadFile(`${slugify(getFinalTitle())}.html`, html, 'text/html;charset=utf-8');
+    async function exportWeb() {
+      const prevTxt = els.generateBtn?.textContent || '';
+      if (els.generateBtn) {
+        els.generateBtn.disabled = true;
+        els.generateBtn.textContent = 'Préparation HTML...';
+      }
+
+      try {
+        // on embarque les images en dataURL (offline OK)
+        const settings = getCompressionSettings('medium');
+        const overrides = {};
+
+        for (let i = 0; i < state.photos.length; i++) {
+          const p = state.photos[i];
+          if (els.generateBtn) els.generateBtn.textContent = `HTML (${i + 1}/${state.photos.length})...`;
+          overrides[p.id] = await compressImageUrlToDataUrl(p.objectUrl, settings);
+        }
+
+        // carte (si présente) -> dataURL aussi
+        let mapOverride = null;
+        if (state.mapDataUrl) {
+          if (els.generateBtn) els.generateBtn.textContent = 'HTML (carte)...';
+          mapOverride = await compressImageUrlToDataUrl(state.mapDataUrl, { maxSize: 1600, quality: 0.75 });
+        }
+
+        const html = buildStandaloneHtml(overrides, mapOverride);
+        downloadFile(`${slugify(getFinalTitle())}.html`, html, 'text/html;charset=utf-8');
+      } finally {
+        if (els.generateBtn) {
+          els.generateBtn.disabled = false;
+          els.generateBtn.textContent = prevTxt || 'Télécharger la planche';
+        }
+      }
     }
 
    async function exportPdf() {
@@ -3083,7 +3115,7 @@ ${buildFullDocumentHtml(photoSrcOverrides)}
 
     async function handleGenerate() {
       const format = els.exportFormat.value;
-      if (format === 'web') return exportWeb();
+      if (format === 'web') return await exportWeb();
       if (format === 'pdf') return await exportPdf();
       alert('Format inconnu.');
     }
