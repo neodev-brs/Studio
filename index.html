@@ -369,10 +369,11 @@
       top: .75rem;
       z-index: 5;
       display:flex;
-      justify-content:flex-end;
       gap:.5rem;
       margin-bottom: 1rem;
       flex-wrap:wrap;
+      justify-content: space-between;
+      align-items: center;
     }
 
     .fr-textarea--sm{ min-height: 6rem; }
@@ -407,10 +408,6 @@
       outline-offset: 2px;
     }
 
-    .sticky-preview-actions{
-      justify-content: space-between; /* gauche: toggle / droite: boutons */
-      align-items: center;
-    }
     .studio-numbering-toggle{
       margin-right: auto;
     }
@@ -596,19 +593,6 @@
   margin-bottom: .5rem !important;
 }
 
-/* Petit "0" centré sous la barre */
-.fr-range-group { position: relative; }
-.studio-range-mid{
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  top: calc(100% + .25rem); /* ✅ sous la barre */
-  font-size: .75rem;
-  opacity: .7;
-  pointer-events: none;
-  user-select: none;
-}
-
 /* Header de la modale : titre + fermer sur la même ligne */
 #photo-editor .studio-modal-head{
   display:flex;
@@ -632,44 +616,6 @@
 /* ✅ Page de présentation : aérer entre Date/Lieu et Infraction */
 #view-presentation .studio-infra-gap{
   margin-top: .5rem; /* ajuste à .25rem / .75rem si besoin */
-}
-
-/* =========================
-   MENU : "Mode vidéo" tout à droite (sans séparateur)
-   ========================= */
-
-/* Le nav doit occuper toute la largeur */
-.fr-header__menu .studio-nav-split{
-  width: 100% !important;
-}
-
-/* Le UL doit être en flex et prendre 100% de la largeur */
-.fr-header__menu .studio-nav-split__list{
-  display: flex !important;
-  width: 100% !important;
-  align-items: center !important;
-  justify-content: flex-start !important;
-  flex-wrap: nowrap !important;
-
-  /* évite tout padding/marge qui empêche l’alignement à droite */
-  padding-right: 0 !important;
-  margin-right: 0 !important;
-}
-
-/* Le LI "Mode vidéo" pousse tout à droite */
-.fr-header__menu .studio-nav-split__right{
-  margin-left: auto !important;
-
-  /* ✅ plus de barre verticale */
-  border-left: 0 !important;
-  padding-left: 0 !important;
-}
-
-/* Le lien "Mode vidéo" colle son texte à droite (le "o" au bord) */
-.fr-header__menu .studio-nav-split__right .fr-nav__link{
-  padding-right: 0 !important;
-  margin-right: 0 !important;
-  text-align: right !important;
 }
 
 .studio-video-thumb-grid{
@@ -710,22 +656,6 @@
   }
 }
 
-@media (max-width: 560px){
-  .fr-header__menu .studio-nav-split__list{
-    display: block !important;
-    width: 100% !important;
-  }
-
-  .fr-header__menu .studio-nav-split__right{
-    margin-left: 0 !important;
-  }
-
-  .fr-header__menu .studio-nav-split__right .fr-nav__link{
-    text-align: left !important;
-    padding-right: var(--text-spacing) !important;
-  }
-}
-
 /* =========================
    MODE VIDÉO : on masque la barre menu DSFR
    ========================= */
@@ -738,27 +668,15 @@ body.studio-video-mode #fr-header-menu-modal{
 }
 
 /* =========================
-   MODE VIDÉO : pas de colonne de droite, plein écran
+   MODE VIDÉO (nettoyé, sans doublons)
    ========================= */
 body.studio-video-mode .studio-preview-panel{
   display: none !important; /* ✅ on enlève la colonne de droite */
 }
 
 body.studio-video-mode .studio-shell{
-  grid-template-columns: 1fr !important; /* ✅ le mode vidéo prend toute la largeur */
-  gap: 0 !important;                    /* optionnel : plus d'espace vide */
-}
-
-/* =========================
-   MODE VIDÉO : pas de colonne droite + contenu centré, largeur "app"
-   ========================= */
-body.studio-video-mode .studio-preview-panel{
-  display: none !important; /* on enlève la colonne de droite */
-}
-
-body.studio-video-mode .studio-shell{
-  grid-template-columns: 1fr !important; /* une seule colonne */
-  gap: 1rem !important;
+  grid-template-columns: 1fr !important; /* ✅ une seule colonne */
+  gap: 1rem !important;                  /* rendu “app” */
 }
 
 /* Le contenu du mode vidéo reste "dans la largeur app" et centré */
@@ -771,24 +689,6 @@ body.studio-video-mode .studio-video-stage{
   margin-left: auto;
   margin-right: auto; /* ✅ centre le conteneur entier */
   width: 100%;
-}
-
-/* Cadre d’import DSFR centré */
-.studio-video-frame{
-  border: 2px dashed var(--border-default-grey);
-  background: var(--background-default-grey);
-  border-radius: 0;
-  padding: 2rem 1.5rem;
-  min-height: 320px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  text-align: center;
-}
-
-.studio-video-frame .fr-upload-group{
-  width: min(520px, 100%);
-  margin: 0 auto;
 }
 
 /* Player pas trop grand, confortable pour la timeline */
@@ -818,18 +718,6 @@ body.studio-video-mode .studio-video-stage{
 /* =========================
    MODE VIDÉO : import à gauche + dropzone centrée comme Conception
    ========================= */
-
-/* Dropzone vidéo : même style que #dropzone (Conception) + centré */
-#videoDropzone{
-  border: 2px dashed var(--border-default-grey);
-  border-radius: 8px;          /* ✅ arrondis comme Conception */
-  background: var(--background-default-grey);
-  overflow: hidden;            /* ✅ comme Conception */
-  max-width: 560px;            /* ✅ zone centrée, pas énorme */
-  margin-left: auto;
-  margin-right: auto;
-  text-align: center;
-}
 
 /* ✅ Mode vidéo : bloc Import (titre + input) même largeur que la colonne Conception */
 body.studio-video-mode .studio-video-import-left{
@@ -1454,63 +1342,30 @@ body.studio-video-mode .studio-video-player > video{
                   <h2 class="fr-h6 fr-mb-2w">Réglages</h2>
 
                   <div class="fr-range-group">
-                    <label id="adjBrightnessLabel" class="fr-label">
-                      Luminosité
-                    </label>
-
-                    <div class="fr-range fr-range--sm" data-fr-prefix="" data-fr-suffix="">
+                    <label id="adjBrightnessLabel" class="fr-label" for="adjBrightness">Luminosité</label>
+                    <div class="fr-range fr-range--sm">
                       <span class="fr-range__output" id="adjBrightnessOut">0</span>
-                      <input
-                        class="fr-range__input"
-                        id="adjBrightness"
-                        name="adjBrightness"
-                        type="range"
-                        min="-50"
-                        max="50"
-                        step="1"
-                        value="0"
-                        aria-labelledby="adjBrightnessLabel"
-                      >
+                      <input class="fr-range__input" id="adjBrightness" name="adjBrightness" type="range"
+                            min="-50" max="50" step="1" value="0">
                     </div>
-
-                  <div class="fr-range-group">
-                  <label id="adjContrastLabel" class="fr-label">
-                    Contraste
-                  </label>
-
-                  <div class="fr-range fr-range--sm">
-                    <span class="fr-range__output" id="adjContrastOut">0</span>
-                    <input
-                      class="fr-range__input"
-                      id="adjContrast"
-                      name="adjContrast"
-                      type="range"
-                      min="-50"
-                      max="50"
-                      step="1"
-                      value="0"
-                      aria-labelledby="adjContrastLabel"
-                    >
                   </div>
 
-                  <div class="fr-range-group">
-                  <label id="adjSaturationLabel" class="fr-label">
-                    Saturation
-                  </label>
+                  <div class="fr-range-group fr-mt-2w">
+                    <label id="adjContrastLabel" class="fr-label" for="adjContrast">Contraste</label>
+                    <div class="fr-range fr-range--sm">
+                      <span class="fr-range__output" id="adjContrastOut">0</span>
+                      <input class="fr-range__input" id="adjContrast" name="adjContrast" type="range"
+                            min="-50" max="50" step="1" value="0">
+                    </div>
+                  </div>
 
-                  <div class="fr-range fr-range--sm">
-                    <span class="fr-range__output" id="adjSaturationOut">0</span>
-                    <input
-                      class="fr-range__input"
-                      id="adjSaturation"
-                      name="adjSaturation"
-                      type="range"
-                      min="-50"
-                      max="50"
-                      step="1"
-                      value="0"
-                      aria-labelledby="adjSaturationLabel"
-                    >
+                  <div class="fr-range-group fr-mt-2w">
+                    <label id="adjSaturationLabel" class="fr-label" for="adjSaturation">Saturation</label>
+                    <div class="fr-range fr-range--sm">
+                      <span class="fr-range__output" id="adjSaturationOut">0</span>
+                      <input class="fr-range__input" id="adjSaturation" name="adjSaturation" type="range"
+                            min="-50" max="50" step="1" value="0">
+                    </div>
                   </div>
 
                   <hr class="fr-mt-2w fr-mb-2w">
@@ -1597,10 +1452,7 @@ body.studio-video-mode .studio-video-player > video{
       videoStatusText: document.getElementById('videoStatusText'),
       videoWorkspace: document.getElementById('videoWorkspace'),
       videoPreview: document.getElementById('videoPreview'),
-      videoImportFrame: document.getElementById('videoImportFrame'),
 
-      captureModeAuto: document.getElementById('captureModeAuto'),
-      captureModeManual: document.getElementById('captureModeManual'),
       videoAutoPanel: document.getElementById('videoAutoPanel'),
       videoManualPanel: document.getElementById('videoManualPanel'),
       modeToggleBtn: document.getElementById('modeToggleBtn'),
@@ -2058,15 +1910,6 @@ body.studio-video-mode .studio-video-player > video{
       };
     }
 
-    function getDefaultName(filename, index) {
-      const base = String(filename || "").replace(/\.[^.]+$/, '').trim();
-      return base || `Photographie ${index + 1}`;
-    }
-
-    function createObjectUrl(file) {
-      return URL.createObjectURL(file);
-    }
-
     async function createThumbnail(file, maxSize = 800, quality = 0.82) {
       const bitmap = await createImageBitmap(file);
 
@@ -2259,16 +2102,8 @@ body.studio-video-mode .studio-video-player > video{
         els.videoPreview.src = state.video.objectUrl;
       }
 
-      if (els.videoImportFrame) {
-        els.videoImportFrame.hidden = true;
-      }
-
       if (els.videoImportSection) els.videoImportSection.hidden = true;
       if (els.videoWorkspace) els.videoWorkspace.hidden = false;
-
-      if (els.videoWorkspace) {
-        els.videoWorkspace.hidden = false;
-      }
 
       if (els.videoStatusText) {
         els.videoStatusText.textContent = `Vidéo importée : ${file.name} · chargement...`;
@@ -2450,7 +2285,7 @@ body.studio-video-mode .studio-video-player > video{
       } finally {
         if (els.generateAutoCapturesBtn) {
           els.generateAutoCapturesBtn.disabled = false;
-          els.generateAutoCapturesBtn.textContent = 'Générer les captures';
+          els.generateAutoCapturesBtn.textContent = 'Lancer la capture automatique';
         }
       }
     }
@@ -3176,19 +3011,16 @@ ${buildFullDocumentHtml(photoSrcOverrides, mapSrcOverride)}
   if (els.videoWorkspace) els.videoWorkspace.hidden = true;
   if (els.videoStatusText) els.videoStatusText.textContent = 'Aucune vidéo importée.';
   if (els.captureModeToggle) els.captureModeToggle.checked = true;
-  if (els.videoImportFrame) els.videoImportFrame.hidden = false;
-  if (els.videoWorkspace) els.videoWorkspace.hidden = true;
   if (els.videoImportSection) els.videoImportSection.hidden = false;
-  if (els.videoWorkspace) els.videoWorkspace.hidden = true;
 
-  setVideoCaptureMode('auto');
   syncCaptureModeToggleUI();
   updateManualCaptureCount();
   renderManualCaptureGrid();
 
-  // 5) Re-render
+  // 5) Retour au début + re-render
+  location.hash = '#conception'; // revient au point de départ (mode photo)
   renderAll();
-}
+  }
 
 els.resetBtn?.addEventListener('click', resetAll);
 
@@ -3296,14 +3128,6 @@ els.resetBtn?.addEventListener('click', resetAll);
       if (file) loadVideoFile(file);
     });
 
-    els.captureModeAuto?.addEventListener('change', () => {
-      if (els.captureModeAuto.checked) setVideoCaptureMode('auto');
-    });
-
-    els.captureModeManual?.addEventListener('change', () => {
-      if (els.captureModeManual.checked) setVideoCaptureMode('manual');
-    });
-
     els.nextFromConception?.addEventListener('click', () => {
       location.hash = '#page-presentation';
     });
@@ -3352,15 +3176,15 @@ els.resetBtn?.addEventListener('click', resetAll);
       renderDocumentPreview();
       updateModeToggleButton();
 
-      window.scrollTo({ top: 0, behavior: "instant" });
+      window.scrollTo({ top: 0, behavior: "auto" });
     }
 
     window.addEventListener("hashchange", setViewFromHash);
 
-    setVideoCaptureMode('auto');
+    // Init vidéo : le toggle pilote tout
+    syncCaptureModeToggleUI();
     updateManualCaptureCount();
     renderManualCaptureGrid();
-    updateModeToggleButton();
 
     setViewFromHash();
     renderAll();
