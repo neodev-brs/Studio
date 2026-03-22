@@ -74,7 +74,6 @@
     html, body { min-height: 100%; }
     body { background: var(--background-default-grey); margin: 0; }
 
-    /* Espace latéral */
     .studio-main {
       padding-left: 2rem;
       padding-right: 2rem;
@@ -90,7 +89,6 @@
       align-items:start;
     }
 
-    /* ✅ PAS de coins arrondis + ✅ PAS de bi-ton : même fond partout */
     .studio-panel,
     .studio-preview-panel{
       background: var(--background-default-grey);
@@ -110,17 +108,14 @@
     .studio-panel__body,
     .studio-preview-panel__body{ padding: 1rem; }
 
-    /* vues */
     .studio-view{ display:none; }
     .studio-view.is-active{ display:block; }
 
-    /* Dropzone GoFast (arrondi exceptionnel) */
     #dropzone{
       border-radius: 8px !important;
       overflow: hidden;
     }
 
-    /* Zone plus grande pour manipuler les photos */
     .studio-photo-zone{
       border: 1px solid var(--border-default-grey);
       border-radius: 0;
@@ -297,13 +292,11 @@
       word-break: break-word;
     }
 
-    /* ✅ Ne jamais couper un cliché sur 2 pages à l'impression */
     .sheet-photo-slot{
       break-inside: avoid;
       page-break-inside: avoid;
     }
 
-    /* Bonus : certains navigateurs sont plus stables si l'image aussi est protégée */
     .sheet-photo-slot img,
     .sheet-photo-slot__caption,
     .sheet-photo-slot__desc{
@@ -311,7 +304,6 @@
       page-break-inside: avoid;
     }
 
-    /* ✅ Et en mode print on force (certains Chrome/Edge sont capricieux) */
     @media print{
       .sheet-photo-slot{
         break-inside: avoid !important;
@@ -319,29 +311,24 @@
       }
     }
 
-    /* ✅ Par défaut : comportement "avant" (sans description) */
     .sheet-photo-slot.no-desc{
-      padding-bottom: 1rem; /* comme avant, compact */
+      padding-bottom: 1rem;
     }
 
-    /* Le titre ne doit pas créer trop d’air si pas de description */
     .sheet-photo-slot.no-desc .sheet-photo-slot__caption{
-      margin-top: .75rem; /* garde le rendu d'origine */
-      margin-bottom: 0;   /* ✅ pas d’espace fantôme */
+      margin-top: .75rem;
+      margin-bottom: 0;
     }
 
-    /* ✅ Quand il y a une description, on gère l’espacement proprement */
     .sheet-photo-slot.has-desc .sheet-photo-slot__caption{
-      margin-bottom: 0; /* évite double marge caption + desc */
+      margin-bottom: 0;
     }
     .sheet-photo-slot.has-desc .sheet-photo-slot__desc{
-      margin-top: .35rem; /* ton réglage actuel, OK */
+      margin-top: .35rem;
     }
 
-    /* Espace par défaut entre les 2 clichés */
     .sheet-photo-slot + .sheet-photo-slot{ margin-top: 2.2rem; }
 
-    /* ✅ Si au moins un des 2 clichés n'a pas de description, on aère plus */
     .sheet-photo-slot.no-desc + .sheet-photo-slot,
     .sheet-photo-slot + .sheet-photo-slot.no-desc{
       margin-top: 4rem;
@@ -357,7 +344,6 @@
       width: 100%;
     }
 
-    /* Dans le document généré (pages blanches), l'état vide reste "papier" même en mode sombre */
     .sheet-page .empty-state{
       background: #fff;
       color: #666;
@@ -438,50 +424,46 @@
     user-select: none;
   }
 
-  /* ✅ Le document (pages blanches) doit rester lisible même en thème sombre DSFR */
 .sheet-page,
 .sheet-page *{
-  color-scheme: light; /* empêche certains ajustements auto */
+  color-scheme: light;
 }
 
 .sheet-page{
-  color: #1b1b35 !important; /* texte "papier" */
+  color: #1b1b35 !important;
 }
 
 .sheet-cover__title{
-  color: #1b1b35 !important; /* titre toujours noir */
+  color: #1b1b35 !important;
 }
 
-/* (optionnel) la ligne "STUDIO..." doit rester bleue sur fond blanc */
 .sheet-cover__header p{
   color: #000091 !important;
 }
 
-/* ✅ Logo MI discret, en haut à gauche, hors cadre */
 .sheet-cover{
   position: relative;
 }
 
 .sheet-cover__header{
-  padding-top: 54px; /* ✅ on laisse de la place au logo + GENDARMERIE NATIONALE */
+  padding-top: 54px;
 }
 
 .sheet-mi-logo{
   position: absolute;
-  top: 18px;          /* ajuste si besoin */
-  left: 18px;         /* ajuste si besoin */
-  width: 92px;        /* discret */
+  top: 18px;
+  left: 18px;
+  width: 92px;
   height: auto;
-  opacity: 1;       /* discret */
+  opacity: 1;
   pointer-events: none;
   user-select: none;
   z-index: 1;
 }
 
-/* ✅ "GENDARMERIE NATIONALE" aligné avec le logo MI (même hauteur) */
 .sheet-gn-title{
   position: absolute;
-  top: 18px;               /* ✅ même valeur que .sheet-mi-logo */
+  top: 18px;
   left: 50%;
   transform: translateX(-50%);
   margin: 0;
@@ -495,7 +477,6 @@
   z-index: 2;
 }
 
-/* Assure que le contenu passe “au-dessus” si jamais ça se chevauche */
 .sheet-cover__header,
 .sheet-meta,
 .sheet-summary,
@@ -504,16 +485,12 @@
   z-index: 2;
 }
 
-/* =========================
-   ✅ PRINT : rendu identique à la preview
-   ========================= */
 @page{
   size: A4;
-  margin: 0; /* on enlève les marges par défaut du navigateur */
+  margin: 0;
 }
 
 @media print{
-  /* virer l’UI et n’imprimer que le document */
   header.fr-header,
   .studio-panel,
   #photosPreviewSection,
@@ -522,7 +499,6 @@
     display: none !important;
   }
 
-  /* fond blanc partout + pas de marge navigateur */
   html, body{
     margin: 0 !important;
     padding: 0 !important;
@@ -536,21 +512,19 @@
     box-shadow: none !important;
   }
 
-  /* ✅ la page doit remplir la feuille (sinon ça “rétrécit au centre”) */
     .sheet-page{
     width: 210mm !important;
     min-height: 297mm !important;
     margin: 0 !important;
     padding: 15mm !important;
-    box-sizing: border-box !important; /* ✅ LE FIX FIREFOX */
-    max-width: none !important;        /* ✅ pas de contrainte “min/max” */
+    box-sizing: border-box !important;
+    max-width: none !important;
     box-shadow: none !important;
     page-break-after: always;
   }
 
   .sheet-page:last-child{ page-break-after: auto; }
 
-  /* éviter que Chrome “shrink-to-fit” */
   *{
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
@@ -576,46 +550,40 @@
   background: var(--background-default-grey);
 }
 
-/* ✅ Modale éditeur : réduire paddings haut/bas */
 .studio-modal-content{
   padding-top: .5rem !important;
-  padding-bottom: .75rem !important; /* réduit l'espace vide en bas */
+  padding-bottom: .75rem !important;
 }
 
-/* réduit aussi l’air interne du body DSFR */
 #photo-editor .fr-modal__body{
   padding-bottom: .75rem !important;
 }
 
-/* ✅ Descend davantage le titre */
 .studio-modal-title{
-  margin-top: 1rem !important;   /* augmente si tu veux encore plus */
+  margin-top: 1rem !important;
   margin-bottom: .5rem !important;
 }
 
-/* Header de la modale : titre + fermer sur la même ligne */
 #photo-editor .studio-modal-head{
   display:flex;
   align-items:center;
   justify-content:space-between;
   gap:1rem;
-  padding: .75rem 1rem;      /* réduit l’espace en haut */
+  padding: .75rem 1rem;
 }
 
-/* Le titre ne doit pas rajouter de marges */
+
 #photo-editor .studio-modal-title{
   margin: 0;
 }
 
-/* On réduit le padding inutile du contenu */
 #photo-editor .studio-modal-content{
   padding-top: .5rem;
-  padding-bottom: .75rem;    /* réduit le bas */
+  padding-bottom: .75rem;
 }
 
-/* ✅ Page de présentation : aérer entre Date/Lieu et Infraction */
 #view-presentation .studio-infra-gap{
-  margin-top: .5rem; /* ajuste à .25rem / .75rem si besoin */
+  margin-top: .5rem;
 }
 
 .studio-video-thumb-grid{
@@ -656,30 +624,23 @@
   }
 }
 
-/* =========================
-   MODE VIDÉO : on masque la barre menu DSFR
-   ========================= */
 body.studio-video-mode #fr-btn-menu{
-  display: none !important; /* cache le bouton "Menu" (hamburger) */
+  display: none !important;
 }
 
 body.studio-video-mode #fr-header-menu-modal{
-  display: none !important; /* cache la barre/zone de menu */
+  display: none !important;
 }
 
-/* =========================
-   MODE VIDÉO (nettoyé, sans doublons)
-   ========================= */
 body.studio-video-mode .studio-preview-panel{
-  display: none !important; /* ✅ on enlève la colonne de droite */
+  display: none !important;
 }
 
 body.studio-video-mode .studio-shell{
-  grid-template-columns: 1fr !important; /* ✅ une seule colonne */
-  gap: 1rem !important;                  /* rendu “app” */
+  grid-template-columns: 1fr !important;
+  gap: 1rem !important;
 }
 
-/* Le contenu du mode vidéo reste "dans la largeur app" et centré */
 body.studio-video-mode #view-video .studio-panel__body{
   padding: 1.5rem;
 }
@@ -687,17 +648,15 @@ body.studio-video-mode #view-video .studio-panel__body{
 body.studio-video-mode .studio-video-stage{
   max-width: 980px;
   margin-left: auto;
-  margin-right: auto; /* ✅ centre le conteneur entier */
+  margin-right: auto;
   width: 100%;
 }
 
-/* Player pas trop grand, confortable pour la timeline */
 .studio-video-player{
   border: 1px solid var(--border-default-grey);
   background: #000;
 }
 
-/* ✅ Panel en colonne + footer collé en bas */
 .studio-panel{
   display: flex;
   flex-direction: column;
@@ -712,21 +671,15 @@ body.studio-video-mode .studio-video-stage{
   border-top: 1px solid var(--border-default-grey);
   background: var(--background-default-grey);
   display: flex;
-  justify-content: flex-end; /* ✅ bas droite */
+  justify-content: flex-end;
 }
 
-/* =========================
-   MODE VIDÉO : import à gauche + dropzone centrée comme Conception
-   ========================= */
-
-/* ✅ Mode vidéo : bloc Import (titre + input) même largeur que la colonne Conception */
 body.studio-video-mode .studio-video-import-left{
-  width: min(100%, 460px);   /* ✅ comme ta colonne gauche (max 460px) */
-  margin-left: 0;            /* ✅ collé à gauche */
+  width: min(100%, 460px);
+  margin-left: 0;
   margin-right: auto;
 }
 
-/* ✅ On garde le dropzone centré (déjà présent chez toi, je te le remets propre) */
 #videoDropzone{
   border: 2px dashed var(--border-default-grey);
   border-radius: 8px;
@@ -738,53 +691,46 @@ body.studio-video-mode .studio-video-import-left{
   text-align: center;
 }
 
-/* ✅ Centre le champ fichier (Parcourir + texte) dans la zone */
 #videoDropzone .studio-video-file-center{
   display: flex;
   justify-content: center;
 }
 
-/* ✅ Empêche l’input de prendre toute la largeur (sinon il se colle à gauche) */
 #videoDropzone .studio-video-file-center .fr-upload{
   width: auto;
   max-width: 100%;
   display: block;
 }
 
-/* ✅ Player strict 16:9 (1920×1080) */
 body.studio-video-mode .studio-video-player{
-  aspect-ratio: 16 / 9;      /* <- le point clé */
+  aspect-ratio: 16 / 9;
   width: 100%;
-  max-width: 980px;          /* garde ta largeur “app” (ajuste si tu veux) */
+  max-width: 980px;
   margin: 0 auto;
   background: #000;
   border: 1px solid var(--border-default-grey);
   overflow: hidden;
 }
 
-/* le <video> remplit exactement le cadre 16:9 */
 body.studio-video-mode .studio-video-player > video{
   width: 100%;
   height: 100%;
   display: block;
-  object-fit: contain;       /* pas de crop */
+  object-fit: contain;
   background: #000;
 }
 
-/* ✅ Centrage “réel” du champ fichier dans la dropzone DSFR */
 #videoDropzone .studio-video-file-center{
   display: flex;
   justify-content: center;
 }
 
-/* DSFR met souvent width:100% sur .fr-upload -> on force un width “contenu” */
 #videoDropzone #videoInput.fr-upload{
-  width: fit-content !important;   /* ✅ le champ se réduit à son contenu */
+  width: fit-content !important;
   max-width: 100% !important;
   display: inline-block !important;
 }
 
-/* (optionnel) si ton navigateur ignore fit-content sur input file */
 @supports not (width: fit-content){
   #videoDropzone #videoInput.fr-upload{
     width: auto !important;
@@ -807,7 +753,7 @@ body.studio-video-mode .studio-video-player > video{
     Ouvrir l’éditeur photo
   </button>
 
-  <!-- HEADER (GoFast) conservé, menu renommé -->
+  <!-- HEADER -->
   <header role="banner" class="fr-header">
   <div class="fr-header__body">
     <div class="fr-container">
@@ -843,7 +789,7 @@ body.studio-video-mode .studio-video-player > video{
           </div>
         </div>
 
-        <!-- ✅ Tools à droite (comme GoFast) -->
+        <!-- BOUTONS HEADER -->
         <div class="fr-header__tools">
           <div class="fr-header__tools-links">
             <ul class="fr-btns-group">
@@ -881,14 +827,13 @@ body.studio-video-mode .studio-video-player > video{
     </div>
   </div>
 
-  <!-- ✅ MENU DSFR “rangé” (bandeau nav) -->
+  <!-- MENU DSFR -->
   <div class="fr-header__menu fr-modal" id="fr-header-menu-modal" aria-labelledby="fr-btn-menu">
     <div class="fr-container">
       <button class="fr-btn--close fr-btn" aria-controls="fr-header-menu-modal" title="Fermer" type="button">
         Fermer
       </button>
 
-      <!-- (facultatif mais DSFR aime bien l’avoir) -->
       <div class="fr-header__menu-links"></div>
 
       <nav class="fr-nav studio-nav-split" role="navigation" aria-label="Menu principal">
@@ -905,9 +850,9 @@ body.studio-video-mode .studio-video-player > video{
   <main class="fr-container fr-py-3w studio-main">
 
     <div class="studio-shell">
-      <!-- COLONNE GAUCHE (vue) -->
+  <!-- COLONNE GAUCHE -->
 <div>
-  <!-- VUE CONCEPTION : 1 -->
+  <!-- VUE CONCEPTION -->
    <section id="view-video" class="studio-view">
       <aside class="studio-panel">
         <div class="studio-panel__head">
@@ -917,7 +862,7 @@ body.studio-video-mode .studio-video-player > video{
         <div class="studio-panel__body">
           <div class="studio-video-stage">
 
-            <!-- ✅ Import (à gauche) + dropzone (centrée) -->
+            <!-- IMPORT VIDEO -->
            <section id="videoImportSection" class="fr-mb-4w">
             <div class="studio-video-import-left">
               <h2 class="fr-h6">Import de la vidéo</h2>
@@ -947,7 +892,7 @@ body.studio-video-mode .studio-video-player > video{
             <p class="fr-text--xs fr-mt-1w fr-mb-0" id="videoStatusText">Aucune vidéo importée.</p>
           </section>
 
-            <!-- ✅ Workspace : le player remplace l’import dès qu’une vidéo est chargée -->
+            <!-- WORKSPACE VIDEO -->
             <section id="videoWorkspace" hidden>
               <div class="studio-video-player fr-mb-3w">
                 <video id="videoPreview" controls></video>
@@ -957,7 +902,6 @@ body.studio-video-mode .studio-video-player > video{
               <h2 class="fr-h6">Mode de capture</h2>
 
               <div class="fr-toggle fr-toggle--sm studio-capture-toggle">
-                <!-- ✅ coché = automatique -->
                 <input type="checkbox" class="fr-toggle__input" id="captureModeToggle" checked>
                 <label class="fr-toggle__label" for="captureModeToggle" id="captureModeToggleLabel">
                   Mode automatique
@@ -1050,7 +994,7 @@ body.studio-video-mode .studio-video-player > video{
     </aside>
   </section>
 
-  <!-- VUE PAGE DE PRÉSENTATION : 2 + 3 -->
+  <!-- VUE PAGE DE PRÉSENTATION -->
   <section id="view-presentation" class="studio-view">
     <aside class="studio-panel" id="page-presentation">
       <div class="studio-panel__head">
@@ -1165,7 +1109,7 @@ body.studio-video-mode .studio-video-player > video{
     </aside>
   </section>
 
-  <!-- VUE EXPORT : 4 -->
+  <!-- VUE EXPORT -->
   <section id="view-export" class="studio-view">
     <aside class="studio-panel" id="export">
       <div class="studio-panel__head">
@@ -1214,7 +1158,7 @@ body.studio-video-mode .studio-video-player > video{
   </section>
 </div>
 
-      <!-- COLONNE DROITE (preview unique, pas d'IDs dupliqués) -->
+      <!-- COLONNE DROITE -->
       <section class="studio-preview-panel">
         <div class="studio-preview-panel__head">
           <div class="fr-grid-row fr-grid-row--middle fr-grid-row--gutters">
@@ -1404,7 +1348,7 @@ body.studio-video-mode .studio-video-player > video{
         file: null,
         objectUrl: '',
         duration: 0,
-        captureMode: 'auto', // auto | manual
+        captureMode: 'auto',
         manualCaptures: []
       }
     };
@@ -1471,7 +1415,7 @@ body.studio-video-mode .studio-video-player > video{
 
     };
 
-        // ======== Photo Editor (canvas) ========
+        // EDITEUR PHOTO
     const editor = {
       dialog: document.getElementById('photo-editor'),
       canvas: document.getElementById('editorCanvas'),
@@ -1493,15 +1437,14 @@ body.studio-video-mode .studio-video-player > video{
       ctx: null,
       photoId: null,
 
-      // Image source "de départ" pour l’éditeur (on ne touche pas à l’original tant qu’on n’applique pas)
       img: new Image(),
       baseUrl: '',
       baseW: 0,
       baseH: 0,
 
-      tool: 'adjust', // adjust | crop | circle | arrow
-      cropRect: null, // {x,y,w,h} en coords image
-      shapes: [],     // [{type:'circle'|'arrow', ...} coords image]
+      tool: 'adjust',
+      cropRect: null,
+      shapes: [],
 
       dragging: false,
       dragStart: null
@@ -1536,8 +1479,6 @@ body.studio-video-mode .studio-video-player > video{
       const c = Number(editor.adjContrast?.value || 0);
       const s = Number(editor.adjSaturation?.value || 0);
 
-      // CSS filter: brightness/contrast/saturate en %
-      // 0 => neutre (100%)
       const brightness = 100 + b;
       const contrast   = 100 + c;
       const saturate   = 100 + s;
@@ -1549,7 +1490,6 @@ body.studio-video-mode .studio-video-player > video{
       const ctx = editor.ctx;
       if (!ctx || !editor.baseW || !editor.baseH) return;
 
-      // Canvas = même taille que l’image (simple et fiable)
       editor.canvas.width  = editor.baseW;
       editor.canvas.height = editor.baseH;
 
@@ -1559,8 +1499,6 @@ body.studio-video-mode .studio-video-player > video{
       ctx.drawImage(editor.img, 0, 0, editor.baseW, editor.baseH);
       ctx.filter = 'none';
 
-      // Overlay: crop rectangle (si actif)
-      // Overlay: crop rectangle (uniquement si c'est un vrai rect)
     if (editor.cropRect && !editor.cropRect._tempCircle && !editor.cropRect._tempArrow) {
       ctx.save();
       ctx.strokeStyle = '#e1000f';
@@ -1570,11 +1508,10 @@ body.studio-video-mode .studio-video-player > video{
       ctx.restore();
     }
 
-      // Overlay: annotations
       ctx.save();
       ctx.strokeStyle = '#e1000f';
       ctx.fillStyle = '#e1000f';
-      ctx.lineWidth = 6; // “fin” mais visible en A4, ajuste si besoin
+      ctx.lineWidth = 6;
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
 
@@ -1584,13 +1521,11 @@ body.studio-video-mode .studio-video-player > video{
           ctx.ellipse(sh.cx, sh.cy, Math.abs(sh.rx), Math.abs(sh.ry), 0, 0, Math.PI*2);
           ctx.stroke();
         } else if (sh.type === 'arrow'){
-          // ligne
           ctx.beginPath();
           ctx.moveTo(sh.x1, sh.y1);
           ctx.lineTo(sh.x2, sh.y2);
           ctx.stroke();
 
-          // tête de flèche
           const angle = Math.atan2(sh.y2 - sh.y1, sh.x2 - sh.x1);
           const headLen = 28;
           const a1 = angle - Math.PI/7;
@@ -1619,14 +1554,12 @@ body.studio-video-mode .studio-video-player > video{
       editor.dragging = false;
       editor.dragStart = null;
 
-      // reset sliders
       if (editor.adjBrightness) editor.adjBrightness.value = 0;
       if (editor.adjContrast) editor.adjContrast.value = 0;
       if (editor.adjSaturation) editor.adjSaturation.value = 0;
 
       syncAllEditorOutputs();
 
-      // Base = photo actuelle (si déjà éditée, on ré-édite dessus)
       editor.baseUrl = photo.objectUrl;
 
       editor.img = new Image();
@@ -1644,11 +1577,9 @@ body.studio-video-mode .studio-video-player > video{
     }
 
     function editorClose(){
-      // ✅ fermer “à la DSFR” (comme le bouton Fermer de la modale)
       const closeBtn = editor.dialog?.querySelector('.fr-btn--close[aria-controls="photo-editor"]');
       if (closeBtn) closeBtn.click();
 
-      // ✅ sécurité : reset état du contrôleur
       const opener = document.getElementById('photo-editor-opener');
       if (opener) opener.setAttribute('data-fr-opened', 'false');
 
@@ -1736,7 +1667,6 @@ body.studio-video-mode .studio-video-player > video{
 
         renderAll();
       } finally {
-        // ✅ ferme quoi qu’il arrive (même si return plus haut)
         editorClose();
       }
     }
@@ -1767,7 +1697,6 @@ body.studio-video-mode .studio-video-player > video{
       return {x,y};
     }
 
-    // Canvas interactions
     editor.canvas?.addEventListener('mousedown', (e) => {
       if (!editor.photoId) return;
       const p = editorCanvasPoint(e);
@@ -1778,7 +1707,6 @@ body.studio-video-mode .studio-video-player > video{
         editor.cropRect = { x: p.x, y: p.y, w: 0, h: 0 };
       }
       if (editor.tool === 'circle'){
-        // on stocke “temp” via cropRect pour prévisualiser
         editor.cropRect = { x: p.x, y: p.y, w: 0, h: 0, _tempCircle:true };
       }
       if (editor.tool === 'arrow'){
@@ -1800,12 +1728,10 @@ body.studio-video-mode .studio-video-player > video{
       } else if (editor.tool === 'circle'){
         editor.cropRect = { x, y, w, h, _tempCircle:true };
       } else if (editor.tool === 'arrow'){
-        // pour arrow on garde start/end dans cropRect
         editor.cropRect = { x1: editor.dragStart.x, y1: editor.dragStart.y, x2: p.x, y2: p.y, _tempArrow:true };
       }
       editorRedraw();
 
-      // dessine preview circle/arrow
       const ctx = editor.ctx;
       if (editor.cropRect?._tempCircle){
         ctx.save();
@@ -1841,7 +1767,6 @@ body.studio-video-mode .studio-video-player > video{
       editor.dragging = false;
       const p = editorCanvasPoint(e);
 
-      // finalize circle / arrow
       if (editor.tool === 'circle' && editor.cropRect?._tempCircle){
         const r = editor.cropRect;
         const cx = r.x + r.w/2, cy = r.y + r.h/2, rx = r.w/2, ry = r.h/2;
@@ -1859,7 +1784,7 @@ body.studio-video-mode .studio-video-player > video{
       }
     });
 
-    // controls events
+    // CONTROLS EVENTS
     [editor.adjBrightness, editor.adjContrast, editor.adjSaturation].forEach(el => {
       el?.addEventListener('input', () => {
         syncAllEditorOutputs();
@@ -2000,7 +1925,6 @@ body.studio-video-mode .studio-video-player > video{
 
       const isVideo = isVideoViewHash();
 
-      // ✅ Retire proprement toute icône DSFR sur ce bouton
       Array.from(btn.classList).forEach((cls) => {
         if (cls.startsWith("fr-icon-") && cls.endsWith("-line")) {
           btn.classList.remove(cls);
@@ -2008,10 +1932,10 @@ body.studio-video-mode .studio-video-player > video{
       });
 
       if (isVideo) {
-        btn.classList.add("fr-icon-clapperboard-line"); // ✅ icône vidéo DSFR
+        btn.classList.add("fr-icon-clapperboard-line");
         btn.textContent = "Mode vidéo";
       } else {
-        btn.classList.add("fr-icon-camera-line"); // ✅ icône photo DSFR
+        btn.classList.add("fr-icon-camera-line");
         btn.textContent = "Mode photo";
       }
     }
@@ -2070,7 +1994,7 @@ body.studio-video-mode .studio-video-player > video{
     }
 
     function syncCaptureModeToggleUI(){
-      const isAuto = !!els.captureModeToggle?.checked; // ✅ coché = auto
+      const isAuto = !!els.captureModeToggle?.checked;
 
       if (els.captureModeToggleLabel) {
         els.captureModeToggleLabel.textContent = isAuto ? "Mode automatique" : "Mode manuel";
@@ -2082,12 +2006,10 @@ body.studio-video-mode .studio-video-player > video{
     function loadVideoFile(file) {
       if (!file) return;
 
-      // Nettoie l’ancienne vidéo
       if (state.video.objectUrl) {
         URL.revokeObjectURL(state.video.objectUrl);
       }
 
-      // Nettoie les captures manuelles existantes (URLs)
       state.video.manualCaptures.forEach(capture => {
         if (capture.objectUrl) URL.revokeObjectURL(capture.objectUrl);
         if (capture.thumbUrl) URL.revokeObjectURL(capture.thumbUrl);
@@ -2176,7 +2098,6 @@ body.studio-video-mode .studio-video-player > video{
       const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
       const target = clamp(Number(timeInSeconds) || 0, 0, video.duration || Number(timeInSeconds) || 0);
 
-      // On évite les soucis pendant la lecture
       try { video.pause(); } catch (e) {}
 
       const doCapture = async () => {
@@ -2211,13 +2132,11 @@ body.studio-video-mode .studio-video-player > video{
         };
       };
 
-      // ✅ Si on est déjà “au bon endroit”, on capture sans attendre seeked
       if (Math.abs((video.currentTime || 0) - target) < 0.05) {
         await new Promise(res => requestAnimationFrame(() => res()));
         return await doCapture();
       }
 
-      // Sinon on seek et on capture au 'seeked'
       return await new Promise((resolve) => {
         const onSeeked = async () => {
           try {
@@ -2336,7 +2255,6 @@ body.studio-video-mode .studio-video-player > video{
         const editBtn = node.querySelector('.edit-photo-btn');
         const removeBtn = node.querySelector('.remove-photo-btn');
 
-        // ✅ Empêche le drag de casser le double-clic / la sélection dans les champs
         [titleInput, descTextarea].forEach(el => {
           el.addEventListener('mousedown', (e) => {
             e.stopPropagation();
@@ -2356,13 +2274,12 @@ body.studio-video-mode .studio-video-player > video{
         img.src = photo.thumbUrl || photo.objectUrl;
         img.alt = photo.title || '';
 
-        // Valeurs
         titleInput.value = state.numbering ? `Cliché N° ${index + 1}` : (photo.title || '');
         titleInput.disabled = state.numbering;
         descTextarea.value = photo.description || '';
         meta.textContent = `${index + 1} · ${photo.sizeLabel}`;
 
-        // Events
+        // EVENTS
         titleInput.addEventListener('input', (e) => {
           if (state.numbering) return;
           photo.title = e.target.value;
@@ -2380,7 +2297,6 @@ body.studio-video-mode .studio-video-player > video{
         editBtn?.addEventListener('click', () => editorOpen(photo.id));
         removeBtn.addEventListener('click', () => removePhoto(photo.id));
 
-        /* Drag & drop */
         node.setAttribute('draggable', 'true');
         node.dataset.photoId = photo.id;
 
@@ -2556,38 +2472,34 @@ body.studio-video-mode .studio-video-player > video{
       const isExportView = (hash === "#export");
       const isConceptionView = (!isVideoView && !isPresentationView && !isExportView);
 
-      // ✅ Texte d'aide différent selon la page
       if (els.previewHintText) {
-  if (isConceptionView) {
-    els.previewHintText.textContent =
-      "Grille des clichés et mise en page (ordre, éditeur, nom et description). Attrapez et glissez pour changer l'ordre sur la grille.";
-  } else if (isVideoView) {
-    els.previewHintText.textContent =
-      "Les captures issues du mode vidéo viendront s’ajouter à la grille photo.";
-  } else if (isPresentationView) {
-    els.previewHintText.textContent =
-      "Prévisualisation des renseignements de la page de présentation.";
-  } else if (isExportView) {
-    els.previewHintText.textContent =
-      "Prévisualisation du rendu final de la planche photographique.";
-  }
-}
+      if (isConceptionView) {
+        els.previewHintText.textContent =
+          "Grille des clichés et mise en page (ordre, éditeur, nom et description). Attrapez et glissez pour changer l'ordre sur la grille.";
+      } else if (isVideoView) {
+        els.previewHintText.textContent =
+          "Les captures issues du mode vidéo viendront s’ajouter à la grille photo.";
+      } else if (isPresentationView) {
+        els.previewHintText.textContent =
+          "Prévisualisation des renseignements de la page de présentation.";
+      } else if (isExportView) {
+        els.previewHintText.textContent =
+          "Prévisualisation du rendu final de la planche photographique.";
+      }
+    }
       
       if (els.pageCounterWrap) els.pageCounterWrap.style.display = (isConceptionView || isVideoView) ? "none" : "";
 
-      // ✅ Sections UI
       const photosSection = document.getElementById("photosPreviewSection");
       if (photosSection) photosSection.style.display = (isConceptionView || isVideoView) ? "" : "none";
 
       const docSection = document.getElementById("documentPreviewSection");
       if (docSection) docSection.style.display = (isConceptionView || isVideoView) ? "none" : "";
 
-      // ✅ Toggle numérotation : visible uniquement en conception
       if (els.numberingToggleWrap) {
         els.numberingToggleWrap.style.display = isConceptionView ? "" : "none";
       }
 
-      // ✅ Conception : pas de document généré (page trop longue)
       if (isConceptionView || isVideoView) {
         els.pageCounter.textContent = "—";
         return;
@@ -2596,9 +2508,9 @@ body.studio-video-mode .studio-video-player > video{
       const form = getFormData();
 
       if (isExportView) {
-        els.previewPages.innerHTML = buildFullDocumentHtml(); // garde + photos
+        els.previewPages.innerHTML = buildFullDocumentHtml();
       } else {
-        els.previewPages.innerHTML = buildCoverPageHtml(form); // garde only
+        els.previewPages.innerHTML = buildCoverPageHtml(form);
       }
 
       const totalPages = els.previewPages.querySelectorAll(".sheet-page").length;
@@ -2662,13 +2574,11 @@ body{margin:0;padding:24px;background:#efefef;font-family:Marianne,Arial,sans-se
 .sheet-map-pin__svg path{fill:#e1000f;}
 .sheet-map-pin__svg circle{fill:#ffffff;}
 .sheet-photo-slot{width:100%;border:1px solid #d6d6d6;border-radius:0;padding:1rem;background:#fff;box-sizing:border-box}.sheet-photo-slot+.sheet-photo-slot{margin-top:2.2rem}.sheet-photo-slot.right{margin-left:auto;max-width:82%}.sheet-photo-slot.left{margin-right:auto;max-width:82%}.sheet-photo-slot img{width:100%;max-height:400px;object-fit:contain;display:block;background:#f8f8f8;border-radius:0}.sheet-photo-slot__caption{font-size:1rem;font-weight:700;margin-top:.75rem;text-align:center;word-break:break-word}.sheet-photo-slot__desc{margin-top:.35rem;text-align:center;font-size:.95rem;font-weight:400;white-space:pre-wrap;word-break:break-word}
-/* ✅ Ne jamais couper un cliché sur 2 pages à l'impression */
 .sheet-photo-slot{
   break-inside: avoid;
   page-break-inside: avoid;
 }
 
-/* Bonus : certains navigateurs sont plus stables si l'image aussi est protégée */
 .sheet-photo-slot img,
 .sheet-photo-slot__caption,
 .sheet-photo-slot__desc{
@@ -2676,50 +2586,41 @@ body{margin:0;padding:24px;background:#efefef;font-family:Marianne,Arial,sans-se
   page-break-inside: avoid;
 }
 
-/* ✅ Et en mode print on force (certains Chrome/Edge sont capricieux) */
 @media print{
   .sheet-photo-slot{
     break-inside: avoid !important;
     page-break-inside: avoid !important;
   }
 }
-  /* ✅ Par défaut : comportement "avant" (sans description) */
 .sheet-photo-slot.no-desc{
-  padding-bottom: 1rem; /* comme avant, compact */
+  padding-bottom: 1rem;
 }
 
-/* Le titre ne doit pas créer trop d’air si pas de description */
 .sheet-photo-slot.no-desc .sheet-photo-slot__caption{
-  margin-top: .75rem; /* garde le rendu d'origine */
-  margin-bottom: 0;   /* ✅ pas d’espace fantôme */
+  margin-top: .75rem;
+  margin-bottom: 0;
 }
 
-/* ✅ Quand il y a une description, on gère l’espacement proprement */
 .sheet-photo-slot.has-desc .sheet-photo-slot__caption{
-  margin-bottom: 0; /* évite double marge caption + desc */
+  margin-bottom: 0;
 }
 .sheet-photo-slot.has-desc .sheet-photo-slot__desc{
-  margin-top: .35rem; /* ton réglage actuel, OK */
+  margin-top: .35rem;
 }
-/* Espace par défaut entre les 2 clichés */
 .sheet-photo-slot + .sheet-photo-slot{ margin-top: 2.2rem; }
 
-/* ✅ Si au moins un des 2 clichés n'a pas de description, on aère plus */
 .sheet-photo-slot.no-desc + .sheet-photo-slot,
 .sheet-photo-slot + .sheet-photo-slot.no-desc{
   margin-top: 4rem;
 }
 .empty-state{border:1px dashed #c6c6c6;border-radius:0;padding:2rem 1rem;text-align:center;color:#666;background:#fff;margin-top:4rem}
-/* =========================
-   ✅ PRINT : rendu identique à la preview
-   ========================= */
+
 @page{
   size: A4;
-  margin: 0; /* on enlève les marges par défaut du navigateur */
+  margin: 0;
 }
 
 @media print{
-  /* virer l’UI et n’imprimer que le document */
   header.fr-header,
   .studio-panel,
   #photosPreviewSection,
@@ -2728,7 +2629,6 @@ body{margin:0;padding:24px;background:#efefef;font-family:Marianne,Arial,sans-se
     display: none !important;
   }
 
-  /* fond blanc partout + pas de marge navigateur */
   html, body{
     margin: 0 !important;
     padding: 0 !important;
@@ -2742,21 +2642,19 @@ body{margin:0;padding:24px;background:#efefef;font-family:Marianne,Arial,sans-se
     box-shadow: none !important;
   }
 
-  /* ✅ la page doit remplir la feuille (sinon ça “rétrécit au centre”) */
     .sheet-page{
     width: 210mm !important;
     min-height: 297mm !important;
     margin: 0 !important;
     padding: 15mm !important;
-    box-sizing: border-box !important; /* ✅ LE FIX FIREFOX */
-    max-width: none !important;        /* ✅ pas de contrainte “min/max” */
+    box-sizing: border-box !important;
+    max-width: none !important;
     box-shadow: none !important;
     page-break-after: always;
   }
 
   .sheet-page:last-child{ page-break-after: auto; }
 
-  /* éviter que Chrome “shrink-to-fit” */
   *{
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
@@ -2791,15 +2689,17 @@ ${buildFullDocumentHtml(photoSrcOverrides, mapSrcOverride)}
         .replace(/^-+|-+$/g, '') || 'planche-photographique';
     }
 
+    // COMPRESSION DU FICHIER EXPORT
+
     function getCompressionSettings(level){
       switch(level){
-        case 'low':      // faible = qualité haute
+        case 'low':
           return { maxSize: 1800, quality: 0.78 };
 
-        case 'high':     // forte = extrême (type iLovePDF)
+        case 'high':
           return { maxSize: 1000, quality: 0.40 };
 
-        case 'medium':   // recommandée (défaut)
+        case 'medium':
         default:
           return { maxSize: 1400, quality: 0.60 };
       }
@@ -2825,7 +2725,7 @@ ${buildFullDocumentHtml(photoSrcOverrides, mapSrcOverride)}
   bitmap.close();
 
   const outBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', settings.quality));
-  return outBlob || blob; // fallback sécurité
+  return outBlob || blob;
 }
 
     async function compressImageUrlToDataUrl(url, settings){
@@ -2858,7 +2758,6 @@ ${buildFullDocumentHtml(photoSrcOverrides, mapSrcOverride)}
       }
 
       try {
-        // on embarque les images en dataURL (offline OK)
         const settings = getCompressionSettings('medium');
         const overrides = {};
 
@@ -2868,7 +2767,6 @@ ${buildFullDocumentHtml(photoSrcOverrides, mapSrcOverride)}
           overrides[p.id] = await compressImageUrlToDataUrl(p.objectUrl, settings);
         }
 
-        // carte (si présente) -> dataURL aussi
         let mapOverride = null;
         if (state.mapDataUrl) {
           if (els.generateBtn) els.generateBtn.textContent = 'HTML (carte)...';
@@ -2889,14 +2787,12 @@ ${buildFullDocumentHtml(photoSrcOverrides, mapSrcOverride)}
     const level = els.exportCompression?.value || 'medium';
     const settings = getCompressionSettings(level);
 
-    // UI
     const prevTxt = els.generateBtn?.textContent || '';
     if (els.generateBtn) {
       els.generateBtn.disabled = true;
       els.generateBtn.textContent = 'Préparation du PDF...';
     }
 
-    // On crée des blob URLs temporaires pour le HTML imprimé
     const tempUrls = [];
     const overrides = {};
 
@@ -2904,7 +2800,6 @@ ${buildFullDocumentHtml(photoSrcOverrides, mapSrcOverride)}
       for (let i = 0; i < state.photos.length; i++) {
         const p = state.photos[i];
 
-        // petit feedback
         if (els.generateBtn) els.generateBtn.textContent = `Compression (${i+1}/${state.photos.length})...`;
 
         const compressedBlob = await compressImageUrlToBlob(p.objectUrl, settings);
@@ -2920,11 +2815,10 @@ ${buildFullDocumentHtml(photoSrcOverrides, mapSrcOverride)}
       }
 
       popup.document.open();
-      popup.document.write(buildStandaloneHtml(overrides)); // ✅ HTML avec images compressées
+      popup.document.write(buildStandaloneHtml(overrides));
       popup.document.close();
       popup.focus();
 
-      // Nettoyage après impression
       const cleanup = () => {
         tempUrls.forEach(u => URL.revokeObjectURL(u));
         try { popup.close(); } catch (e) {}
@@ -2935,7 +2829,6 @@ ${buildFullDocumentHtml(photoSrcOverrides, mapSrcOverride)}
       popup.onload = () => {
         popup.print();
 
-        // fallback si onafterprint ne déclenche pas
         setTimeout(() => {
           cleanup();
         }, 5000);
@@ -2966,25 +2859,21 @@ ${buildFullDocumentHtml(photoSrcOverrides, mapSrcOverride)}
     }
     state.mapObjectUrl = '';
 
-  // 1) Etat application
   state.photos = [];
   state.mapDataUrl = '';
   state.pin = null;
   state.numbering = true;
   if (els.numberingToggle) els.numberingToggle.checked = true;
 
-  // 2) Inputs fichiers
   if (els.photoInput) els.photoInput.value = '';
   if (els.mapInput) els.mapInput.value = '';
 
-  // 3) Formulaire page de présentation
   const fields = [
     els.presetTitle, els.customTitle, els.caseTypeField, els.unitField, els.referenceField,
     els.dateField, els.placeField, els.authorField, els.summaryField
   ];
   fields.forEach(el => { if (el) el.value = ''; });
 
-  // 4) UI carte
   if (els.mapImage) els.mapImage.src = '';
   if (els.mapCanvas) els.mapCanvas.hidden = true;
   if (els.mapPin) els.mapPin.hidden = true;
@@ -3017,14 +2906,13 @@ ${buildFullDocumentHtml(photoSrcOverrides, mapSrcOverride)}
   updateManualCaptureCount();
   renderManualCaptureGrid();
 
-  // 5) Retour au début + re-render
-  location.hash = '#conception'; // revient au point de départ (mode photo)
+  location.hash = '#conception';
   renderAll();
   }
 
 els.resetBtn?.addEventListener('click', resetAll);
 
-    /* Events */
+    /* EVENTS */
     els.photoInput.addEventListener('change', (e) => {
       addPhotos(e.target.files);
       e.target.value = '';
@@ -3049,10 +2937,8 @@ els.resetBtn?.addEventListener('click', resetAll);
       state.numbering = checked;
 
       if (checked) {
-        // ✅ on force la numérotation
         applyNumbering();
       } else {
-        // ✅ on vide uniquement les titres auto "Cliché N°X"
         state.photos.forEach(p => {
           if (isAutoTitle(p.title)) p.title = '';
         });
@@ -3084,7 +2970,7 @@ els.resetBtn?.addEventListener('click', resetAll);
       }
 
       state.mapObjectUrl = URL.createObjectURL(file);
-      state.mapDataUrl = state.mapObjectUrl; // on garde le même nom dans le reste du code
+      state.mapDataUrl = state.mapObjectUrl;
       els.mapImage.src = state.mapObjectUrl;
       els.mapCanvas.hidden = false;
       state.pin = null;
@@ -3100,7 +2986,7 @@ els.resetBtn?.addEventListener('click', resetAll);
     els.generateBtn.addEventListener('click', handleGenerate);
 
     els.exportFormat?.addEventListener('change', updatePdfCompressionVisibility);
-    updatePdfCompressionVisibility(); // au chargement
+    updatePdfCompressionVisibility();
 
     els.videoInput?.addEventListener('change', (e) => {
       const file = e.target.files?.[0];
@@ -3141,7 +3027,6 @@ els.resetBtn?.addEventListener('click', resetAll);
     els.sendManualCapturesBtn?.addEventListener('click', sendManualCapturesToPhotos);
     els.modeToggleBtn?.addEventListener("click", togglePhotoVideoMode);
 
-    /* Navigation mono-fichier */
     function setViewFromHash(){
       const hash = (location.hash || "#conception").toLowerCase();
 
@@ -3164,7 +3049,7 @@ els.resetBtn?.addEventListener('click', resetAll);
 
       if (showExport) {
         if (els.exportCompression) els.exportCompression.value = "medium";
-        updatePdfCompressionVisibility(); // affiche/masque selon PDF
+        updatePdfCompressionVisibility();
       }
 
       document.body.classList.toggle("studio-video-mode", showVideo);
@@ -3181,7 +3066,6 @@ els.resetBtn?.addEventListener('click', resetAll);
 
     window.addEventListener("hashchange", setViewFromHash);
 
-    // Init vidéo : le toggle pilote tout
     syncCaptureModeToggleUI();
     updateManualCaptureCount();
     renderManualCaptureGrid();
